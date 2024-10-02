@@ -1,22 +1,33 @@
 @use 'variable' as *;
 
-:root {
+body {
   line-height: 1.5;
   font-weight: 500;
-  /*color-scheme: light dark;*/
+  color-scheme: light;
   color: $color_text;
+  background-color: $color_white_text;
   font-size: $size_default;
   @media (max-width: 376px) {
     font-size: $radius_medium - 1;
   }
 }
 
+:root {
+  --app-background: $color_white_text;
+  --app-text-color: $color_text;
+}
+
+html {
+  background-color: var(--app-background);
+  color: var(--app-text-color);
+}
+
 h1 {
   font-weight: 700;
-  font-size: $size_big;
+  font-size: $size_big - 2;
   line-height: 2.5;
-  @media (max-width: 376px) {
-    font-size: $size_big - 4;
+  @media (max-width: 383px) {
+    font-size: $size_big - 6;
   }
 }
 

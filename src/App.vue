@@ -19,9 +19,13 @@ const layoutComponent = computed(() => {
 </script>
 
 <style lang="scss">
+@use 'styles/variable' as *;
+
 body{
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   #app {
+    color: $color_text;
+    background-color: $color_white_text;
     max-width: 426px;
     margin: 0;
     padding: 50px 40px 20px;
