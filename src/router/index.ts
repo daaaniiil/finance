@@ -42,12 +42,12 @@ const router =  createRouter({
     linkExactActiveClass: 'active'
 })
 
-router.beforeEach(async (to, from, next) => {
-    if(!to.name) {
-        next({ name: 'notfound' })
-        return
-    }
-    next()
-})
+// router.beforeEach(async (to, from, next) => {
+//     if(!to.name) {
+//         next({ name: 'notfound' })
+//         return
+//     }
+//     next()
+// })
 
 export default router
