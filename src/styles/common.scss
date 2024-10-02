@@ -1,0 +1,59 @@
+@use 'variable' as *;
+
+:root {
+  line-height: 1.5;
+  font-weight: 500;
+  /*color-scheme: light dark;*/
+  color: $color_text;
+  font-size: $size_default;
+  @media (max-width: 376px) {
+    font-size: $radius_medium - 1;
+  }
+}
+
+h1 {
+  font-weight: 700;
+  font-size: $size_big;
+  line-height: 2.5;
+  @media (max-width: 376px) {
+    font-size: $size_big - 4;
+  }
+}
+
+strong {
+  font-weight: 700;
+  color: $color_text;
+}
+
+//a {
+//  font-weight: 500;
+//  color: #00a818;
+//  text-decoration: inherit;
+//  &:hover {
+//    color: #005b0d;
+//  }
+//}
+
+//span {
+//  color: $color_main_green;
+//}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+
+.fade-down-enter-active, .fade-down-leave-active {
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.fade-down-enter, .fade-down-leave-to {
+  opacity: 0;
+  transform: translateY(-30px);
+}
+
+.fade-down-enter-to, .fade-down-leave {
+  opacity: 1;
+  transform: translateY(0);
+}

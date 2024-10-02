@@ -1,0 +1,1 @@
+{"root":["./src/main.ts","./src/vite-env.d.ts","./src/router/index.ts","./src/store/index.ts","./src/app.vue","./src/layouts/default/emptylayout.vue","./src/layouts/default/mainlayout.vue","./src/views/mainpage.vue","./src/views/notfounfpage.vue","./src/views/auth/authpage.vue"],"errors":true,"version":"5.6.2"}
