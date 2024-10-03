@@ -1,9 +1,6 @@
 @use 'variable' as *;
 
 body {
-  line-height: 1.5;
-  font-weight: 500;
-  color-scheme: light;
   color: $color_text;
   background-color: $color_white_text;
   font-size: $size_default;
@@ -12,15 +9,6 @@ body {
   }
 }
 
-:root {
-  --app-background: $color_white_text;
-  --app-text-color: $color_text;
-}
-
-html {
-  background-color: var(--app-background);
-  color: var(--app-text-color);
-}
 
 h1 {
   font-weight: 700;
@@ -36,14 +24,15 @@ strong {
   color: $color_text;
 }
 
-//a {
-//  font-weight: 500;
-//  color: #00a818;
-//  text-decoration: inherit;
-//  &:hover {
-//    color: #005b0d;
-//  }
-//}
+a {
+  text-decoration: none;
+  color: $color_text;
+  padding-bottom: 5px;
+  &.active {
+    color: $color_main_green;
+    border-bottom: 2px solid $color_main_green;
+  }
+}
 
 //span {
 //  color: $color_main_green;

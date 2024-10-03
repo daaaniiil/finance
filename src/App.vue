@@ -23,15 +23,14 @@ const layoutComponent = computed(() => {
 
 body{
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  margin: 0;
+  position: fixed;
+  width: 100%;
+  height: 100%;
   #app {
-    color: $color_text;
-    background-color: $color_white_text;
-    max-width: 426px;
-    margin: 0;
-    padding: 50px 40px 20px;
-    @media (max-width: 321px) {
-      padding: 50px 20px 20px;
-    }
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
   }
 }
 </style>

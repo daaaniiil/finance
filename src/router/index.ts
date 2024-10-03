@@ -1,11 +1,11 @@
-import { createRouter,  createWebHistory } from  'vue-router'
+import {createRouter, createWebHistory} from 'vue-router'
 
-const router =  createRouter({
+const router = createRouter({
     history: createWebHistory(),
     routes: [
         {
             path: '/',
-            redirect: '/introduction'
+            redirect: '/auth'
         },
         {
             path: '/main',
@@ -25,9 +25,18 @@ const router =  createRouter({
             }
         },
         {
-            path: '/introduction',
-            name: 'introduction',
-            component: () => import('../views/common/IntroductionPage.vue'),
+            path: '/transaction',
+            name: 'transaction',
+            component: () => import('../views/common/TransactionPage.vue'),
+            meta: {
+                layout: 'main-layout',
+                auth: true
+            }
+        },
+        {
+            path: '/auth',
+            name: 'auth',
+            component: () => import('../views/auth/AuthPage.vue'),
             meta: {
                 layout: 'empty-layout'
             }
