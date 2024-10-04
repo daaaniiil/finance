@@ -1,21 +1,19 @@
 <template>
   <div class="main-layout">
-    <el-container>
+    <el-container class="main-layout__main-container">
       <el-header height="auto">
         <indent-container>
           <div class="main-layout__header">
             <el-row :gutter="20">
-              <el-col :md="12" :lg="20">
+              <el-col :md="12" :lg="3" :xs="12" :sm="6">
                 <img src="../../../public/finance.png" alt="Logo">
                 <p>finance</p>
               </el-col>
-              <el-col :md="12" :lg="4">
-                <router-link :to="{name:'main'}">
-                  Главная
-                </router-link>
-                <router-link :to="{name:'transaction'}">
-                  Транзакции
-                </router-link>
+              <el-col :md="12" :lg="21" :xs="12" :sm="18">
+                <div class="nav-links">
+                  <router-link :to="{name:'main-page'}">Главная</router-link>
+                  <router-link :to="{name:'transaction-page'}">Транзакции</router-link>
+                </div>
               </el-col>
             </el-row>
           </div>
@@ -45,15 +43,14 @@
 <script lang="ts">
 import {defineComponent} from "vue";
 import IndentContainer from "@/components/containers/IndentContainer.vue";
+
 export default defineComponent({
   name: "EmptyLayout",
   components: {IndentContainer},
   setup() {
 
 
-    return {
-
-    }
+    return {}
   }
 })
 </script>
@@ -62,33 +59,24 @@ export default defineComponent({
 @use '../../styles/variable.scss' as *;
 
 .main-layout {
-  &__header {
-    display: flex;
-    align-items: center;
-    .el-row {
-      .el-col {
-        display: flex;
-        align-items: center;
-      }
-      .el-col:nth-child(2) {
-        a {
-          margin-left: 15px;
-        }
-      }
-    }
+
+  &__wrap,
+  &__main-container {
+    height: 100%;
   }
 
-  .el-main {
-    padding: 0;
+  &__header, &__footer {
+    height: 100%;
+    align-items: center;
   }
-  .el-backtop {
-    .el-icon {
-      color: $color_main_green;
-    }
+
+  &__main-container {
+    background-color: #fff;
   }
 
   .el-header {
     padding: $radius_medium $radius_average;
+
     img {
       margin-right: $size;
       height: 2em;
@@ -98,10 +86,38 @@ export default defineComponent({
       color: $color_main_green;
       font-weight: 700;
     }
+
     @media (max-width: 321px) {
       padding: $radius_medium $size;
     }
   }
 
+  &__header {
+    .el-row {
+      .el-col {
+        display: flex;
+        align-items: center;
+      }
+
+      .el-col:nth-child(2) {
+        justify-content: flex-end;
+
+        .nav-links {
+          display: flex;
+          gap: $size;
+        }
+      }
+    }
+  }
+
+  .el-main {
+    padding: 0;
+  }
+
+  .el-backtop {
+    .el-icon {
+      color: $color_main_green;
+    }
+  }
 }
 </style>

@@ -14,9 +14,9 @@ h1 {
   font-weight: 700;
   font-size: $size_big - 2;
   line-height: 2.5;
-  @media (max-width: 383px) {
-    font-size: $size_big - 6;
-  }
+  //@media (max-width: 383px) {
+  //  font-size: $size_big - 6;
+  //}
 }
 
 strong {
@@ -34,16 +34,12 @@ a {
   }
 }
 
-//span {
-//  color: $color_main_green;
-//}
-
 * {
   margin: 0;
   padding: 0;
 }
 
-
+// исправить анимацию, занести в отдельный файл
 .fade-down-enter-active, .fade-down-leave-active {
   transition: opacity 0.5s ease, transform 0.5s ease;
 }

@@ -1,5 +1,6 @@
 import {createRouter, createWebHistory} from 'vue-router'
 
+// сделать нормальные роуты
 const router = createRouter({
     history: createWebHistory(),
     routes: [
@@ -9,7 +10,7 @@ const router = createRouter({
         },
         {
             path: '/main',
-            name: 'main',
+            name: 'main-page',
             component: () => import('../views/MainPage.vue'),
             meta: {
                 layout: 'main-layout',
@@ -18,15 +19,15 @@ const router = createRouter({
         },
         {
             path: '/auth',
-            name: 'auth',
-            component: () => import('../views/auth/AuthPage.vue'),
+            name: 'login-page',
+            component: () => import('../views/auth/LoginPage.vue'),
             meta: {
                 layout: 'empty-layout'
             }
         },
         {
             path: '/transaction',
-            name: 'transaction',
+            name: 'transaction-page',
             component: () => import('../views/common/TransactionPage.vue'),
             meta: {
                 layout: 'main-layout',
@@ -35,15 +36,15 @@ const router = createRouter({
         },
         {
             path: '/auth',
-            name: 'auth',
-            component: () => import('../views/auth/AuthPage.vue'),
+            name: 'auth-page',
+            component: () => import('../views/auth/LoginPage.vue'),
             meta: {
                 layout: 'empty-layout'
             }
         },
         {
             path: '/notfound',
-            name: 'notfound',
+            name: 'notfound-page',
             component: () => import('../views/NotFoundPage.vue')
         },
     ],
