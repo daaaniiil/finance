@@ -32,18 +32,19 @@ export default defineComponent({
     justify-content: space-between;
     align-items: center;
     h1 {
-      flex: 36px;
+      margin-bottom: 24px;
+      flex: auto;
+      font-size: 36px;
       text-align: center;
-      margin-top: 0;
       span {
         color: $color_main_green;
       }
     }
 
-    //img {
-    //  height: 32px;
-    //  margin-left: auto;
-    //}
+    img {
+      height: 32px;
+      margin-left: auto;
+    }
   }
   form{
     width: 300px;

@@ -13,7 +13,6 @@ body {
 h1 {
   font-weight: 700;
   font-size: $size_big - 2;
-  line-height: 2.5;
   //@media (max-width: 383px) {
   //  font-size: $size_big - 6;
   //}
@@ -53,3 +52,6 @@ a {
   opacity: 1;
   transform: translateY(0);
 }
+
+// сделать импорт шрифта для MaterialIcons
+// @import url('https://fonts.googleapis.com/css2?family=Material+Icons');

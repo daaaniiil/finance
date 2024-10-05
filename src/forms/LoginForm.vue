@@ -1,5 +1,6 @@
 <template>
   <div class="form-login">
+    <badge-info solution="Введите почту и пароль" />
     <slot name="title"></slot>
     <div class="form-login-wrap">
       <el-form
@@ -44,10 +45,12 @@
 <script lang="ts">
 import {defineComponent, Ref, computed, ref, reactive} from 'vue';
 import type {ElForm, FormRules} from "element-plus";
-import {IAuthCredential} from "../types/index";
+import {IAuthCredential} from "../resources/types";
+import BadgeInfo from "@/components/controls/BadgeInfo.vue";
 
 export default defineComponent({
   name: 'LoginForm',
+  components: {BadgeInfo},
   setup() {
     const form = ref()
 
@@ -56,6 +59,7 @@ export default defineComponent({
     type TInstanceForm = Ref<InstanceType<typeof ElForm> | undefined>
     const createValidatePassConfirm = (form:TInstanceForm,model:IAuthCredential) => {
       return (rule: any, value: any, callback: any) => {
+        console.log(form, rule)
         if (value === '') {
           callback(new Error('Пожалуйста, введите пароль'))
         } else if (value !== model.password) {
@@ -103,16 +107,26 @@ export default defineComponent({
     .el-select .el-input {
       width: 80px;
     }
+    // перенести в глобальные стили
+    // el-input
+    .el-input__wrapper.is-focus {
+      box-shadow: 0 0 0 1px $color_main_green inset;
+    }
+    .el-input__wrapper {
+      border-radius: $size;
+    }
+    // el-button
     .el-button {
-      width: 100%;
+      border-radius: $size;
+      width: 100%; // оставить тут
       background-color: $color_main_green;
       border: none;
-      transition: all linear .3s;
+      transition: all linear .2s;
       &:hover {
-        background-color: $color_empty_green_2;
+        background-color: $color_empty_green;
       }
     }
-
+    // el-switch
     .el-switch.is-checked .el-switch__core{
       background-color: $color_main_green;
       border-color: $color_main_green;
