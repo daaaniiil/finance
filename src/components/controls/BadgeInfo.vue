@@ -29,7 +29,7 @@ const props = defineProps<{
     height: $size;
     width: $size;
     right: 7px;
-    top: math.div($size, 1.2);
+    top: math.div($size, 1.3);
     position: absolute;
     &::before{
       --font-size:#{$size} !important;

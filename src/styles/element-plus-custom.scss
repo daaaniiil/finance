@@ -1,0 +1,28 @@
+@use '../styles/variable.scss' as *;
+
+.el-input__wrapper.is-focus {
+  box-shadow: 0 0 0 1px $color_main_green inset;
+}
+.el-input__wrapper {
+  border-radius: $size;
+}
+
+.el-button {
+  border-radius: $size;
+  background-color: $color_main_green;
+  border: none;
+  transition: all linear .2s;
+  &:hover {
+    background-color: $color_empty_green;
+  }
+}
+
+.el-switch.is-checked .el-switch__core{
+  background-color: $color_main_green;
+  border-color: $color_main_green;
+}
+.el-switch {
+  .is-active {
+    color: $color_main_green;
+  }
+}

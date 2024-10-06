@@ -104,7 +104,7 @@ export default defineComponent({
 
         .nav-links {
           display: flex;
-          gap: $size;
+          gap: $size_big;
         }
       }
     }

@@ -1,3 +1,5 @@
+import { onAuthStateChanged } from "firebase/auth";
+import {auth} from '../resources/firebase.ts'
 import {createRouter, createWebHistory} from 'vue-router'
 
 // сделать нормальные роуты
@@ -52,12 +54,22 @@ const router = createRouter({
     linkExactActiveClass: 'active'
 })
 
-// router.beforeEach(async (to, from, next) => {
-//     if(!to.name) {
-//         next({ name: 'notfound' })
-//         return
-//     }
-//     next()
-// })
+router.beforeEach((to, _from, next) => {
+    onAuthStateChanged(auth, (user) => {
+        if(user) {
+            if(to.name === 'login-page') {
+                next({name:'main-page'})
+            } else {
+                next()
+            }
+        } else {
+            if(to.name === 'main-page'){
+                next({name:'login-page'})
+            } else {
+                next()
+            }
+        }
+    })
+})
 
 export default router
