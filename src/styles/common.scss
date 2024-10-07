@@ -26,10 +26,22 @@ strong {
 a {
   text-decoration: none;
   color: $color_text;
-  padding-bottom: 5px;
+  padding-bottom: $radius_tiny;
+  background-image: linear-gradient(currentColor, currentColor);
+  transition: background-size .3s;
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0 2px;
   &.active {
     color: $color_main_green;
     border-bottom: 2px solid $color_main_green;
+    &:hover {
+      background-size: 0;
+    }
+  }
+  &:hover {
+    color: $color_main_green;
+    background-size: 100% 2px;
   }
 }
 

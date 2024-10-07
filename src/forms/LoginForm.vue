@@ -1,5 +1,6 @@
 <template>
   <div class="form-login">
+<!--    убрать иконку -->
     <badge-info solution="Введите почту и пароль" />
     <slot name="title"></slot>
     <div class="form-login-wrap">

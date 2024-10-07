@@ -87,8 +87,8 @@ export default defineComponent({
       font-weight: 700;
     }
 
-    @media (max-width: 321px) {
-      padding: $radius_medium $size;
+    @media (max-width: 426px) {
+      padding: $radius_medium 0;
     }
   }
 
