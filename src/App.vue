@@ -22,7 +22,7 @@ const layoutComponent = computed(() => {
 @use 'styles/variable' as *;
 
 body{
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif; // заменить шрифты
+  font-weight: 400;
   margin: 0;
   position: fixed;
   width: 100%;

@@ -1,4 +1,5 @@
 @use 'variable' as *;
+@use '../assets/fonts/stylesheet' as *;
 
 body {
   color: $color_text;
@@ -10,13 +11,12 @@ body {
 }
 
 
-h1 {
-  font-weight: 700;
-  font-size: $size_big - 2;
+// h1 {
+  //font-size: $size_big - 2;
   //@media (max-width: 383px) {
   //  font-size: $size_big - 6;
   //}
-}
+// }
 
 strong {
   font-weight: 700;
@@ -64,6 +64,3 @@ a {
   opacity: 1;
   transform: translateY(0);
 }
-
-// сделать импорт шрифта для MaterialIcons
-// @import url('https://fonts.googleapis.com/css2?family=Material+Icons');

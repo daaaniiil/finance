@@ -12,7 +12,7 @@
               <el-col :md="12" :lg="21" :xs="12" :sm="18">
                 <div class="nav-links">
                   <router-link :to="{name:'main-page'}">Главная</router-link>
-                  <router-link :to="{name:'transaction-page'}">Транзакции</router-link>
+                  <router-link :to="{name:'analytics-page'}">Аналитика</router-link>
                 </div>
               </el-col>
             </el-row>
@@ -68,6 +68,9 @@ export default defineComponent({
   &__header, &__footer {
     height: 100%;
     align-items: center;
+    p {
+      font-family: "Syne", sans-serif;
+    }
   }
 
   &__main-container {
@@ -75,7 +78,7 @@ export default defineComponent({
   }
 
   .el-header {
-    padding: $radius_medium $radius_average;
+    padding: $radius_medium 0;
 
     img {
       margin-right: $size;
@@ -85,10 +88,6 @@ export default defineComponent({
     p {
       color: $color_main_green;
       font-weight: 700;
-    }
-
-    @media (max-width: 426px) {
-      padding: $radius_medium 0;
     }
   }
 

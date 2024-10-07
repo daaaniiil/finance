@@ -1,7 +1,5 @@
 <template>
   <div class="form-login">
-<!--    убрать иконку -->
-    <badge-info solution="Введите почту и пароль" />
     <slot name="title"></slot>
     <div class="form-login-wrap">
       <el-form
@@ -46,11 +44,9 @@
 <script lang="ts">
 import {defineComponent, ref} from 'vue';
 import {useLogin} from "../resources/auth";
-import BadgeInfo from "@/components/controls/BadgeInfo.vue";
 
 export default defineComponent({
   name: 'LoginForm',
-  components: {BadgeInfo},
   setup() {
     const form = ref()
     const {model,rules,loading,login} = useLogin(form, {afterSignUp:{name:'main-page'},redirectToAttempt:true})

@@ -28,9 +28,9 @@ const router = createRouter({
             }
         },
         {
-            path: '/transaction',
-            name: 'transaction-page',
-            component: () => import('../views/common/TransactionPage.vue'),
+            path: '/analytics',
+            name: 'analytics-page',
+            component: () => import('../views/common/AnalyticsPage.vue'),
             meta: {
                 layout: 'main-layout',
                 auth: true
@@ -63,7 +63,7 @@ router.beforeEach((to, _from, next) => {
                 next()
             }
         } else {
-            if(to.name === 'main-page'){
+            if(to.name !== 'login-page'){
                 next({name:'login-page'})
             } else {
                 next()

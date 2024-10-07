@@ -1,6 +1,6 @@
 <template>
   <div class="transaction-page">
-    <h1>Страница транзакций</h1>
+    <h1>Страница аналитики</h1>
     <HighChartComponent />
   </div>
 </template>
