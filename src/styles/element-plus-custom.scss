@@ -8,12 +8,14 @@
 }
 
 .el-button {
+  color: #fff;
   border-radius: $size;
   background-color: $color_main_green;
   border: none;
   transition: all linear .2s;
   &:hover {
-    background-color: $color_empty_green;
+    color: #fff;
+    background-color: $color_main_green_2;
   }
 }
 
@@ -23,6 +25,12 @@
 }
 .el-switch {
   .is-active {
+    color: $color_main_green;
+  }
+}
+
+.el-backtop {
+  .el-icon {
     color: $color_main_green;
   }
 }

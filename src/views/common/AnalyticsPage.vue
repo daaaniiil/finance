@@ -8,7 +8,7 @@
 <script>
 
 import {defineComponent} from "vue";
-import HighChartComponent from "@/components/HighChartComponent.vue";
+import HighChartComponent from "@/components/highCharts/HighChartComponent.vue";
 
 export default defineComponent({
   components: {HighChartComponent}

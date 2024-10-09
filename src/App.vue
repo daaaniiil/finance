@@ -22,7 +22,6 @@ const layoutComponent = computed(() => {
 @use 'styles/variable' as *;
 
 body{
-  font-weight: 400;
   margin: 0;
   position: fixed;
   width: 100%;

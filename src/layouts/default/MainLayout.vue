@@ -32,7 +32,9 @@
               </router-view>
             </indent-container>
           </div>
-          <!--        <el-footer></el-footer>-->
+          <el-footer>
+            <h1>Footer</h1>
+          </el-footer>
         </el-scrollbar>
         <el-backtop target=".el-scrollbar__wrap"/>
       </el-main>
@@ -65,11 +67,19 @@ export default defineComponent({
     height: 100%;
   }
 
+  .el-footer {
+    margin-top: $size_average;
+    height: 200px;
+    background-color: darkgrey;
+    width: 100%;
+  }
+
   &__header, &__footer {
     height: 100%;
     align-items: center;
     p {
       font-family: "Syne", sans-serif;
+      user-select: none;
     }
   }
 
@@ -111,12 +121,6 @@ export default defineComponent({
 
   .el-main {
     padding: 0;
-  }
-
-  .el-backtop {
-    .el-icon {
-      color: $color_main_green;
-    }
   }
 }
 </style>
