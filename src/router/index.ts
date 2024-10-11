@@ -1,6 +1,5 @@
-import { onAuthStateChanged } from "firebase/auth";
-import {auth} from '../resources/firebase.ts'
 import {createRouter, createWebHistory} from 'vue-router'
+import {supabase} from "../resources/supabase.ts";
 
 // сделать нормальные роуты
 const router = createRouter({
@@ -54,20 +53,22 @@ const router = createRouter({
     linkExactActiveClass: 'active'
 })
 
-router.beforeEach((to, _from, next) => {
-    onAuthStateChanged(auth, (user) => {
-        if(user) {
-            if(to.name === 'login-page') {
-                next({name:'main-page'})
-            } else {
-                next()
-            }
-        } else {
-            if(to.name !== 'login-page'){
-                next({name:'login-page'})
-            }
-        }
-    })
-})
+router.beforeEach( async (to, _from, next) => {
+    const storedSession = sessionStorage.getItem('supabase.auth.token')
+    const {data: {session}} = await supabase.auth.getSession()
 
+    if(session || storedSession) {
+        if(to.name === 'login-page'){
+            next({name:'main-page'})
+        } else {
+            next()
+        }
+    } else if(!session || !storedSession) {
+        if(to.name !== 'login-page'){
+            next({name:'login-page'})
+        } else {
+            next()
+        }
+    }
+})
 export default router

@@ -1,11 +1,11 @@
 import {computed, reactive, ref} from "vue";
 import type {Ref} from "vue";
-import { signInWithEmailAndPassword, setPersistence, browserLocalPersistence, browserSessionPersistence } from 'firebase/auth'
 import {ElForm, FormRules} from "element-plus";
 import {IAuthCredential} from "./types.ts";
 import type {RouteLocationRaw} from "vue-router";
-import { auth } from './firebase.ts'
+import {supabase} from './supabase.ts';
 import {useRouter} from 'vue-router'
+import { ElNotification } from 'element-plus'
 
 export type TInstanceForm = Ref<InstanceType<typeof ElForm> | undefined>
 const createValidatePassConfirm = (_form:TInstanceForm,model:IAuthCredential) => {
@@ -25,7 +25,7 @@ export interface IUserLoginConfig{
     redirectToAttempt?:boolean
 }
 
-export const useLogin = (form: TInstanceForm, config: IUserLoginConfig = {}) => {
+export const useLogin = (form: TInstanceForm, _config: IUserLoginConfig = {}) => {
     const router = useRouter()
     const loading = ref(false)
     const model = reactive<IAuthCredential>({
@@ -53,24 +53,34 @@ export const useLogin = (form: TInstanceForm, config: IUserLoginConfig = {}) => 
             if (valid) {
                 loading.value = true
                 try {
-                    const persistenceType = model.remember
-                        ? browserLocalPersistence // сохраняет данные при перезагрузки браузера
-                        : browserSessionPersistence  // сохраняет данные только в текущей сессии
+                    const { data, error } = await supabase.auth.signInWithPassword({
+                        email: model.email,
+                        password: model.password
+                    })
 
-                    // Устанавливаем тип сессии
-                    await setPersistence(auth, persistenceType)
-                    console.log("Установлен тип сессии:", persistenceType)
+                    if(error){
+                        console.error('Ошибка при входе:', error.message)
+                        ElNotification({
+                                title: 'Ошибка!',
+                                message: 'Не верный логин или пароль',
+                                type: 'error',
+                            })
+                    } else if(data.session) {
+                        if(model.remember){
+                            await supabase.auth.setSession(data.session)
+                        } else {
+                            sessionStorage.setItem('supabase.auth.token', JSON.stringify(data.session))
+                            localStorage.removeItem('sb-ftjpqrwtuamrvvgrnxcm-auth-token')
+                        }
 
-                    // Выполнение входа с email && password
-                    await signInWithEmailAndPassword(auth, model.email, model.password)
+                        console.log('Пользователь успешно вошел:', data.user)
+                        ElNotification({
+                            title: 'Вход выполнен!',
+                            message: 'Вы успешно вошли в аккаунт',
+                            type: 'success',
+                        })
 
-                    // Успешный вход (добавить перенаправление на главную)
-                    console.log('Login successful')
-
-                    if (config.redirectToAttempt) {
-                        await router.push(config.afterSignUp || {name: 'main-page'})
-                        // Если включен редирект перенаправляем на нужную страницу
-                        // router.push(config.afterSignUp ||  { name: 'main' })
+                        await router.push({name:'main-page'})
                     }
                 } catch (e) {
                     console.error('Error during login:', e)

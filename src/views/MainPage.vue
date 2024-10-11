@@ -1,10 +1,10 @@
 <template>
   <div class="main-page">
-    <el-skeleton v-if="store.loading" animated/>
-    <el-card v-else>
-      <h1>Заработок: {{ format(store.balance) }}p</h1>
-      <h1>Доходы: <span class="income">{{ format(store.income) }}p</span></h1>
-      <h1>Расходы: <span class="expenses">{{ format(store.expenses) }}p</span></h1>
+    <el-skeleton animated/>
+    <el-card >
+      <h1>Заработок: {{ format(70000) }}p</h1>
+      <h1>Доходы: <span class="income">{{ format(20000) }}p</span></h1>
+      <h1>Расходы: <span class="expenses">{{ format(50000) }}p</span></h1>
     </el-card>
     <high-chart-line/>
     <high-chart-column/>
@@ -15,42 +15,33 @@
 </template>
 
 <script setup lang="ts">
-import {onMounted} from 'vue'
+// import {onMounted} from 'vue'
+// import {supabase} from "../resources/supabase";
 import HighChartLine from "@/components/HighCharts/HighChartLine.vue";
 import HighChartColumn from "@/components/HighCharts/HighChartColumn.vue";
-import {useFinanceStore} from '../store/index'
-
-const store = useFinanceStore()
 
 const format = (balance: number) => {
   return balance.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
 }
 
-const createUserData = async () => {
-  await store.createUserData(50000,20000,30000)
-}
-
-onMounted(async () => {
-  await store.getUserData()
-})
+// onMounted(async () => {
+//   const { data, error } = await supabase
+//       .from('countries')
+//       .select('*')
+//
+//   if(error) {
+//     console.error('Ошибка при получении данных:', error)
+//   } else {
+//     console.log('Данные пользователя:', data)
+//   }
+//
+// })
 </script>
 
 <style lang="scss">
 @use '../styles/variable.scss' as *;
 
 .main-page {
-  //.el-card {
-  //  margin: 20px 0;
-  //  &:nth-child(2){
-  //    background-color: $color_empty_green;
-  //  }
-  //  &:nth-child(3){
-  //    background-color: $color_red_empty;
-  //  }
-  //  span {
-  //    font-weight: 600;
-  //  }
-  //}
   .el-card {
     margin: $size * 2 0;
   }

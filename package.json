@@ -12,6 +12,7 @@
     "@capacitor/android": "^6.1.2",
     "@capacitor/cli": "^6.1.2",
     "@capacitor/core": "^6.1.2",
+    "@supabase/supabase-js": "^2.45.4",
     "element-plus": "^2.8.4",
     "firebase": "^10.14.0",
     "highcharts": "^11.4.8",
