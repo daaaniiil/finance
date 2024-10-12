@@ -37,7 +37,7 @@ export const useLogin = (form: TInstanceForm, _config: IUserLoginConfig = {}) =>
     }  as any)
     const rules = computed<FormRules>(() => {
         return {
-            password: {required: true, trigger: 'blur',message:'Введите пароль'},
+            password: {required: true, trigger: 'blur',message:'Введите пароль', min: 6},
             checkPass: {required: true, trigger: 'blur',validator:createValidatePassConfirm(form,model)},
             remember: {required: false, trigger: 'change'},
             email:{required: true, trigger: 'blur',message:'Введите почту'}
@@ -93,10 +93,61 @@ export const useLogin = (form: TInstanceForm, _config: IUserLoginConfig = {}) =>
             }
         })
     }
+    const register = () => {
+        if (!form.value) {
+            console.error('Auth form not found')
+            return;
+        }
+
+        form.value.validate(async (valid: boolean) => {
+            if(valid) {
+                loading.value = true
+                try {
+                    const { data, error } = await supabase.auth.signUp({
+                        email: model.email,
+                        password: model.password
+                    })
+
+                    if(data.session) {
+                        if(!model.remember){
+                            sessionStorage.setItem('supabase.auth.token', JSON.stringify(data.session))
+                            localStorage.removeItem('sb-ftjpqrwtuamrvvgrnxcm-auth-token')
+                        } else {
+                            await supabase.auth.setSession(data.session)
+                        }
+
+                        console.log('Пользователь успешно зарегистрирован:', data.user)
+                        ElNotification({
+                            title: 'Вы зарегистрировались!',
+                            message: 'Регистрация прошла успешно',
+                            type: 'success',
+                        })
+
+                        await router.push({name:'main-page'})
+                    } else if(error) {
+                        console.error('Ошибка при регистрации:', error.message)
+                        ElNotification({
+                            title: 'Ошибка!',
+                            message: 'Произошла ошибка',
+                            type: 'error',
+                        })
+                    }
+                } catch (e) {
+                    console.error('Error during register:', e)
+                } finally {
+                    loading.value = false
+                }
+            } else {
+                console.error('Register form not found')
+                return
+            }
+        })
+    }
     return {
         loading,
         model,
         rules,
-        login
+        login,
+        register
     }
 }

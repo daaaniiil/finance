@@ -22,7 +22,7 @@ a {
   background-image: linear-gradient(currentColor, currentColor);
   transition: background-size .3s;
   background-repeat: no-repeat;
-  background-position: 0 100%;
+  background-position: 50% 100%;
   background-size: 0 2px;
   &.active {
     color: $color_main_green;

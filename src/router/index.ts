@@ -27,20 +27,20 @@ const router = createRouter({
             }
         },
         {
+            path: '/register',
+            name: 'register-page',
+            component: () => import('../views/auth/RegisterPage.vue'),
+            meta: {
+                layout: 'empty-layout'
+            }
+        },
+        {
             path: '/analytics',
             name: 'analytics-page',
             component: () => import('../views/common/AnalyticsPage.vue'),
             meta: {
                 layout: 'main-layout',
                 auth: true
-            }
-        },
-        {
-            path: '/auth',
-            name: 'auth-page',
-            component: () => import('../views/auth/LoginPage.vue'),
-            meta: {
-                layout: 'empty-layout'
             }
         },
         {
@@ -60,14 +60,18 @@ router.beforeEach( async (to, _from, next) => {
     if(session || storedSession) {
         if(to.name === 'login-page'){
             next({name:'main-page'})
+        } else if(to.name === 'register-page') {
+            next({name:'main-page'})
         } else {
             next()
         }
     } else if(!session || !storedSession) {
-        if(to.name !== 'login-page'){
-            next({name:'login-page'})
-        } else {
+        if(to.name === 'login-page'){
             next()
+        } else if(to.name === 'register-page') {
+            next()
+        } else {
+            next({name:'login-page'})
         }
     }
 })
