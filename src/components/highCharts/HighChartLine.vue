@@ -20,7 +20,7 @@ export default defineComponent({
           crosshair: true,
         },
         tooltip: {
-          valueSuffix: 'p'
+          valueSuffix: '₽'
         },
         series: [
           {

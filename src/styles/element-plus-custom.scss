@@ -7,7 +7,7 @@
   border-radius: $size;
 }
 
-.el-button {
+.el-button--primary {
   color: #fff;
   border-radius: $size;
   background-color: $color_main_green;
@@ -16,6 +16,24 @@
   &:hover {
     color: #fff;
     background-color: $color_main_green_2;
+  }
+  &:disabled{
+    background-color: $color_main_green_2;
+    &:hover {
+      background-color: $color_main_green_2;
+    }
+  }
+}
+
+.el-button--danger {
+  color: #fff;
+  border-radius: $size;
+  background-color: $color_red_main;
+  border: none;
+  transition: all linear .2s;
+  &:hover {
+    color: #fff;
+    background-color: $color_red_empty;
   }
 }
 
@@ -34,3 +52,16 @@
     color: $color_main_green;
   }
 }
+
+
+.el-select__wrapper {
+  border-radius: $size;
+}
+.el-select__wrapper.is-focused {
+  box-shadow: 0 0 0 1px $color_main_green inset;
+}
+.el-select-dropdown__item.is-selected {
+  color: $color_main_green;
+}
+
+

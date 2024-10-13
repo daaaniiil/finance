@@ -27,7 +27,7 @@ export default defineComponent({
           }
         },
         tooltip: {
-          valueSuffix: 'p'
+          valueSuffix: '₽'
         },
         plotOptions: {
           column: {
