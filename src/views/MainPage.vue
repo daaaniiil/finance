@@ -1,41 +1,70 @@
 <template>
   <div class="main-page">
-    <el-skeleton animated/>
-    <el-card >
-      <h1>Заработок: {{ format(70000) }}p</h1>
-      <h1>Доходы: <span class="income">{{ format(20000) }}p</span></h1>
-      <h1>Расходы: <span class="expenses">{{ format(50000) }}p</span></h1>
+    <el-card>
+      <h2>Добавить заработок за месяц</h2>
+      <add-earnings />
+    </el-card>
+    <el-card>
+      <h2>Ваш заработок по месяцам</h2>
+      <el-table :data="store.earnings">
+        <el-table-column prop="month" label="Месяц"></el-table-column>
+        <el-table-column prop="amount" label="Сумма"></el-table-column>
+      </el-table>
+    </el-card>
+    <el-skeleton  animated v-if="store.loading"/>
+    <el-card v-else>
+      <h2>Прошлый месяц «<span>{{ availableMonths }}</span>»</h2>
+      <h1>Заработок: {{ format(Number(earningsLastMonth)) }}₽</h1>
+      <h1>Доходы: <span class="income">{{ format(20000) }}₽</span></h1>
+      <h1>Расходы: <span class="expenses">{{ format(50000) }}₽</span></h1>
     </el-card>
     <high-chart-line/>
     <high-chart-column/>
     <router-link :to="{name:'analytics-page'}">
-      <el-button>Детальная аналитика</el-button>
+      <el-button type="primary">Детальная аналитика</el-button>
     </router-link>
   </div>
 </template>
 
 <script setup lang="ts">
-// import {onMounted} from 'vue'
-// import {supabase} from "../resources/supabase";
+import {computed, onMounted} from 'vue'
+import {useFinanceStore} from "@/store";
+import AddEarnings from "@/forms/AddEarnings.vue";
 import HighChartLine from "@/components/HighCharts/HighChartLine.vue";
 import HighChartColumn from "@/components/HighCharts/HighChartColumn.vue";
+import {IEarnings} from "@/resources/types.ts";
 
+const store = useFinanceStore()
 const format = (balance: number) => {
   return balance.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
 }
 
-// onMounted(async () => {
-//   const { data, error } = await supabase
-//       .from('countries')
-//       .select('*')
-//
-//   if(error) {
-//     console.error('Ошибка при получении данных:', error)
-//   } else {
-//     console.log('Данные пользователя:', data)
-//   }
-//
-// })
+const lastMonth = new Date().getMonth() - 1
+
+const months = [
+  { label: 'Январь', value: 0 },
+  { label: 'Февраль', value: 1 },
+  { label: 'Март', value: 2 },
+  { label: 'Апрель', value: 3 },
+  { label: 'Май', value: 4 },
+  { label: 'Июнь', value: 5 },
+  { label: 'Июль', value: 6 },
+  { label: 'Август', value: 7 },
+  { label: 'Сентябрь', value: 8 },
+  { label: 'Октябрь', value: 9 },
+  { label: 'Ноябрь', value: 10 },
+  { label: 'Декабрь', value: 11 },
+]
+
+const availableMonths = months.find(month => month.value === lastMonth)?.label
+
+const earningsLastMonth = computed(() => {
+  return store.earnings.find((e: IEarnings) => e.month === availableMonths)?.amount || 0
+})
+
+onMounted(async () => {
+  await store.getUserData()
+})
 </script>
 
 <style lang="scss">
@@ -46,8 +75,14 @@ const format = (balance: number) => {
     margin: $size * 2 0;
   }
 
-  h1:nth-child(2) {
+  h1:nth-child(3) {
     margin: $size * 2 0;
+  }
+  h2 {
+    margin: 0 0 $size * 2;
+    span {
+      color: $color_main_green;
+    }
   }
   .income {
     color: $color_main_green;
