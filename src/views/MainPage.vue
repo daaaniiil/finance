@@ -6,16 +6,21 @@
     </el-card>
     <el-card>
       <h2>Ваш заработок по месяцам</h2>
-      <el-table :data="store.earnings">
+      <el-table :data="sortedEarnings" style="width: 100%">
         <el-table-column prop="month" label="Месяц"></el-table-column>
         <el-table-column prop="amount" label="Сумма"></el-table-column>
+        <el-table-column fixed="right" label="Удалить">
+          <template #default>
+            <el-button type="danger" size="small">Delete</el-button>
+          </template>
+        </el-table-column>
       </el-table>
     </el-card>
-    <el-skeleton  animated v-if="store.loading"/>
+    <el-skeleton animated v-if="store.loading"/>
     <el-card v-else>
       <h2>Прошлый месяц «<span>{{ availableMonths }}</span>»</h2>
       <h1>Заработок: {{ format(Number(earningsLastMonth)) }}₽</h1>
-      <h1>Доходы: <span class="income">{{ format(20000) }}₽</span></h1>
+      <h1>Доход: <span class="income">{{ format(15000) }}₽</span></h1>
       <h1>Расходы: <span class="expenses">{{ format(50000) }}₽</span></h1>
     </el-card>
     <high-chart-line/>
@@ -27,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import {computed, onMounted} from 'vue'
+import {computed, onMounted, ref} from 'vue'
 import {useFinanceStore} from "@/store";
 import AddEarnings from "@/forms/AddEarnings.vue";
 import HighChartLine from "@/components/HighCharts/HighChartLine.vue";
@@ -60,6 +65,14 @@ const availableMonths = months.find(month => month.value === lastMonth)?.label
 
 const earningsLastMonth = computed(() => {
   return store.earnings.find((e: IEarnings) => e.month === availableMonths)?.amount || 0
+})
+
+const sortedEarnings = computed(() => {
+  return store.earnings.slice().sort((a: IEarnings, b: IEarnings) => {
+    const monthA = months.findIndex(month => month.label === a.month)
+    const monthB = months.findIndex(month => month.label === b.month)
+    return monthB - monthA
+  })
 })
 
 onMounted(async () => {

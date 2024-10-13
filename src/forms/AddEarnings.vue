@@ -19,7 +19,7 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item prop="amount" label="Сумма заработка">
+      <el-form-item prop="amount" label="Сумма">
         <el-input v-model.number="model.amount" placeholder="Введите сумму" />
       </el-form-item>
       <el-button @click="submitEarnings"  :loading="loading" type="primary">Сохранить</el-button>
