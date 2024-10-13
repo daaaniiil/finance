@@ -6,3 +6,8 @@ export interface IAuthCredential {
     email: '',
     phone:''
 }
+
+export interface IEarnings {
+    amount: number | null
+    month: string
+}

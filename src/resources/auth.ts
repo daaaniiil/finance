@@ -118,7 +118,7 @@ export const useLogin = (form: TInstanceForm, _config: IUserLoginConfig = {}) =>
 
                         console.log('Пользователь успешно зарегистрирован:', data.user)
                         ElNotification({
-                            title: 'Вы зарегистрировались!',
+                            title: 'Вы успешно зарегистрировались!',
                             message: 'Регистрация прошла успешно',
                             type: 'success',
                         })
