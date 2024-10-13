@@ -11,11 +11,11 @@
       <el-form-item prop="month" label="Месяц">
         <el-select v-model="model.month" placeholder="Выберите месяц">
           <el-option
-            v-for="(month, index) in availableMonths"
+            v-for="(month, index) in months"
             :key="index"
             :label="month.label"
             :value="month.label"
-            :disabled="month.disabled"
+            :disabled="isMonthDisabled(month.label)"
           />
         </el-select>
       </el-form-item>
@@ -75,15 +75,11 @@ const months = [
   { label: 'Декабрь', value: 11 },
 ]
 
-const availableMonths = computed(() => {
-  return months.map(month => ({
-    ...month,
-    disabled: month.value > currentMonth
-  }))
-})
+const isMonthDisabled = (monthLabel: string) => {
+  const addedMonths: string[] = store.earnings.map((e: IEarnings) => e.month)
+  const isMonthAdded: boolean = addedMonths.includes(monthLabel)
+  const isFutureMonth: boolean = months.find(month => month.label === monthLabel)?.value > currentMonth
+  return isMonthAdded || isFutureMonth
+}
 
 </script>
-
-<style lang="scss">
-
-</style>
