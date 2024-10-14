@@ -64,4 +64,16 @@
   color: $color_main_green;
 }
 
+.el-dropdown-menu__item:not(.is-disabled):focus{
+  color: $color_main_green;
+  background-color: $color_green_background;
+  &:nth-last-child(-n + 1) {
+    background-color: $color_red_background;
+  }
+}
 
+.el-breadcrumb {
+  .el-breadcrumb__inner.is-link:hover {
+    color: $color_main_green
+  }
+}

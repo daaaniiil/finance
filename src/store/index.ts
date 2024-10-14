@@ -10,6 +10,7 @@ export const useFinanceStore = defineStore('finance', () => {
     const income= ref<number>(0)
     const expenses = ref<number>(0)
     const earnings = ref<IEarnings[]>([])
+    const yearNow = new Date().getFullYear()
     const loading = ref<boolean>(false)
 
     const getUserData = async () => {
@@ -25,7 +26,7 @@ export const useFinanceStore = defineStore('finance', () => {
 
             const {data, error} = await supabase
                 .from('earnings')
-                .select('month, amount')
+                .select('id, month, amount')
                 .eq('user_id', userId)
 
             if(error){
@@ -88,13 +89,55 @@ export const useFinanceStore = defineStore('finance', () => {
         })
     }
 
+    const deleteItemData = async (id: string) => {
+        loading.value = true
+        try {
+            const {data, error, status} = await supabase
+                .from('earnings')
+                .delete()
+                .eq('id', id)
+
+            if(error) {
+                console.error('Error deleting item:', error)
+            } else if(status === 204) {
+                console.log('Item successfully deleted')
+                await getUserData()
+            } else {
+                console.log('Unexpected response:', data)
+            }
+        } catch (e) {
+            console.error('Error during delete:', e)
+        } finally {
+            loading.value = false
+        }
+    }
+
+    const nowNewYear = async () => {
+        loading.value = true
+        try {
+            if(yearNow === yearNow + 1){
+                // заносить данные в last-year-earnings и удалять из earnings
+                console.log('Данные очищены')
+            } else {
+                console.log('Новый год еще не наступил')
+            }
+        } catch (e) {
+            console.error(e)
+        } finally {
+            loading.value = false
+        }
+    }
+
     return {
         loading,
         balance,
         income,
         expenses,
         earnings,
+        yearNow,
         getUserData,
-        createUserData
+        createUserData,
+        deleteItemData,
+        nowNewYear
     }
 })
