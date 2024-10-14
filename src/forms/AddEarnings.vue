@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import {computed, onMounted, onUnmounted, reactive, ref} from 'vue'
+import {computed, reactive, ref} from 'vue'
 import {useFinanceStore} from "@/store";
 import {FormRules} from "element-plus";
 import {TInstanceForm} from "@/resources/auth";
@@ -78,7 +78,10 @@ const months = [
 const isMonthDisabled = (monthLabel: string) => {
   const addedMonths: string[] = store.earnings.map((e: IEarnings) => e.month)
   const isMonthAdded: boolean = addedMonths.includes(monthLabel)
-  const isFutureMonth: boolean = months.find(month => month.label === monthLabel)?.value > currentMonth
+
+  const foundMonth = months.find(month => month.label === monthLabel)
+  const isFutureMonth: boolean = foundMonth ? foundMonth.value > currentMonth : false
+
   return isMonthAdded || isFutureMonth
 }
 
