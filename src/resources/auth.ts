@@ -69,8 +69,8 @@ export const useLogin = (form: TInstanceForm, _config: IUserLoginConfig = {}) =>
                         if(model.remember){
                             await supabase.auth.setSession(data.session)
                         } else {
+                            await supabase.auth.setSession(data.session)
                             sessionStorage.setItem('supabase.auth.token', JSON.stringify(data.session))
-                            localStorage.removeItem('sb-ftjpqrwtuamrvvgrnxcm-auth-token')
                         }
 
                         console.log('Пользователь успешно вошел:', data.user)
@@ -110,8 +110,8 @@ export const useLogin = (form: TInstanceForm, _config: IUserLoginConfig = {}) =>
 
                     if(data.session) {
                         if(!model.remember){
+                            await supabase.auth.setSession(data.session)
                             sessionStorage.setItem('supabase.auth.token', JSON.stringify(data.session))
-                            localStorage.removeItem('sb-ftjpqrwtuamrvvgrnxcm-auth-token')
                         } else {
                             await supabase.auth.setSession(data.session)
                         }

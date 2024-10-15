@@ -72,10 +72,9 @@ const router = createRouter({
 })
 // использовать auth
 router.beforeEach( async (to, _from, next) => {
-    const storedSession = sessionStorage.getItem('supabase.auth.token')
     const {data: {session}} = await supabase.auth.getSession()
 
-    if(session || storedSession) {
+    if(session) {
         if(to.name === 'login-page'){
             next({name:'main-page'})
         } else if(to.name === 'register-page') {
@@ -83,7 +82,7 @@ router.beforeEach( async (to, _from, next) => {
         } else {
             next()
         }
-    } else if(!session || !storedSession) {
+    } else if(!session) {
         if(to.name === 'login-page'){
             next()
         } else if(to.name === 'register-page') {

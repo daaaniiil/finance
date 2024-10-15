@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import {computed} from "vue";
+import {computed, onBeforeUnmount} from "vue";
 import {useRoute} from "vue-router";
 import MainLayout from "./layouts/default/MainLayout.vue";
 import EmptyLayout from "./layouts/default/EmptyLayout.vue";
@@ -15,6 +15,13 @@ const layoutComponent = computed(() => {
     return MainLayout
   return EmptyLayout
 })
+
+const storedSession = sessionStorage.getItem('supabase.auth.token')
+if(storedSession){
+  window.onbeforeunload = function() {
+    localStorage.removeItem('sb-ftjpqrwtuamrvvgrnxcm-auth-token')
+  }
+}
 
 </script>
 
