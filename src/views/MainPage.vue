@@ -57,8 +57,7 @@
       <add-earnings/>
     </el-card>
 
-    <high-chart-line/>
-    <high-chart-column/>
+    <high-chart-earnings :months="monthLabel" :salaries="salaryValues" />
     <router-link :to="{name:'analytics-page'}">
       <el-button type="primary">Детальная аналитика</el-button>
     </router-link>
@@ -69,8 +68,7 @@
 import {computed, onMounted, ref} from 'vue'
 import {useFinanceStore} from "@/store";
 import AddEarnings from "@/forms/AddEarnings.vue";
-import HighChartLine from "@/components/HighCharts/HighChartLine.vue";
-import HighChartColumn from "@/components/HighCharts/HighChartColumn.vue";
+import HighChartEarnings from "@/components/HighCharts/HighChartEarnings.vue";
 import {IEarnings} from "@/resources/types.ts";
 import {
   DocumentCopy,
@@ -153,10 +151,14 @@ const saveAmount = async () => {
 
 const copyToClipboard = (row: any) => {
   navigator.clipboard.writeText(`Месяц: ${row.month}, Заработок: ${format(row.amount)}`)
+  ElMessage.success('Скопировано успешно!')
 }
 const deleteItem = async (id: string) => {
-  await store.deleteItemData(id)
+  await store.deleteEarningsItemData(id)
 }
+
+const monthLabel = computed(() => sortedEarnings.value.map((e: IEarnings) => e.month).reverse())
+const salaryValues = computed(() => sortedEarnings.value.map((e: IEarnings) => e.amount).reverse())
 
 onMounted(async () => {
   await store.getUserData()

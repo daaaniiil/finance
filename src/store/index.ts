@@ -41,7 +41,7 @@ export const useFinanceStore = defineStore('finance', () => {
         }
     }
 
-    const createUserData = async (form: TInstanceForm, model: IEarnings) => {
+    const createUserDataEarnings = async (form: TInstanceForm, model: IEarnings) => {
         if (!form.value) {
             console.error('Add earnings form not found')
             return
@@ -89,7 +89,7 @@ export const useFinanceStore = defineStore('finance', () => {
         })
     }
 
-    const deleteItemData = async (id: string) => {
+    const deleteEarningsItemData = async (id: string) => {
         loading.value = true
         try {
             const {data, error, status} = await supabase
@@ -154,8 +154,8 @@ export const useFinanceStore = defineStore('finance', () => {
         earnings,
         yearNow,
         getUserData,
-        createUserData,
-        deleteItemData,
+        createUserDataEarnings,
+        deleteEarningsItemData,
         updateEarningsAmount,
         nowNewYear
     }

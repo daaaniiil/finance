@@ -51,7 +51,7 @@ const rules = computed<FormRules>(() => {
 })
 
 const submitEarnings = async () => {
-  await store.createUserData(form, model)
+  await store.createUserDataEarnings(form, model)
 }
 
 const labelPosition = computed(() => {
