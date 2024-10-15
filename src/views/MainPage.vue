@@ -7,6 +7,7 @@
 
     <el-card v-if="!store.loading">
       <h2>Прошлый месяц «<span>{{ availableMonths }}</span>»</h2>
+      <hr>
       <h1>Заработок: {{ format(Number(earningsLastMonth)) }}₽</h1>
       <h1>Доход: <span class="income">{{ format(15000) }}₽</span></h1>
       <h1>Расходы: <span class="expenses">{{ format(50000) }}₽</span></h1>
@@ -28,8 +29,8 @@
               </el-button>
               <template #dropdown>
                 <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item :icon="Edit" @click="editItem(scope.row)">Edit</el-dropdown-item>
-                  <el-dropdown-item :icon="DocumentCopy" @click="editItem(scope.row)">Copy</el-dropdown-item>
+                  <el-dropdown-item :icon="Edit" @click="openEditDialog(scope.row)">Edit</el-dropdown-item>
+                  <el-dropdown-item :icon="DocumentCopy" @click="copyToClipboard(scope.row)">Copy</el-dropdown-item>
                   <el-dropdown-item :icon="DeleteFilled" @click="deleteItem(scope.row.id)" style="color: red;">Delete</el-dropdown-item>
                 </el-dropdown-menu>
               </template>
@@ -38,6 +39,18 @@
         </el-table-column>
       </el-table>
     </el-card>
+
+    <el-dialog
+      title="Редактировать сумму"
+      v-model="editDialogVisible"
+      width="30%">
+      <p>Измените сумма для месяца: {{ currentEditItem?.month }}</p>
+      <el-input type="number" v-model.number="newAmount" placeholder="Введите новую сумму"/>
+      <template #footer>
+        <el-button type="warning" @click="editDialogVisible = false">Отменить</el-button>
+        <el-button type="primary" @click="saveAmount">Сохранить</el-button>
+      </template>
+    </el-dialog>
 
     <el-card>
       <h2>Добавить заработок за месяц</h2>
@@ -53,7 +66,7 @@
 </template>
 
 <script setup lang="ts">
-import {computed, onMounted} from 'vue'
+import {computed, onMounted, ref} from 'vue'
 import {useFinanceStore} from "@/store";
 import AddEarnings from "@/forms/AddEarnings.vue";
 import HighChartLine from "@/components/HighCharts/HighChartLine.vue";
@@ -64,6 +77,7 @@ import {
   Edit,
   DeleteFilled
 } from '@element-plus/icons-vue'
+import {ElMessage} from "element-plus";
 
 const store = useFinanceStore()
 const format = (balance: number) => {
@@ -102,8 +116,43 @@ const sortedEarnings = computed(() => {
 })
 
 
-const editItem = (row: any) => {
-  console.log('Edit:', row)
+const editDialogVisible = ref<boolean>(false)
+const currentEditItem = ref<IEarnings>({})
+const newAmount = ref<number | string | null>(null)
+
+const openEditDialog = (row: IEarnings) => {
+  currentEditItem.value = {...row}
+  newAmount.value = row.amount
+  editDialogVisible.value = true
+}
+
+const saveAmount = async () => {
+  if(currentEditItem.value && newAmount.value !== ''){
+    try {
+      if(newAmount.value !== currentEditItem.value.amount){
+        const {error} = await store.updateEarningsAmount(currentEditItem.value.id, newAmount.value)
+
+        if(error){
+          ElMessage.error('Ошибка:', error)
+        } else {
+          await store.getUserData()
+          ElMessage.success('Сумма успешно обновлена!')
+          editDialogVisible.value = false
+        }
+      } else {
+        ElMessage.warning('Введите новую сумму!')
+      }
+    } catch (e) {
+      console.error(e)
+    }
+  } else {
+    ElMessage.warning('Введите сумму!')
+  }
+}
+
+
+const copyToClipboard = (row: any) => {
+  navigator.clipboard.writeText(`Месяц: ${row.month}, Заработок: ${format(row.amount)}`)
 }
 const deleteItem = async (id: string) => {
   await store.deleteItemData(id)
@@ -120,7 +169,7 @@ onMounted(async () => {
 
 .main-page {
   .el-card {
-    margin: $size * 2 0;
+    margin: $padding_main 0;
   }
 
   .el-dropdown-link {
@@ -130,16 +179,25 @@ onMounted(async () => {
     color: $color_main_green;
   }
 
-  h1:nth-child(3) {
-    margin: $size * 2 0;
+  .el-dialog {
+    p {
+      margin-bottom: $padding;
+    }
+  }
+
+  h1:nth-child(4) {
+    margin: $padding - 5 0;
   }
 
   h2 {
-    margin: 0 0 $size * 2;
-
+    margin-bottom: $padding_main;
     span {
       color: $color_main_green;
     }
+  }
+
+  hr {
+    margin: 0 0 $padding 0;
   }
 
   .income {

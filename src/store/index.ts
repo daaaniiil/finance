@@ -112,6 +112,24 @@ export const useFinanceStore = defineStore('finance', () => {
         }
     }
 
+    const updateEarningsAmount = async (id: string, newAmount: number) => {
+        loading.value = true
+        try {
+            const {data, error} = await supabase
+                .from('earnings')
+                .update({ amount: newAmount })
+                .eq('id', id)
+
+            if(error) {
+                console.error('Ошибка обновления суммы:', error)
+            } return {data}
+        } catch (e) {
+            console.error(e)
+        } finally {
+            loading.value = false
+        }
+    }
+
     const nowNewYear = async () => {
         loading.value = true
         try {
@@ -138,6 +156,7 @@ export const useFinanceStore = defineStore('finance', () => {
         getUserData,
         createUserData,
         deleteItemData,
+        updateEarningsAmount,
         nowNewYear
     }
 })
