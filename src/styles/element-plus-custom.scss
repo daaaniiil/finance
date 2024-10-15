@@ -37,6 +37,18 @@
   }
 }
 
+.el-button--warning {
+  color: $color_text;
+  background-color: $color_white_text;
+  border: 1px solid $color_border_gray;
+  transition: 0.15s linear all;
+  &:hover {
+    color: $color_text_orange;
+    background-color: $color_background_orange;
+    border: 1px solid $color_border_orange;
+  }
+}
+
 .el-switch.is-checked .el-switch__core{
   background-color: $color_main_green;
   border-color: $color_main_green;
@@ -76,4 +88,23 @@
   .el-breadcrumb__inner.is-link:hover {
     color: $color_main_green
   }
+}
+
+.el-dialog {
+  width: 500px;
+  max-width: 90%;
+  max-height: 80vh;
+  padding: $padding_main;
+
+  @media(max-width: 768px){
+    padding: $padding_main / 2;
+  }
+
+  @media(max-width: 321px){
+    padding: $padding - 7;
+  }
+}
+
+.el-dialog__headerbtn:hover .el-dialog__close {
+  color: $color_main_green;
 }

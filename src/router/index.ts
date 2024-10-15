@@ -19,6 +19,33 @@ const router = createRouter({
             }
         },
         {
+            path: '/income-expenses',
+            name: 'income-expenses-page',
+            component: () => import('../views/common/IncomeExpensesPage.vue'),
+            meta: {
+                layout: 'main-layout',
+                auth: true
+            }
+        },
+        {
+            path: '/analytics',
+            name: 'analytics-page',
+            component: () => import('../views/common/AnalyticsPage.vue'),
+            meta: {
+                layout: 'main-layout',
+                auth: true
+            }
+        },
+        {
+            path: '/settings',
+            name: 'settings-page',
+            component: () => import('../views/common/SettingsPage.vue'),
+            meta: {
+                layout: 'main-layout',
+                auth: true
+            }
+        },
+        {
             path: '/auth',
             name: 'login-page',
             component: () => import('../views/auth/LoginPage.vue'),
@@ -32,15 +59,6 @@ const router = createRouter({
             component: () => import('../views/auth/RegisterPage.vue'),
             meta: {
                 layout: 'empty-layout'
-            }
-        },
-        {
-            path: '/analytics',
-            name: 'analytics-page',
-            component: () => import('../views/common/AnalyticsPage.vue'),
-            meta: {
-                layout: 'main-layout',
-                auth: true
             }
         },
         {

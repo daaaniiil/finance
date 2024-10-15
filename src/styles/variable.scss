@@ -8,16 +8,22 @@ $color_empty_green: #c0f5bf;
 $color_empty_green_2: #3e8f3d;
 $color_green_background: #f3fff3;
 
+$color_text_orange: #ff8c00;
+$color_background_orange: #fff5e5;
+$color_border_orange: #ffdcb2;
+
 $color_red_main: #ef2b2b;
 $color_red_empty: #f5bfbf;
 $color_red_background: #fdf2f2;
 
+$color_border_gray: #dcdfe6;
 
 $size_tiny: 3px;
 $size: 10px;
 $size_default: 17px;
-$size_big: 23px;
-$size_average: 25px;
+$size_average: 23px;
+$size_large: 36px;
+$size_big: 50px;
 
 $radius_tiny: 5px;
 $radius_small: 10px;
@@ -26,4 +32,7 @@ $radius_average: 30px;
 $radius_large: 35px;
 $radius_big: 50px;
 
-// сделать переменные для font-size отдельно и для радиуса отдельно
+$padding: 15px;
+$padding_main: 20px;
+$padding_medium: 24px;
+$padding_average: 30px;

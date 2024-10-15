@@ -1,21 +1,21 @@
 <template>
-  <div class="transaction-page">
+  <div class="settings-page">
     <el-breadcrumb separator="/">
       <el-breadcrumb-item :to="{ name: 'main-page' }">Главная</el-breadcrumb-item>
       <el-breadcrumb-item :to="{ name: 'income-expenses-page' }">Доходы & Расходы</el-breadcrumb-item>
       <el-breadcrumb-item :to="{ name: 'analytics-page' }">Аналитика</el-breadcrumb-item>
-      <el-breadcrumb-item>Настройки</el-breadcrumb-item>
+      <el-breadcrumb-item :to="{ name: 'settings-page' }">Настройки</el-breadcrumb-item>
     </el-breadcrumb>
-    <h1>Страница аналитики</h1>
-    <HighChartComponent />
+    <h1>Настройки</h1>
   </div>
 </template>
 
 <script setup lang="ts">
-import HighChartComponent from "@/components/highCharts/HighChartComponent.vue";
 
 </script>
 
 <style lang="scss">
+.settings-page {
 
+}
 </style>

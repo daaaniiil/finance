@@ -68,7 +68,7 @@ export default defineComponent({
   }
 
   .el-footer {
-    margin-top: $size_average;
+    margin-top: $padding_medium - 1;
     height: 200px;
     background-color: darkgrey;
     width: 100%;
@@ -88,10 +88,10 @@ export default defineComponent({
   }
 
   .el-header {
-    padding: $radius_medium 0;
+    padding: $padding 0;
 
     img {
-      margin-right: $size;
+      margin-right: $padding - 5;
       height: 2em;
     }
 
@@ -113,7 +113,7 @@ export default defineComponent({
 
         .nav-links {
           display: flex;
-          gap: $size_big;
+          gap: $padding_medium + 1;
         }
       }
     }

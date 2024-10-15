@@ -32,7 +32,7 @@ export default defineComponent({
     justify-content: space-between;
     align-items: center;
     h1 {
-      margin-bottom: 24px;
+      margin-bottom: $padding_medium;
       flex: auto;
       font-size: 36px;
       text-align: center;

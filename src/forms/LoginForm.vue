@@ -74,10 +74,10 @@ export default defineComponent({
 .form-login {
   .el-form-item {
     &:nth-child(1) {
-      margin-bottom: $radius_average;
+      margin-bottom: $padding_average;
     }
     &:nth-child(3) {
-      margin-bottom: $size;
+      margin-bottom: $padding - 5;
     }
     .el-select .el-input {
       width: 80px;
