@@ -13,7 +13,7 @@ export default defineComponent({
       required: true
     },
     salaries: {
-      type: Array as () => number[],
+      type: Array as () => (number | null)[],
       required: true
     }
   },

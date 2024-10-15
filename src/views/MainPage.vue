@@ -31,7 +31,8 @@
                 <el-dropdown-menu slot="dropdown">
                   <el-dropdown-item :icon="Edit" @click="openEditDialog(scope.row)">Edit</el-dropdown-item>
                   <el-dropdown-item :icon="DocumentCopy" @click="copyToClipboard(scope.row)">Copy</el-dropdown-item>
-                  <el-dropdown-item :icon="DeleteFilled" @click="deleteItem(scope.row.id)" style="color: red;">Delete</el-dropdown-item>
+                  <el-dropdown-item :icon="DeleteFilled" @click="deleteItem(scope.row.id)" style="color: red;">Delete
+                  </el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
@@ -41,9 +42,9 @@
     </el-card>
 
     <el-dialog
-      title="Редактировать сумму"
-      v-model="editDialogVisible"
-      width="30%">
+        title="Редактировать сумму"
+        v-model="editDialogVisible"
+        width="30%">
       <p>Измените сумма для месяца: {{ currentEditItem?.month }}</p>
       <el-input type="number" v-model.number="newAmount" placeholder="Введите новую сумму"/>
       <template #footer>
@@ -57,7 +58,7 @@
       <add-earnings/>
     </el-card>
 
-    <high-chart-earnings :months="monthLabel" :salaries="salaryValues" />
+    <high-chart-earnings :months="monthLabel" :salaries="salaryValues"/>
     <router-link :to="{name:'analytics-page'}">
       <el-button type="primary">Детальная аналитика</el-button>
     </router-link>
@@ -66,10 +67,10 @@
 
 <script setup lang="ts">
 import {computed, onMounted, ref} from 'vue'
-import {useFinanceStore} from "@/store";
+import {useFinanceStore} from '@/store';
 import AddEarnings from "@/forms/AddEarnings.vue";
-import HighChartEarnings from "@/components/HighCharts/HighChartEarnings.vue";
-import {IEarnings} from "@/resources/types.ts";
+import HighChartEarnings from "../components/highCharts/HighChartEarnings.vue";
+import {IEarnings} from "../resources/types";
 import {
   DocumentCopy,
   Edit,
@@ -115,8 +116,12 @@ const sortedEarnings = computed(() => {
 
 
 const editDialogVisible = ref<boolean>(false)
-const currentEditItem = ref<IEarnings>({})
-const newAmount = ref<number | string | null>(null)
+const currentEditItem = ref<IEarnings>({
+  id: '',
+  amount: null,
+  month: ''
+})
+const newAmount = ref<number | null>(0)
 
 const openEditDialog = (row: IEarnings) => {
   currentEditItem.value = {...row}
@@ -125,18 +130,14 @@ const openEditDialog = (row: IEarnings) => {
 }
 
 const saveAmount = async () => {
-  if(currentEditItem.value && newAmount.value !== ''){
+  if (currentEditItem.value && newAmount.value) {
     try {
-      if(newAmount.value !== currentEditItem.value.amount){
-        const {error} = await store.updateEarningsAmount(currentEditItem.value.id, newAmount.value)
+      if (newAmount.value !== currentEditItem.value.amount) {
+        await store.updateEarningsAmount(currentEditItem.value.id, newAmount.value)
 
-        if(error){
-          ElMessage.error('Ошибка:', error)
-        } else {
-          await store.getUserData()
-          ElMessage.success('Сумма успешно обновлена!')
-          editDialogVisible.value = false
-        }
+        await store.getUserData()
+        ElMessage.success('Сумма успешно обновлена!')
+        editDialogVisible.value = false
       } else {
         ElMessage.warning('Введите новую сумму!')
       }
@@ -193,6 +194,7 @@ onMounted(async () => {
 
   h2 {
     margin-bottom: $padding_main;
+
     span {
       color: $color_main_green;
     }

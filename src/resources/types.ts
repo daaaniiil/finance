@@ -8,6 +8,7 @@ export interface IAuthCredential {
 }
 
 export interface IEarnings {
+    id?: string | undefined
     amount: number | null
     month: string
 }

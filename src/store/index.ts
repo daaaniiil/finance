@@ -3,7 +3,7 @@ import {ref} from 'vue'
 import {supabase} from "../resources/supabase.ts";
 import {IEarnings} from "../resources/types.ts";
 import {ElMessage} from "element-plus";
-import {TInstanceForm} from "../resources/auth.ts";
+import {TInstanceForm} from "@/resources/auth.ts";
 
 export const useFinanceStore = defineStore('finance', () => {
     const balance = ref<number>(0)
@@ -47,7 +47,7 @@ export const useFinanceStore = defineStore('finance', () => {
             return
         }
 
-        form.value.validate(async (valid: boolean) => {
+         form.value.validate(async (valid: boolean) => {
             if(valid) {
                 loading.value = true
                 try {
@@ -100,7 +100,7 @@ export const useFinanceStore = defineStore('finance', () => {
             if(error) {
                 console.error('Error deleting item:', error)
             } else if(status === 204) {
-                console.log('Item successfully deleted')
+                ElMessage.success('Удалено успешно!')
                 await getUserData()
             } else {
                 console.log('Unexpected response:', data)
@@ -112,7 +112,7 @@ export const useFinanceStore = defineStore('finance', () => {
         }
     }
 
-    const updateEarningsAmount = async (id: string, newAmount: number) => {
+    const updateEarningsAmount = async (id: string | undefined, newAmount: number | null) => {
         loading.value = true
         try {
             const {data, error} = await supabase

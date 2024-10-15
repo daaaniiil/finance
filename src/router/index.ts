@@ -70,7 +70,7 @@ const router = createRouter({
     linkActiveClass: 'active',
     linkExactActiveClass: 'active'
 })
-
+// использовать auth
 router.beforeEach( async (to, _from, next) => {
     const storedSession = sessionStorage.getItem('supabase.auth.token')
     const {data: {session}} = await supabase.auth.getSession()

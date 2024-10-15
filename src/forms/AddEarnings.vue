@@ -30,14 +30,13 @@
 <script setup lang="ts">
 import {computed, reactive, ref} from 'vue'
 import {useFinanceStore} from "@/store";
-import {FormRules} from "element-plus";
-import {TInstanceForm} from "@/resources/auth";
-import {IEarnings} from "@/resources/types.ts";
+import {ElForm, FormRules} from "element-plus";
+import {IEarnings} from "../resources/types";
 
 const store = useFinanceStore()
 const loading = store.loading
 
-const form = ref<TInstanceForm>()
+const form = ref()
 
 const model = reactive<IEarnings>({
   month: '',
