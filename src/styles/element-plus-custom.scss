@@ -97,7 +97,7 @@
   padding: $padding_main;
 
   @media(max-width: 768px){
-    padding: $padding_main / 2;
+    padding: $padding_main - 10;
   }
 
   @media(max-width: 321px){

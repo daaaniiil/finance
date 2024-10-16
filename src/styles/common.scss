@@ -26,20 +26,23 @@ a {
   color: $color_text;
   padding-bottom: $radius_tiny;
   background-image: linear-gradient(currentColor, currentColor);
-  transition: background-size .3s;
+  transition: linear all .2s;
   background-repeat: no-repeat;
-  background-position: 50% 100%;
+  background-position: 0 100%;
   background-size: 0 2px;
   &.active {
+    font-weight: bold;
     color: $color_main_green;
-    border-bottom: 2px solid $color_main_green;
+    //border-bottom: 2px solid $color_main_green;
     &:hover {
+      margin-left: 0;
       background-size: 0;
     }
   }
   &:hover {
     color: $color_main_green;
-    background-size: 100% 2px;
+    //background-size: 100% 2px;
+    margin-left: $padding_main;
   }
 }
 
