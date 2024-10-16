@@ -4,14 +4,13 @@ import {supabase} from "../resources/supabase.ts";
 import {IEarnings} from "../resources/types.ts";
 import {ElMessage} from "element-plus";
 import {TInstanceForm} from "@/resources/auth.ts";
+import {useRouter} from "vue-router";
 
 export const useFinanceStore = defineStore('finance', () => {
-    const balance = ref<number>(0)
-    const income= ref<number>(0)
-    const expenses = ref<number>(0)
     const earnings = ref<IEarnings[]>([])
     const yearNow = new Date().getFullYear()
     const loading = ref<boolean>(false)
+    const router = useRouter()
 
     const getUserData = async () => {
         loading.value = true
@@ -130,6 +129,23 @@ export const useFinanceStore = defineStore('finance', () => {
         }
     }
 
+    const logout = async () => {
+        loading.value = true
+        try {
+            const {error} = await supabase.auth.signOut()
+            if(error){
+                console.error(error)
+            } else {
+                await router.push({name: 'login-page'})
+                ElMessage.success('Вы вышли из аккаунта!')
+            }
+        } catch (e) {
+            console.error(e)
+        } finally {
+            loading.value = false
+        }
+    }
+
     const nowNewYear = async () => {
         loading.value = true
         try {
@@ -148,15 +164,13 @@ export const useFinanceStore = defineStore('finance', () => {
 
     return {
         loading,
-        balance,
-        income,
-        expenses,
         earnings,
         yearNow,
         getUserData,
         createUserDataEarnings,
         deleteEarningsItemData,
         updateEarningsAmount,
+        logout,
         nowNewYear
     }
 })

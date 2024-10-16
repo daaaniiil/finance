@@ -31,7 +31,7 @@ export default defineComponent({
       },
       yAxis: {
         title: {
-          text: 'Money'
+          text: 'Сумма'
         }
       },
       tooltip: {

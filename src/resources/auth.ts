@@ -31,7 +31,6 @@ export const useLogin = (form: TInstanceForm, _config: IUserLoginConfig = {}) =>
     const model = reactive<IAuthCredential>({
         password: '',
         checkPass: '',
-        remember: false,
         email: '',
         phone: ''
     }  as any)
@@ -39,10 +38,10 @@ export const useLogin = (form: TInstanceForm, _config: IUserLoginConfig = {}) =>
         return {
             password: {required: true, trigger: 'blur',message:'Введите пароль', min: 6},
             checkPass: {required: true, trigger: 'blur',validator:createValidatePassConfirm(form,model)},
-            remember: {required: false, trigger: 'change'},
             email:{required: true, trigger: 'blur',message:'Введите почту'}
         }
     })
+
     const login = () => {
         if (!form.value) {
             console.error('Auth form not found')
@@ -66,20 +65,13 @@ export const useLogin = (form: TInstanceForm, _config: IUserLoginConfig = {}) =>
                                 type: 'error',
                             })
                     } else if(data.session) {
-                        if(model.remember){
-                            await supabase.auth.setSession(data.session)
-                        } else {
-                            await supabase.auth.setSession(data.session)
-                            sessionStorage.setItem('supabase.auth.token', JSON.stringify(data.session))
-                        }
+                        await supabase.auth.setSession(data.session)
 
-                        console.log('Пользователь успешно вошел:', data.user)
                         ElNotification({
                             title: 'Вход выполнен!',
                             message: 'Вы успешно вошли в аккаунт',
                             type: 'success',
                         })
-
                         await router.push({name:'main-page'})
                     }
                 } catch (e) {
@@ -109,14 +101,7 @@ export const useLogin = (form: TInstanceForm, _config: IUserLoginConfig = {}) =>
                     })
 
                     if(data.session) {
-                        if(!model.remember){
-                            await supabase.auth.setSession(data.session)
-                            sessionStorage.setItem('supabase.auth.token', JSON.stringify(data.session))
-                        } else {
-                            await supabase.auth.setSession(data.session)
-                        }
-
-                        console.log('Пользователь успешно зарегистрирован:', data.user)
+                        await supabase.auth.setSession(data.session)
                         ElNotification({
                             title: 'Вы успешно зарегистрировались!',
                             message: 'Регистрация прошла успешно',

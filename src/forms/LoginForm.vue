@@ -28,12 +28,6 @@
         </el-form-item>
       </el-form>
       <el-form-item>
-        <el-switch
-          v-model="model.remember"
-          inactive-text="Запомнить меня"
-        ></el-switch>
-      </el-form-item>
-      <el-form-item>
         <el-button v-if="route.name === 'login-page'" type="primary" :loading="loading" @click="login">Вход</el-button>
         <el-button v-else type="primary" :loading="loading" @click="register">Зарегистрироваться</el-button>
       </el-form-item>

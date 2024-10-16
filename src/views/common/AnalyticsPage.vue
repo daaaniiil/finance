@@ -1,7 +1,6 @@
 <template>
   <div class="transaction-page">
     <el-breadcrumb separator="/">
-      <el-breadcrumb-item :to="{ name: 'main-page' }">Главная</el-breadcrumb-item>
       <el-breadcrumb-item :to="{ name: 'income-expenses-page' }">Доходы & Расходы</el-breadcrumb-item>
       <el-breadcrumb-item :to="{ name: 'analytics-page' }">Аналитика</el-breadcrumb-item>
       <el-breadcrumb-item>Настройки</el-breadcrumb-item>
