@@ -11,3 +11,10 @@ export interface IEarnings {
     amount: number | null
     month: string
 }
+
+export interface IExpenses {
+    id?: string | undefined
+    amount: number | null
+    date: string
+    category: string
+}

@@ -35,14 +35,14 @@ a {
     color: $color_main_green;
     //border-bottom: 2px solid $color_main_green;
     &:hover {
-      margin-left: 0;
+      padding-left: 0;
       background-size: 0;
     }
   }
   &:hover {
     color: $color_main_green;
     //background-size: 100% 2px;
-    margin-left: $padding_main;
+    padding-left: $padding_main;
   }
 }
 

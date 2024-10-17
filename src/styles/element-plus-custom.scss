@@ -108,3 +108,25 @@
 .el-dialog__headerbtn:hover .el-dialog__close {
   color: $color_main_green;
 }
+
+.el-dialog {
+  p {
+    margin-bottom: $padding;
+  }
+}
+
+.el-card {
+  margin: $padding_main 0;
+}
+
+.el-date-table td.today .el-date-table-cell__text {
+  color: $color_main_green
+}
+.el-date-table td.current:not(.disabled) .el-date-table-cell__text {
+  background-color: $color_main_green;
+}
+.el-date-table__row {
+  td.available:hover {
+    color: $color_main_green;
+  }
+}

@@ -55,7 +55,7 @@
 
     <el-card>
       <h2>Добавить заработок за месяц</h2>
-      <add-earnings/>
+      <earnings-form/>
     </el-card>
 
     <high-chart-earnings :months="monthLabel" :salaries="salaryValues"/>
@@ -68,7 +68,7 @@
 <script setup lang="ts">
 import {computed, onMounted, ref} from 'vue'
 import {useFinanceStore} from '@/store';
-import AddEarnings from "@/forms/AddEarnings.vue";
+import EarningsForm from "@/forms/EarningsForm.vue";
 import HighChartEarnings from "../components/highCharts/HighChartEarnings.vue";
 import {IEarnings} from "../resources/types";
 import {
@@ -135,7 +135,7 @@ const saveAmount = async () => {
       if (newAmount.value !== currentEditItem.value.amount) {
         await store.updateEarningsAmount(currentEditItem.value.id, newAmount.value)
 
-        await store.getUserData()
+        await store.getUserEarnings()
         ElMessage.success('Сумма успешно обновлена!')
         editDialogVisible.value = false
       } else {
@@ -162,7 +162,7 @@ const monthLabel = computed(() => sortedEarnings.value.map((e: IEarnings) => e.m
 const salaryValues = computed(() => sortedEarnings.value.map((e: IEarnings) => e.amount).reverse())
 
 onMounted(async () => {
-  await store.getUserData()
+  await store.getUserEarnings()
   await store.nowNewYear()
 })
 </script>
@@ -171,21 +171,12 @@ onMounted(async () => {
 @use '../styles/variable.scss' as *;
 
 .main-page {
-  .el-card {
-    margin: $padding_main 0;
-  }
 
   .el-dropdown-link {
     background: none;
     border: none;
     cursor: pointer;
     color: $color_main_green;
-  }
-
-  .el-dialog {
-    p {
-      margin-bottom: $padding;
-    }
   }
 
   h1:nth-child(4) {

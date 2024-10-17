@@ -44,7 +44,7 @@ const model = reactive<IEarnings>({
 }  as any)
 const rules = computed<FormRules>(() => {
   return {
-    month: {required: true, trigger: 'blur',message:'Ввыберите месяц'},
+    month: {required: true, trigger: 'blur',message:'Выберите месяц'},
     amount:{required: true, trigger: 'blur',message:'Введите сумму'}
   }
 })
