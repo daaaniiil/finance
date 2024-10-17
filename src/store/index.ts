@@ -1,34 +1,36 @@
 import {defineStore} from "pinia";
 import {ref} from 'vue'
 import {supabase} from "../resources/supabase.ts";
-import {IEarnings} from "../resources/types.ts";
+import {IEarnings, IExpenses} from "../resources/types.ts";
 import {ElMessage} from "element-plus";
 import {TInstanceForm} from "@/resources/auth.ts";
 import {useRouter} from "vue-router";
 
+
 export const useFinanceStore = defineStore('finance', () => {
     const earnings = ref<IEarnings[]>([])
+    const expenses = ref<IExpenses[]>([])
     const yearNow = new Date().getFullYear()
     const loading = ref<boolean>(false)
     const router = useRouter()
 
-    const getUserData = async () => {
+    const getUserEarnings = async () => {
         loading.value = true
         try {
             const {data: dataUser, error: authError} = await supabase.auth.getUser()
 
-            if(authError || !dataUser){
+            if (authError || !dataUser) {
                 console.error(authError?.message || 'Пользователь не авторизован')
             }
 
-            const userId: string | undefined  = dataUser.user?.id
+            const userId: string | undefined = dataUser.user?.id
 
             const {data, error} = await supabase
                 .from('earnings')
                 .select('id, month, amount')
                 .eq('user_id', userId)
 
-            if(error){
+            if (error) {
                 ElMessage.error(`${error.message}`)
             } else {
                 earnings.value = data || []
@@ -46,13 +48,13 @@ export const useFinanceStore = defineStore('finance', () => {
             return
         }
 
-         form.value.validate(async (valid: boolean) => {
-            if(valid) {
+        form.value.validate(async (valid: boolean) => {
+            if (valid) {
                 loading.value = true
                 try {
                     const {data: dataUser, error: authError} = await supabase.auth.getUser()
 
-                    if(authError || !dataUser){
+                    if (authError || !dataUser) {
                         console.error(authError?.message || 'Пользователь не авторизован')
                     }
 
@@ -68,11 +70,11 @@ export const useFinanceStore = defineStore('finance', () => {
                             }
                         ])
 
-                    if(insertError) {
+                    if (insertError) {
                         ElMessage.error(`${insertError.message}`)
                     } else {
                         ElMessage.success('Заработок успешно добавлен!')
-                        await getUserData()
+                        await getUserEarnings()
                         model.amount = null
                         model.month = ''
                     }
@@ -96,11 +98,11 @@ export const useFinanceStore = defineStore('finance', () => {
                 .delete()
                 .eq('id', id)
 
-            if(error) {
+            if (error) {
                 console.error('Error deleting item:', error)
-            } else if(status === 204) {
+            } else if (status === 204) {
                 ElMessage.success('Удалено успешно!')
-                await getUserData()
+                await getUserEarnings()
             } else {
                 console.log('Unexpected response:', data)
             }
@@ -116,12 +118,131 @@ export const useFinanceStore = defineStore('finance', () => {
         try {
             const {data, error} = await supabase
                 .from('earnings')
-                .update({ amount: newAmount })
+                .update({amount: newAmount})
                 .eq('id', id)
 
-            if(error) {
+            if (error) {
                 console.error('Ошибка обновления суммы:', error)
-            } return {data}
+            }
+            return {data}
+        } catch (e) {
+            console.error(e)
+        } finally {
+            loading.value = false
+        }
+    }
+
+    const createUserDataExpenses = async (form: TInstanceForm, model: IExpenses) => {
+        if (!form.value) {
+            console.error('Expenses form not found')
+            return
+        }
+
+        form.value.validate(async (valid: boolean) => {
+            if (valid) {
+                try {
+                    const {data: dataUser, error: authError} = await supabase.auth.getUser()
+
+                    if (authError || !dataUser) {
+                        console.error(authError?.message || 'Пользователь не авторизован')
+                    }
+
+                    const userId: string | undefined = dataUser.user?.id
+
+                    const {error: insertError} = await supabase
+                        .from('expenses')
+                        .insert([
+                            {
+                                user_id: userId,
+                                category: model.category,
+                                amount: model.amount,
+                                date: model.date
+                            }
+                        ])
+
+                    if (insertError) {
+                        ElMessage.error(`${insertError.message}`)
+                    }
+                    ElMessage.success('Расход успешно сохранен!')
+                    await getUserExpenses()
+                    model.amount = null
+                    model.category = ''
+                    model.date = ''
+                } catch (e) {
+                    console.error(e)
+                } finally {
+                    loading.value = false
+                }
+            } else {
+                console.error('Form validation failed')
+                loading.value = false
+            }
+        })
+    }
+
+    const getUserExpenses = async () => {
+        loading.value = true
+        try {
+            const {data: dataUser, error: authError} = await supabase.auth.getUser()
+
+            if (authError || !dataUser) {
+                console.error(authError?.message || 'Пользователь не авторизован')
+            }
+
+            const userId: string | undefined = dataUser.user?.id
+
+            const {data, error} = await supabase
+                .from('expenses')
+                .select('*')
+                .eq('user_id', userId)
+
+            if (error) {
+                ElMessage.error(`${error.message}`)
+            }
+            expenses.value = data || []
+        } catch (e) {
+            console.error(e)
+        } finally {
+            loading.value = false
+        }
+    }
+
+    const updateEarningsExpenses = async (id: string | undefined, newAmount: number | null) => {
+        loading.value = true
+        try {
+            const {data, error} = await supabase
+                .from('expenses')
+                .update({amount: newAmount})
+                .eq('id', id)
+
+            if (error) {
+                console.error('Ошибка обновления суммы:', error)
+            }
+            await getUserExpenses()
+            return {data}
+        } catch (e) {
+            console.error(e)
+        } finally {
+            loading.value = false
+        }
+    }
+
+    const deleteExpensesItem = async (id: string) => {
+        loading.value = true
+        try {
+            const {data, error, status} = await supabase
+                .from('expenses')
+                .delete()
+                .eq('id', id)
+
+            if (error) {
+                console.error('Error deleting item:', error)
+            } else if (status === 204) {
+                ElMessage.success('Удалено успешно!')
+                await getUserExpenses()
+            } else {
+                console.log('Unexpected response:', data)
+            }
         } catch (e) {
             console.error(e)
         } finally {
@@ -133,7 +254,7 @@ export const useFinanceStore = defineStore('finance', () => {
         loading.value = true
         try {
             const {error} = await supabase.auth.signOut()
-            if(error){
+            if (error) {
                 console.error(error)
             } else {
                 await router.push({name: 'login-page'})
@@ -149,7 +270,7 @@ export const useFinanceStore = defineStore('finance', () => {
     const nowNewYear = async () => {
         loading.value = true
         try {
-            if(yearNow === yearNow + 1){
+            if (yearNow === yearNow + 1) {
                 // заносить данные в last-year-earnings и удалять из earnings
                 console.log('Данные очищены')
             } else {
@@ -165,11 +286,16 @@ export const useFinanceStore = defineStore('finance', () => {
     return {
         loading,
         earnings,
+        expenses,
         yearNow,
-        getUserData,
+        getUserEarnings,
         createUserDataEarnings,
         deleteEarningsItemData,
         updateEarningsAmount,
+        getUserExpenses,
+        deleteExpensesItem,
+        updateEarningsExpenses,
+        createUserDataExpenses,
         logout,
         nowNewYear
     }
