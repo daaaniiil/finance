@@ -92,7 +92,7 @@ export const useFinanceStore = defineStore('finance', () => {
                         ElMessage.error(`${insertError.message}`)
                     } else {
                         ElMessage.success('Заработок успешно добавлен!')
-                        await getUserEarnings()
+                        await incomeExpensesEarnings()
                         model.amount = null
                         model.month = ''
                     }
@@ -120,7 +120,7 @@ export const useFinanceStore = defineStore('finance', () => {
                 console.error('Error deleting item:', error)
             } else if (status === 204) {
                 ElMessage.success('Удалено успешно!')
-                await getUserEarnings()
+                await incomeExpensesEarnings()
             } else {
                 console.log('Unexpected response:', data)
             }
@@ -142,6 +142,7 @@ export const useFinanceStore = defineStore('finance', () => {
             if (error) {
                 console.error('Ошибка обновления суммы:', error)
             }
+            await incomeExpensesEarnings()
             return {data}
         } catch (e) {
             console.error(e)
@@ -181,7 +182,7 @@ export const useFinanceStore = defineStore('finance', () => {
                     if (insertError) {
                         ElMessage.error(`${insertError.message}`)
                     }
-                    ElMessage.success('Расход успешно сохранен!')
+                    ElMessage.success('Расход успешно добавлен!')
                     await getUserExpenses()
                     model.amount = null
                     model.category = ''
@@ -304,8 +305,8 @@ export const useFinanceStore = defineStore('finance', () => {
     const incomeExpensesEarnings = async () => {
         loading.value = true
         try {
-            await getUserExpenses()
             await getUserEarnings()
+            await getUserExpenses()
 
             let lastMonth: number = new Date().getMonth()
             if(lastMonth === 0){
@@ -336,8 +337,8 @@ export const useFinanceStore = defineStore('finance', () => {
     const incomeExpensesEarningsCurrent = async () => {
         loading.value = true
         try {
-            await getUserExpenses()
             await getUserEarnings()
+            await getUserExpenses()
 
             const currentMonth = new Date().getMonth()
             const availableMonths = months.find(month => month.value === currentMonth)?.label
@@ -382,6 +383,7 @@ export const useFinanceStore = defineStore('finance', () => {
         logout,
         nowNewYear,
         incomeExpensesEarnings,
-        incomeExpensesEarningsCurrent
+        incomeExpensesEarningsCurrent,
+        // expensesIncomeLine
     }
 })

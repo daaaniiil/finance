@@ -25,6 +25,7 @@
 import {onMounted, computed} from "vue";
 import {useFinanceStore} from "@/store";
 import HighChartComponent from "@/components/highCharts/HighChartComponent.vue";
+import {IMonths} from "@/resources/types.ts";
 
 const store = useFinanceStore()
 
@@ -33,7 +34,7 @@ const format = (balance: number) => {
 }
 
 const currentMonth = new Date().getMonth()
-const availableMonths = store.months.find(month => month.value === currentMonth)?.label
+const availableMonths = store.months.find((month: IMonths) => month.value === currentMonth)?.label
 
 const incomeCurrentMonthAmount = computed(() => {
   return store.earningsCurrentMonthAmount - store.expensesCurrentMonthAmount

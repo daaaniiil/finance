@@ -37,7 +37,7 @@
 <script setup lang="ts">
 import {computed, reactive, ref} from "vue";
 import {useFinanceStore} from "@/store";
-import {IExpenses} from "@/resources/types.ts";
+import {IEarnings, IExpenses, IMonths} from "@/resources/types.ts";
 import {ElMessage, FormRules} from "element-plus";
 
 const store = useFinanceStore()
@@ -58,33 +58,37 @@ const rules = computed<FormRules>(() => {
   }
 })
 
+const monthLabel = computed(() => store.earnings.map((e: IEarnings) => e.month))
+
 const submitExpenses = async () => {
   if (model.date) {
-    const currentMonth = new Date().getMonth() + 1
-    let lastMonth = new Date().getMonth()
-    if(lastMonth === 0){
-      lastMonth = 12
-    }
     const selectedDate = new Date(model.date)
+    const selectedMonth = selectedDate.getMonth() + 1
+    const selectedYear = selectedDate.getFullYear()
 
-    const year = selectedDate.getFullYear()
-    const month = String(selectedDate.getMonth() + 1).padStart(2, '0')
-    const day = String(selectedDate.getDate()).padStart(2, '0')
+    model.date = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`
 
-    model.date = `${year}-${month}-${day}`
+    const availableMonthLabel = store.months.find((month: IMonths) => month.value === selectedMonth - 1)?.label
 
-    if(Number(month) === lastMonth){
-      if(store.earningsLastMonthAmount < store.expensesLastMonthAmount + Number(model.amount)){
-        ElMessage.warning('У вас не достаточно средств')
+    if (availableMonthLabel && monthLabel.value.includes(availableMonthLabel)) {
+
+      const monthExpenses = store.expenses
+          .filter((expense: IExpenses) => {
+            const expenseDate = new Date(expense.date)
+            return expenseDate.getMonth() + 1 === selectedMonth && expenseDate.getFullYear() === selectedYear
+          })
+          .reduce((acc: number, expense: IExpenses) => acc + (expense.amount || 0), 0)
+
+      const monthEarnings = store.earnings
+          .find((earning: IEarnings) => earning.month === availableMonthLabel)?.amount || 0
+
+      if (monthExpenses + Number(model.amount) > monthEarnings) {
+        ElMessage.warning('У вас не достаточно средств в выбранном месяце')
       } else {
-        await store.createUserDataExpenses(form, model)
+        await store.createUserDataExpenses(form,model)
       }
-    } else if(Number(month) === currentMonth) {
-      if(store.earningsCurrentMonthAmount < store.expensesCurrentMonthAmount + Number(model.amount)){
-        ElMessage.warning('У вас не достаточно средств')
-      } else {
-        await store.createUserDataExpenses(form, model)
-      }
+    } else {
+      ElMessage.warning('Вы не получили зарплату в этом месяце')
     }
   }
 }

@@ -70,7 +70,7 @@ import {computed, onMounted, ref} from 'vue'
 import {useFinanceStore} from '@/store';
 import EarningsForm from "@/forms/EarningsForm.vue";
 import HighChartEarnings from "../components/highCharts/HighChartEarnings.vue";
-import {IEarnings} from "../resources/types";
+import {IEarnings, IMonths} from "../resources/types";
 import {
   DocumentCopy,
   Edit,
@@ -88,7 +88,7 @@ if(lastMonth === 0){
   lastMonth = 12
 }
 
-const availableMonths = store.months.find(month => month.value === lastMonth - 1)?.label
+const availableMonths = store.months.find((month: IMonths) => month.value === lastMonth - 1)?.label
 
 const incomeLastMonthAmount = computed(() => {
   return store.earningsLastMonthAmount - store.expensesLastMonthAmount
@@ -97,8 +97,8 @@ const incomeLastMonthAmount = computed(() => {
 
 const sortedEarnings = computed(() => {
   return store.earnings.slice().sort((a: IEarnings, b: IEarnings) => {
-    const monthA = store.months.findIndex(month => month.label === a.month)
-    const monthB = store.months.findIndex(month => month.label === b.month)
+    const monthA = store.months.findIndex((month: IMonths) => month.label === a.month)
+    const monthB = store.months.findIndex((month: IMonths) => month.label === b.month)
     return monthB - monthA
   })
 })

@@ -12,7 +12,7 @@ const router = createRouter({
         {
             path: '/main',
             name: 'main-page',
-            component: () => import('../views/MainPage.vue'),
+            component: () => import('../views/MainView.vue'),
             meta: {
                 layout: 'main-layout',
                 auth: true
@@ -21,7 +21,7 @@ const router = createRouter({
         {
             path: '/income-expenses',
             name: 'income-expenses-page',
-            component: () => import('../views/common/IncomeExpensesPage.vue'),
+            component: () => import('../views/common/IncomeExpensesView.vue'),
             meta: {
                 layout: 'main-layout',
                 auth: true
@@ -30,7 +30,7 @@ const router = createRouter({
         {
             path: '/analytics',
             name: 'analytics-page',
-            component: () => import('../views/common/AnalyticsPage.vue'),
+            component: () => import('../views/common/AnalyticsView.vue'),
             meta: {
                 layout: 'main-layout',
                 auth: true
@@ -39,7 +39,7 @@ const router = createRouter({
         {
             path: '/settings',
             name: 'settings-page',
-            component: () => import('../views/common/SettingsPage.vue'),
+            component: () => import('../views/common/SettingsView.vue'),
             meta: {
                 layout: 'main-layout',
                 auth: true
@@ -48,7 +48,7 @@ const router = createRouter({
         {
             path: '/auth',
             name: 'login-page',
-            component: () => import('../views/auth/LoginPage.vue'),
+            component: () => import('../views/auth/LoginView.vue'),
             meta: {
                 layout: 'empty-layout'
             }
@@ -56,7 +56,7 @@ const router = createRouter({
         {
             path: '/register',
             name: 'register-page',
-            component: () => import('../views/auth/RegisterPage.vue'),
+            component: () => import('../views/auth/RegisterView.vue'),
             meta: {
                 layout: 'empty-layout'
             }
@@ -64,7 +64,7 @@ const router = createRouter({
         {
             path: '/notfound',
             name: 'notfound-page',
-            component: () => import('../views/NotFoundPage.vue')
+            component: () => import('../views/NotFoundView.vue')
         },
     ],
     linkActiveClass: 'active',

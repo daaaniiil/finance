@@ -11,11 +11,11 @@
       </el-card>
       <el-card>
         <h2>Ваши расходы</h2>
-        <el-table :data="sortedExpenses">
-          <el-table-column fixed prop="date" label="Дата" width="120"/>
-          <el-table-column prop="category" label="Категория"/>
-          <el-table-column prop="amount" label="Сумма"/>
-          <el-table-column fixed="right" label="Действия">
+        <el-table :data="sortedExpenses" :height="500">
+          <el-table-column fixed prop="date" label="Дата" width="120" />
+          <el-table-column prop="category" label="Категория" width="300"/>
+          <el-table-column prop="amount" label="Сумма" align="center"/>
+          <el-table-column  label="Действия" width="130">
             <template #default="scope">
               <el-dropdown trigger="click">
                 <el-button class="el-dropdown-link">
@@ -48,6 +48,7 @@
         </template>
       </el-dialog>
 
+      <high-chart-expenses-income :months="monthLabel" :expenses="expensesAmount" :income="incomeAmount" />
     </div>
   </div>
 </template>
@@ -58,7 +59,8 @@ import ExpensesForm from "@/forms/ExpensesForm.vue";
 import {useFinanceStore} from "@/store";
 import {DeleteFilled, DocumentCopy, Edit} from "@element-plus/icons-vue";
 import {ElMessage} from "element-plus";
-import {IExpenses} from "@/resources/types.ts";
+import {IEarnings, IExpenses, IMonths} from "@/resources/types.ts";
+import HighChartExpensesIncome from "../../components/highCharts/HighChartExpensesIncome.vue";
 
 const store = useFinanceStore()
 
@@ -129,9 +131,42 @@ const sortedExpenses = computed(() => {
   })
 })
 
+const sortedEarnings = computed(() => {
+  return store.earnings.slice().sort((a: IEarnings, b: IEarnings) => {
+    const monthA = store.months.findIndex((month: IMonths) => month.label === a.month)
+    const monthB = store.months.findIndex((month: IMonths) => month.label === b.month)
+    return monthB - monthA
+  })
+})
+
+const monthLabel = computed(() => sortedEarnings.value.map((e: IEarnings) => e.month).reverse())
+
+const expensesAmount = computed(() => {
+  const groupedExpenses = store.expenses.reduce((acc: Record<string, number>, expense: IExpenses) =>{
+    const month = new Date(expense.date).toLocaleString('ru-RU', {month: 'long'}).toLowerCase()
+    acc[month] = (acc[month] || 0) + (expense.amount || 0)
+    return acc
+  }, {})
+
+  return monthLabel.value.map((month: string) => groupedExpenses[month.toLowerCase()] || 0)
+})
+
+const incomeAmount = computed(() => {
+  return sortedEarnings.value.map((earning: IEarnings) => {
+    const month = earning.month.toLowerCase()
+    const monthExpenses = store.expenses
+        .filter((expense: IExpenses) => {
+          return new Date(expense.date).toLocaleString('ru-RU', {month:'long'}).toLowerCase() === month
+        }).reduce((acc: number, expense: IExpenses) => acc + (expense.amount || 0), 0)
+
+    return earning.amount - monthExpenses
+  }).reverse()
+})
+
+const salaryValues = computed(() => sortedEarnings.value.map((e: IEarnings) => e.amount).reverse())
+
 onMounted(async () => {
-  await store.getUserExpenses()
-  // await store.incomeExpensesEarnings()
+  await store.incomeExpensesEarningsCurrent()
 })
 </script>
 
