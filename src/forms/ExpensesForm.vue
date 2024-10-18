@@ -38,7 +38,7 @@
 import {computed, reactive, ref} from "vue";
 import {useFinanceStore} from "@/store";
 import {IExpenses} from "@/resources/types.ts";
-import {FormRules} from "element-plus";
+import {ElMessage, FormRules} from "element-plus";
 
 const store = useFinanceStore()
 const loading = store.loading
@@ -60,6 +60,11 @@ const rules = computed<FormRules>(() => {
 
 const submitExpenses = async () => {
   if (model.date) {
+    const currentMonth = new Date().getMonth() + 1
+    let lastMonth = new Date().getMonth()
+    if(lastMonth === 0){
+      lastMonth = 12
+    }
     const selectedDate = new Date(model.date)
 
     const year = selectedDate.getFullYear()
@@ -67,8 +72,21 @@ const submitExpenses = async () => {
     const day = String(selectedDate.getDate()).padStart(2, '0')
 
     model.date = `${year}-${month}-${day}`
+
+    if(Number(month) === lastMonth){
+      if(store.earningsLastMonthAmount < store.expensesLastMonthAmount + Number(model.amount)){
+        ElMessage.warning('У вас не достаточно средств')
+      } else {
+        await store.createUserDataExpenses(form, model)
+      }
+    } else if(Number(month) === currentMonth) {
+      if(store.earningsCurrentMonthAmount < store.expensesCurrentMonthAmount + Number(model.amount)){
+        ElMessage.warning('У вас не достаточно средств')
+      } else {
+        await store.createUserDataExpenses(form, model)
+      }
+    }
   }
-  await store.createUserDataExpenses(form, model)
 }
 
 const labelPosition = computed(() => {

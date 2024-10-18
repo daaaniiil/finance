@@ -1,7 +1,7 @@
 import {defineStore} from "pinia";
 import {ref} from 'vue'
 import {supabase} from "../resources/supabase.ts";
-import {IEarnings, IExpenses} from "../resources/types.ts";
+import {IEarnings, IExpenses, IMonths} from "../resources/types.ts";
 import {ElMessage} from "element-plus";
 import {TInstanceForm} from "@/resources/auth.ts";
 import {useRouter} from "vue-router";
@@ -10,6 +10,24 @@ import {useRouter} from "vue-router";
 export const useFinanceStore = defineStore('finance', () => {
     const earnings = ref<IEarnings[]>([])
     const expenses = ref<IExpenses[]>([])
+    const expensesLastMonthAmount = ref<number>(0)
+    const earningsLastMonthAmount = ref<number>(0)
+    const earningsCurrentMonthAmount = ref<number>(0)
+    const expensesCurrentMonthAmount = ref<number>(0)
+    const months: IMonths[] = [
+        {label: 'Январь', value: 0},
+        {label: 'Февраль', value: 1},
+        {label: 'Март', value: 2},
+        {label: 'Апрель', value: 3},
+        {label: 'Май', value: 4},
+        {label: 'Июнь', value: 5},
+        {label: 'Июль', value: 6},
+        {label: 'Август', value: 7},
+        {label: 'Сентябрь', value: 8},
+        {label: 'Октябрь', value: 9},
+        {label: 'Ноябрь', value: 10},
+        {label: 'Декабрь', value: 11},
+    ]
     const yearNow = new Date().getFullYear()
     const loading = ref<boolean>(false)
     const router = useRouter()
@@ -283,11 +301,76 @@ export const useFinanceStore = defineStore('finance', () => {
         }
     }
 
+    const incomeExpensesEarnings = async () => {
+        loading.value = true
+        try {
+            await getUserExpenses()
+            await getUserEarnings()
+
+            let lastMonth: number = new Date().getMonth()
+            if(lastMonth === 0){
+                lastMonth = 12
+            }
+
+            const availableMonths = months.find(month => month.value === lastMonth - 1)?.label
+
+            earningsLastMonthAmount.value = earnings.value
+                .find((e: IEarnings) => e.month === availableMonths)?.amount || 0
+
+
+            const expensesLastMonth: number[] = expenses.value
+                .filter((e: IExpenses): boolean => Number(e.date.slice(5,7)) === lastMonth)
+                .map((e: IExpenses) => e.amount)
+                .filter((e: number | null): e is number => e !== null)
+
+            expensesLastMonthAmount.value = expensesLastMonth
+                .reduce((acc: number, current: number) => acc + current)
+
+        } catch (e){
+            console.error(e)
+        } finally {
+            loading.value = false
+        }
+    }
+
+    const incomeExpensesEarningsCurrent = async () => {
+        loading.value = true
+        try {
+            await getUserExpenses()
+            await getUserEarnings()
+
+            const currentMonth = new Date().getMonth()
+            const availableMonths = months.find(month => month.value === currentMonth)?.label
+
+            earningsCurrentMonthAmount.value = earnings.value
+                .find((e: IEarnings) => e.month === availableMonths)?.amount || 0
+
+
+            const expensesCurrentMonth: number[] = expenses.value
+                .filter((e: IExpenses): boolean => Number(e.date.slice(5,7)) === currentMonth + 1)
+                .map((e: IExpenses) => e.amount)
+                .filter((e: number | null): e is number => e !== null)
+
+            expensesCurrentMonthAmount.value = expensesCurrentMonth
+                .reduce((acc: number, current: number) => acc + current)
+
+        } catch (e) {
+            console.error(e)
+        } finally {
+            loading.value = false
+        }
+    }
+
     return {
         loading,
         earnings,
         expenses,
         yearNow,
+        months,
+        expensesLastMonthAmount,
+        earningsLastMonthAmount,
+        earningsCurrentMonthAmount,
+        expensesCurrentMonthAmount,
         getUserEarnings,
         createUserDataEarnings,
         deleteEarningsItemData,
@@ -297,6 +380,8 @@ export const useFinanceStore = defineStore('finance', () => {
         updateEarningsExpenses,
         createUserDataExpenses,
         logout,
-        nowNewYear
+        nowNewYear,
+        incomeExpensesEarnings,
+        incomeExpensesEarningsCurrent
     }
 })

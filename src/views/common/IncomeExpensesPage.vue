@@ -131,6 +131,7 @@ const sortedExpenses = computed(() => {
 
 onMounted(async () => {
   await store.getUserExpenses()
+  // await store.incomeExpensesEarnings()
 })
 </script>
 

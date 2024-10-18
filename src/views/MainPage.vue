@@ -8,9 +8,9 @@
     <el-card v-if="!store.loading">
       <h2>Прошлый месяц «<span>{{ availableMonths }}</span>»</h2>
       <hr>
-      <h1>Заработок: {{ format(Number(earningsLastMonth)) }}₽</h1>
-      <h1>Доход: <span class="income">{{ format(15000) }}₽</span></h1>
-      <h1>Расходы: <span class="expenses">{{ format(50000) }}₽</span></h1>
+      <h1>Заработок: {{ format(Number(store.earningsLastMonthAmount)) }}₽</h1>
+      <h1>Доход: <span class="income">{{ format(Number(incomeLastMonthAmount)) }}₽</span></h1>
+      <h1>Расходы: <span class="expenses">{{ format(store.expensesLastMonthAmount) }}₽</span></h1>
     </el-card>
     <el-card v-else>
       <el-skeleton animated/>
@@ -83,37 +83,25 @@ const format = (balance: number) => {
   return balance.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
 }
 
-const lastMonth = new Date().getMonth() - 1
+let lastMonth = new Date().getMonth()
+if(lastMonth === 0){
+  lastMonth = 12
+}
 
-const months = [
-  {label: 'Январь', value: 0},
-  {label: 'Февраль', value: 1},
-  {label: 'Март', value: 2},
-  {label: 'Апрель', value: 3},
-  {label: 'Май', value: 4},
-  {label: 'Июнь', value: 5},
-  {label: 'Июль', value: 6},
-  {label: 'Август', value: 7},
-  {label: 'Сентябрь', value: 8},
-  {label: 'Октябрь', value: 9},
-  {label: 'Ноябрь', value: 10},
-  {label: 'Декабрь', value: 11},
-]
+const availableMonths = store.months.find(month => month.value === lastMonth - 1)?.label
 
-const availableMonths = months.find(month => month.value === lastMonth)?.label
-
-const earningsLastMonth = computed(() => {
-  return store.earnings.find((e: IEarnings) => e.month === availableMonths)?.amount || 0
+const incomeLastMonthAmount = computed(() => {
+  return store.earningsLastMonthAmount - store.expensesLastMonthAmount
 })
+
 
 const sortedEarnings = computed(() => {
   return store.earnings.slice().sort((a: IEarnings, b: IEarnings) => {
-    const monthA = months.findIndex(month => month.label === a.month)
-    const monthB = months.findIndex(month => month.label === b.month)
+    const monthA = store.months.findIndex(month => month.label === a.month)
+    const monthB = store.months.findIndex(month => month.label === b.month)
     return monthB - monthA
   })
 })
-
 
 const editDialogVisible = ref<boolean>(false)
 const currentEditItem = ref<IEarnings>({
@@ -162,8 +150,8 @@ const monthLabel = computed(() => sortedEarnings.value.map((e: IEarnings) => e.m
 const salaryValues = computed(() => sortedEarnings.value.map((e: IEarnings) => e.amount).reverse())
 
 onMounted(async () => {
-  await store.getUserEarnings()
   await store.nowNewYear()
+  await store.incomeExpensesEarnings()
 })
 </script>
 
@@ -205,6 +193,9 @@ onMounted(async () => {
 
   a {
     background-size: 0;
+    &:hover {
+      padding-left: 0;
+    }
   }
 }
 </style>

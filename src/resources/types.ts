@@ -18,3 +18,8 @@ export interface IExpenses {
     date: string
     category: string
 }
+
+export interface IMonths {
+    label: string
+    value: number
+}
