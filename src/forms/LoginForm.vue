@@ -87,6 +87,9 @@ export default defineComponent({
       border-bottom: none;
       font-weight: 700;
       background-size: 0;
+      &:hover {
+        padding-left: 0;
+      }
     }
   }
 }

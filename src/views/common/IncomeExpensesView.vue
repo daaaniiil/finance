@@ -15,11 +15,13 @@
           <el-table-column fixed prop="date" label="Дата" width="120" />
           <el-table-column prop="category" label="Категория" width="300"/>
           <el-table-column prop="amount" label="Сумма" align="center"/>
-          <el-table-column  label="Действия" width="130">
+          <el-table-column align="center" label="Действия" width="130">
             <template #default="scope">
               <el-dropdown trigger="click">
                 <el-button class="el-dropdown-link">
-                  Действия <i class="el-icon-arrow-down el-icon--right"></i>
+                  <el-icon>
+                    <MoreFilled />
+                  </el-icon> <i class="el-icon-arrow-down el-icon--right"></i>
                 </el-button>
                 <template #dropdown>
                   <el-dropdown-menu slot="dropdown">
@@ -48,7 +50,8 @@
         </template>
       </el-dialog>
 
-      <high-chart-expenses-income :months="monthLabel" :expenses="expensesAmount" :income="incomeAmount" />
+      <el-empty v-if="monthLabel.length === 0"/>
+      <high-chart-expenses-income :months="monthLabel" :expenses="expensesAmount" :income="incomeAmount" v-else />
     </div>
   </div>
 </template>
@@ -61,6 +64,9 @@ import {DeleteFilled, DocumentCopy, Edit} from "@element-plus/icons-vue";
 import {ElMessage} from "element-plus";
 import {IEarnings, IExpenses, IMonths} from "@/resources/types.ts";
 import HighChartExpensesIncome from "../../components/highCharts/HighChartExpensesIncome.vue";
+import {
+  MoreFilled
+} from '@element-plus/icons-vue'
 
 const store = useFinanceStore()
 
@@ -157,13 +163,12 @@ const incomeAmount = computed(() => {
     const monthExpenses = store.expenses
         .filter((expense: IExpenses) => {
           return new Date(expense.date).toLocaleString('ru-RU', {month:'long'}).toLowerCase() === month
-        }).reduce((acc: number, expense: IExpenses) => acc + (expense.amount || 0), 0)
+        })
+        .reduce((acc: number, expense: IExpenses) => acc + (expense.amount || 0), 0)
 
-    return earning.amount - monthExpenses
+    return Number(earning.amount) - monthExpenses
   }).reverse()
 })
-
-const salaryValues = computed(() => sortedEarnings.value.map((e: IEarnings) => e.amount).reverse())
 
 onMounted(async () => {
   await store.incomeExpensesEarningsCurrent()

@@ -19,13 +19,15 @@
     <el-card>
       <h2>Ваш заработок по месяцам</h2>
       <el-table :data="sortedEarnings" style="width: 100%">
-        <el-table-column prop="month" label="Месяц"></el-table-column>
-        <el-table-column prop="amount" label="Сумма"></el-table-column>
-        <el-table-column label="Действия">
+        <el-table-column fixed prop="month" label="Месяц" width="120"/>
+        <el-table-column prop="amount" label="Сумма" align="center"/>
+        <el-table-column align="center" label="Действия" width="130">
           <template #default="scope">
             <el-dropdown trigger="click">
               <el-button class="el-dropdown-link">
-                Действия <i class="el-icon-arrow-down el-icon--right"></i>
+                <el-icon>
+                  <MoreFilled />
+                </el-icon> <i class="el-icon-arrow-down el-icon--right"></i>
               </el-button>
               <template #dropdown>
                 <el-dropdown-menu slot="dropdown">
@@ -58,7 +60,8 @@
       <earnings-form/>
     </el-card>
 
-    <high-chart-earnings :months="monthLabel" :salaries="salaryValues"/>
+    <el-empty v-if="monthLabel.length === 0"/>
+    <high-chart-earnings :months="monthLabel" :salaries="salaryValues" v-else/>
     <router-link :to="{name:'analytics-page'}">
       <el-button type="primary">Детальная аналитика</el-button>
     </router-link>
@@ -74,6 +77,7 @@ import {IEarnings, IMonths} from "../resources/types";
 import {
   DocumentCopy,
   Edit,
+  MoreFilled,
   DeleteFilled
 } from '@element-plus/icons-vue'
 import {ElMessage} from "element-plus";

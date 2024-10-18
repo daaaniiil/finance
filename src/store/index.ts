@@ -383,7 +383,6 @@ export const useFinanceStore = defineStore('finance', () => {
         logout,
         nowNewYear,
         incomeExpensesEarnings,
-        incomeExpensesEarningsCurrent,
-        // expensesIncomeLine
+        incomeExpensesEarningsCurrent
     }
 })

@@ -27,9 +27,7 @@
         <el-date-picker :disabled-date="disabledDate" v-model="model.date" placeholder="Выберите дату"/>
       </el-form-item>
 
-      <el-form-item>
-        <el-button type="primary" @click="submitExpenses" :loading="loading">Сохранить</el-button>
-      </el-form-item>
+      <el-button type="primary" @click="submitExpenses" :loading="loading">Сохранить</el-button>
     </el-form>
   </div>
 </template>
@@ -85,11 +83,13 @@ const submitExpenses = async () => {
       if (monthExpenses + Number(model.amount) > monthEarnings) {
         ElMessage.warning('У вас не достаточно средств в выбранном месяце')
       } else {
-        await store.createUserDataExpenses(form,model)
+        await store.createUserDataExpenses(form, model)
       }
     } else {
       ElMessage.warning('Вы не получили зарплату в этом месяце')
     }
+  } else {
+    ElMessage.warning('Заполните форму')
   }
 }
 

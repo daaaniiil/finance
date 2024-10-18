@@ -17,7 +17,7 @@ strong {
 
 h2 {
   @media (max-width: 426px) {
-    font-size: $size_default;
+    font-size: $size_default + 3;
   }
 }
 

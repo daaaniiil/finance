@@ -54,8 +54,6 @@
               </el-col>
               <el-col :md="12" :lg="21" :xs="12" :sm="18">
                 <div class="nav-links">
-                  <!--                  <router-link :to="{name:'main-page'}">Главная</router-link>-->
-                  <!--                  <router-link :to="{name:'analytics-page'}">Аналитика</router-link>-->
                   <el-button type="primary" @click="drawerState = !drawerState">
                     <el-icon size="25">
                       <More/>
