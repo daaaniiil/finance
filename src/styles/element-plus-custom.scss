@@ -136,3 +136,21 @@
 .el-picker-panel__icon-btn:hover {
   color: $color_main_green
 }
+.el-month-table td.current:not(.disabled) .el-date-table-cell__text {
+  background-color: $color_main_green;
+}
+.el-month-table td.today .el-date-table-cell__text {
+  color: $color_main_green
+}
+.el-month-table td .el-date-table-cell__text:hover {
+  color: $color_main_green
+}
+.el-year-table td.current:not(.disabled) .el-date-table-cell__text {
+  background-color: $color_main_green;
+}
+.el-year-table td .el-date-table-cell__text:hover {
+  color: $color_main_green
+}
+.el-year-table td.today .el-date-table-cell__text {
+  color: $color_main_green
+}

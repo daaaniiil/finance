@@ -1,4 +1,5 @@
 @use 'variable' as *;
+@use "../styles/animations/fade" as *;
 @use '../assets/fonts/stylesheet' as *;
 
 body {
@@ -51,17 +52,3 @@ a {
   padding: 0;
 }
 
-// исправить анимацию, занести в отдельный файл
-.fade-down-enter-active, .fade-down-leave-active {
-  transition: opacity 0.5s ease, transform 0.5s ease;
-}
-
-.fade-down-enter, .fade-down-leave-to {
-  opacity: 0;
-  transform: translateY(-30px);
-}
-
-.fade-down-enter-to, .fade-down-leave {
-  opacity: 1;
-  transform: translateY(0);
-}

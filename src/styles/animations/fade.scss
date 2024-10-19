@@ -1,0 +1,160 @@
+.fade-up-enter-active {
+  animation-name: fadeInUp;
+  animation-duration: 0.5s;
+}
+
+.fade-up-leave-active {
+  animation-name: fadeOutUp;
+  animation-duration: 0.4s;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0.05;
+    transform: translate3d(0, 25px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes fadeOutUp {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0.05;
+    transform: translate3d(0, 25px, 0);
+  }
+}
+
+.fade-down-enter-active {
+  animation-name: fadeInDown;
+  animation-duration: 0.5s;
+}
+
+.fade-down-leave-active {
+  animation-name: fadeOutDown;
+  animation-duration: 0.4s;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0.05;
+    transform: translate3d(0, -25px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fadeOutDown {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0.05;
+    transform: translate3d(0, -25px, 0);
+  }
+}
+
+
+.fade-left-enter-active {
+  animation-name: fadeInLeft;
+  animation-duration: 0.5s;
+}
+
+.fade-left-leave-active {
+  animation-name: fadeOutLeft;
+  animation-duration: 0.4s;
+}
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0.05;
+    transform: translate3d(-25px, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fadeOutLeft {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0.05;
+    transform: translate3d(-25px, 0, 0);
+  }
+}
+
+.fade-right-enter-active {
+  animation-name: fadeInRight;
+  animation-duration: 0.5s;
+}
+
+.fade-right-leave-active {
+  animation-name: fadeOutRight;
+  animation-duration: 0.4s;
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0.05;
+    transform: translate3d(25px, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fadeOutRight {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0.05;
+    transform: translate3d(25px, 0, 0);
+  }
+}
+
+
+.fade-size-enter-active {
+  animation-name: fadeInSize;
+  animation-duration: 0.5s;
+}
+
+.fade-size-leave-active {
+  animation-name: fadeOutSize;
+  animation-duration: 0.4s;
+}
+
+@keyframes fadeInSize {
+  from {
+    opacity: 0.05;
+    transform: scale(0);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeOutSize {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0.05;
+    transform: scale(0);
+  }
+}

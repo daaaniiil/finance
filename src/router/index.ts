@@ -1,9 +1,8 @@
 import {createRouter, createWebHistory} from 'vue-router'
 import {supabase} from "../resources/supabase.ts";
 
-// сделать нормальные роуты
 const router = createRouter({
-    history: createWebHistory(),
+    history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
         {
             path: '/',
@@ -70,25 +69,25 @@ const router = createRouter({
     linkActiveClass: 'active',
     linkExactActiveClass: 'active'
 })
-// использовать auth
-router.beforeEach( async (to, _from, next) => {
+
+router.beforeEach(async (to, _from, next) => {
     const {data: {session}} = await supabase.auth.getSession()
 
-    if(session) {
-        if(to.name === 'login-page'){
-            next({name:'main-page'})
-        } else if(to.name === 'register-page') {
-            next({name:'main-page'})
+    if (session) {
+        if (to.name === 'login-page') {
+            next({name: 'main-page'})
+        } else if (to.name === 'register-page') {
+            next({name: 'main-page'})
         } else {
             next()
         }
-    } else if(!session) {
-        if(to.name === 'login-page'){
+    } else if (!session) {
+        if (to.name === 'login-page') {
             next()
-        } else if(to.name === 'register-page') {
+        } else if (to.name === 'register-page') {
             next()
         } else {
-            next({name:'login-page'})
+            next({name: 'login-page'})
         }
     }
 })
