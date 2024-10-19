@@ -79,7 +79,51 @@
             </indent-container>
           </div>
           <el-footer>
-            <h1>Footer</h1>
+              <div class="main-layout__footer">
+                <el-row :gutter="20">
+                  <el-col :md="8">
+                    <h3>Мой аккаунт</h3>
+                    <router-link :to="{name: 'settings-page'}">Мой профиль</router-link>
+                    <router-link :to="{name: 'main-page'}">Связаться с нами</router-link>
+                    <router-link :to="{name: 'main-page'}">Карьера</router-link>
+                    <router-link :to="{name: 'main-page'}">Специальные предложения</router-link>
+                  </el-col>
+                  <el-col :md="8">
+                    <h3>Навигация</h3>
+                    <router-link :to="{name: 'income-expenses-page'}">Доходы & Расходы</router-link>
+                    <router-link :to="{name: 'main-page'}">Главная</router-link>
+                    <router-link :to="{name: 'analytics-page'}">Аналитика</router-link>
+                    <router-link :to="{name: 'settings-page'}">Настройки</router-link>
+                  </el-col>
+                  <el-col :md="8">
+                    <h3>Социальные сети</h3>
+                    <div>
+                      <a href="#"><img src="../../assets/img/facebook.png" alt="facebook" width="30"></a>
+                      <a href="#"><img src="../../assets/img/vk.png" alt="vk" width="30"></a>
+                      <a href="#"><img src="../../assets/img/instagram.png" alt="instagram" width="30"></a>
+                    </div>
+                    <div>
+                      <a href="#"><img src="../../assets/img/twitter.png" alt="twitter" width="30"></a>
+                      <a href="#"><img src="../../assets/img/youtube.png" alt="youtube" width="30"></a>
+                    </div>
+                  </el-col>
+                </el-row>
+                <el-row :gutter="20">
+                  <el-col :md="8">
+                    <img src="../../../public/finance.png" alt="Logo" width="38" >
+                    <p>finance</p>
+                  </el-col>
+                  <el-col :md="8">
+                    <img src="../../assets/img/letter.png" alt="letter" width="13">
+                    <p>finance@greenshop.com</p>
+                  </el-col>
+                  <el-col :md="8">
+                    <img src="../../assets/img/call.png" alt="call" width="12">
+                    <p>+88 01911 717 490</p>
+                  </el-col>
+                </el-row>
+                <div style="margin-top: 10px;">© 2024 finance. Все права защищены.</div>
+              </div>
           </el-footer>
         </el-scrollbar>
         <el-backtop target=".el-scrollbar__wrap"/>
@@ -130,10 +174,87 @@ export default defineComponent({
   }
 
   .el-footer {
+    padding: 0;
     margin-top: $padding_medium - 1;
-    height: 200px;
-    background-color: darkgrey;
+    border-top: $color_border_gray 1px solid;
+    background: $color_background_gray;
+    height: 400px;
     width: 100%;
+    @media(max-width: 769px){
+      height: 760px;
+    }
+    @media(max-width: 376px){
+      height: 730px;
+    }
+  }
+
+  &__footer {
+    text-align: center;
+    h3 {
+      margin-bottom: $padding;
+      @media(max-width: 769px){
+        margin-top: $padding_main;
+      }
+    }
+    a {
+      margin-bottom: $padding - 5;
+      &.active {
+        font-weight: 400;
+        color: $color_text;
+      }
+      &:hover {
+        padding-left: 0;
+        color: $color_text;
+      }
+    }
+    .el-row {
+      padding-top: $padding_main;
+      .el-col {
+        &:nth-child(1), &:nth-child(2) {
+          display: flex;
+          flex-direction: column;
+        }
+        img {
+          margin: $padding - 10;
+        }
+      }
+      &:nth-child(2) {
+        height: 76px;
+        margin-top: $padding_main;
+        padding-top: 0;
+        background-color: $color_empty_green;
+        border-top: $color_main_green 1px solid;
+        border-bottom: $color_main_green 1px solid;
+        .el-col{
+          justify-content: center;
+          &:nth-child(1) {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            p {
+              margin-left: $padding - 5;
+              font-family: "Syne", sans-serif;
+              user-select: none;
+              color: $color_main_green;
+              font-weight: 700;
+              font-size: $size_average + 2;
+            }
+          }
+          &:nth-child(2), &:nth-child(3){
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            p{
+              margin-left: $padding;
+              font-family: "Montserrat", sans-serif;
+            }
+            @media(max-width: 769px){
+              display: none;
+            }
+          }
+        }
+      }
+    }
   }
 
   &__header, &__footer {
