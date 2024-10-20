@@ -96,7 +96,7 @@ const openEditDialog = (row: IExpenses) => {
 }
 
 const saveAmount = async () => {
-  if (currentEditItem.value && newAmount.value) {
+  if (currentEditItem.value && newAmount.value && newAmount.value !== 0) {
     try {
       if (newAmount.value !== currentEditItem.value.amount) {
         await store.updateEarningsExpenses(currentEditItem.value.id, newAmount.value)
@@ -149,8 +149,11 @@ const monthLabel = computed(() => sortedEarnings.value.map((e: IEarnings) => e.m
 
 const expensesAmount = computed(() => {
   const groupedExpenses = store.expenses.reduce((acc: Record<string, number>, expense: IExpenses) =>{
+    const yearExpense = new Date(expense.date).getFullYear()
     const month = new Date(expense.date).toLocaleString('ru-RU', {month: 'long'}).toLowerCase()
-    acc[month] = (acc[month] || 0) + (expense.amount || 0)
+    if(yearExpense === new Date().getFullYear()){
+      acc[month] = (acc[month] || 0) + (expense.amount || 0)
+    }
     return acc
   }, {})
 
@@ -162,7 +165,11 @@ const incomeAmount = computed(() => {
     const month = earning.month.toLowerCase()
     const monthExpenses = store.expenses
         .filter((expense: IExpenses) => {
-          return new Date(expense.date).toLocaleString('ru-RU', {month:'long'}).toLowerCase() === month
+          const yearExpense = new Date(expense.date).getFullYear()
+          const monthExpense = new Date(expense.date).toLocaleString('ru-RU', {month:'long'}).toLowerCase()
+          if(yearExpense === new Date().getFullYear()){
+            return monthExpense === month
+          }
         })
         .reduce((acc: number, expense: IExpenses) => acc + (expense.amount || 0), 0)
 

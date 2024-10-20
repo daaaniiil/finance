@@ -21,12 +21,13 @@ export default defineComponent({
     }
   },
   setup(props) {
+    const year = new Date().getFullYear()
     const chartOptions = computed(() => ({
       chart: {
         type: 'line'
       },
       title: {
-        text: 'Доходы и расходы'
+        text: `Доходы и расходы ${year}`
       },
       xAxis: {
         categories: props.months,

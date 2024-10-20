@@ -122,7 +122,7 @@ const openEditDialog = (row: IEarnings) => {
 }
 
 const saveAmount = async () => {
-  if (currentEditItem.value && newAmount.value) {
+  if (currentEditItem.value && newAmount.value && newAmount.value !== 0) {
     try {
       if (newAmount.value !== currentEditItem.value.amount) {
         await store.updateEarningsAmount(currentEditItem.value.id, newAmount.value)

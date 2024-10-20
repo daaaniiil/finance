@@ -51,7 +51,7 @@
                 <img src="../../../public/finance.png" alt="Logo" width="38">
                 <p>finance</p>
               </div>
-              <p>© 2024 finance. Все права защищены.</p>
+              <p>© {{ year }} finance. Все права защищены.</p>
             </div>
           </el-footer>
         </el-container>
@@ -136,7 +136,7 @@
                   <p>+88 01911 717 490</p>
                 </el-col>
               </el-row>
-              <div style="margin-top: 10px;">© 2024 finance. Все права защищены.</div>
+              <div style="margin-top: 10px;">© {{ year }} finance. Все права защищены.</div>
             </div>
           </el-footer>
         </el-scrollbar>
@@ -160,10 +160,12 @@ export default defineComponent({
   setup() {
     const drawerState = ref(false)
     const headerAside = ref<HTMLElement | null>(null)
+    const year = new Date().getFullYear()
 
     return {
       drawerState,
-      headerAside
+      headerAside,
+      year
     }
   }
 })
