@@ -33,7 +33,7 @@
                 <el-dropdown-menu slot="dropdown">
                   <el-dropdown-item :icon="Edit" @click="openEditDialog(scope.row)">Edit</el-dropdown-item>
                   <el-dropdown-item :icon="DocumentCopy" @click="copyToClipboard(scope.row)">Copy</el-dropdown-item>
-                  <el-dropdown-item :icon="DeleteFilled" @click="deleteItem(scope.row.id)" style="color: red;">Delete
+                  <el-dropdown-item :icon="DeleteFilled" @click="deleteItem(scope.row)" style="color: red;">Delete
                   </el-dropdown-item>
                 </el-dropdown-menu>
               </template>
@@ -83,6 +83,8 @@ import {
 import {ElMessage} from "element-plus";
 
 const store = useFinanceStore()
+
+
 const format = (balance: number) => {
   return balance.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
 }
@@ -125,9 +127,8 @@ const saveAmount = async () => {
   if (currentEditItem.value && newAmount.value && newAmount.value !== 0) {
     try {
       if (newAmount.value !== currentEditItem.value.amount) {
-        await store.updateEarningsAmount(currentEditItem.value.id, newAmount.value)
+        await store.updateEarningsAmount(currentEditItem.value.id, newAmount.value, currentEditItem.value.month)
 
-        await store.getUserEarnings()
         ElMessage.success('Сумма успешно обновлена!')
         editDialogVisible.value = false
       } else {
@@ -146,15 +147,19 @@ const copyToClipboard = (row: any) => {
   navigator.clipboard.writeText(`Месяц: ${row.month}, Заработок: ${format(row.amount)}`)
   ElMessage.success('Скопировано успешно!')
 }
-const deleteItem = async (id: string) => {
-  await store.deleteEarningsItemData(id)
+const deleteItem = async (row: IEarnings) => {
+  await store.deleteEarningsItemData(row.id, row.month)
 }
 
 const monthLabel = computed(() => sortedEarnings.value.map((e: IEarnings) => e.month).reverse())
 const salaryValues = computed(() => sortedEarnings.value.map((e: IEarnings) => e.amount).reverse())
 
+
+
 onMounted(async () => {
   await store.nowNewYear()
+  await store.getUserEarnings()
+  await store.getUserExpenses()
   await store.incomeExpensesEarnings()
 })
 </script>

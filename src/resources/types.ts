@@ -23,3 +23,7 @@ export interface IMonths {
     label: string
     value: number
 }
+
+export interface IUser {
+    id: string
+}

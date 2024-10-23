@@ -1,13 +1,14 @@
 import {defineStore} from "pinia";
-import {ref} from 'vue'
+import {ref, reactive} from 'vue'
 import {supabase} from "../resources/supabase.ts";
-import {IEarnings, IExpenses, IMonths} from "../resources/types.ts";
+import {IEarnings, IExpenses, IMonths, IUser} from "../resources/types.ts";
 import {ElMessage} from "element-plus";
 import {TInstanceForm} from "@/resources/auth.ts";
 import {useRouter} from "vue-router";
 
 
 export const useFinanceStore = defineStore('finance', () => {
+    const user = ref<IUser | null>(null)
     const earnings = ref<IEarnings[]>([])
     const expenses = ref<IExpenses[]>([])
     const expensesLastMonthAmount = ref<number>(0)
@@ -31,27 +32,46 @@ export const useFinanceStore = defineStore('finance', () => {
     const yearNow = new Date().getFullYear()
     const loading = ref<boolean>(false)
     const router = useRouter()
+    const isLoader = reactive({
+        earnings: false,
+        expenses: false,
+        user: false
+    })
+
+    const authUser = async () => {
+        if(isLoader.user) return
+
+        try {
+            const {data, error: authError} = await supabase.auth.getUser()
+
+            if (authError || !data) {
+                console.error(authError?.message || 'Пользователь не авторизован')
+            } else {
+                user.value = data.user || []
+                isLoader.user = true
+            }
+        } catch (e) {
+            console.error(e)
+        }
+    }
 
     const getUserEarnings = async () => {
+        if(isLoader.earnings) return
+
         loading.value = true
         try {
-            const {data: dataUser, error: authError} = await supabase.auth.getUser()
-
-            if (authError || !dataUser) {
-                console.error(authError?.message || 'Пользователь не авторизован')
-            }
-
-            const userId: string | undefined = dataUser.user?.id
+            await authUser()
 
             const {data, error} = await supabase
                 .from('earnings')
                 .select('id, month, amount')
-                .eq('user_id', userId)
+                .eq('user_id', user.value?.id)
 
             if (error) {
                 ElMessage.error(`${error.message}`)
             } else {
                 earnings.value = data || []
+                isLoader.earnings = true
             }
         } catch (e) {
             console.error('Ошибка при получение данных', e)
@@ -70,29 +90,28 @@ export const useFinanceStore = defineStore('finance', () => {
             if (valid) {
                 loading.value = true
                 try {
-                    const {data: dataUser, error: authError} = await supabase.auth.getUser()
-
-                    if (authError || !dataUser) {
-                        console.error(authError?.message || 'Пользователь не авторизован')
-                    }
-
-                    const userId: string | undefined = dataUser.user?.id
+                    await authUser()
 
                     const {error: insertError} = await supabase
                         .from('earnings')
                         .insert([
                             {
-                                user_id: userId,
+                                user_id: user.value?.id,
                                 month: model.month,
                                 amount: model.amount
                             }
                         ])
+                    const selectedMonth = months.find(m => m.label === model.month)?.value
 
                     if (insertError) {
                         ElMessage.error(`${insertError.message}`)
                     } else {
                         ElMessage.success('Заработок успешно добавлен!')
-                        await incomeExpensesEarnings()
+                        isLoader.earnings = false
+                        await getUserEarnings()
+                        if(selectedMonth === new Date().getMonth() - 1){
+                            await incomeExpensesEarnings()
+                        }
                         model.amount = null
                         model.month = ''
                     }
@@ -108,21 +127,31 @@ export const useFinanceStore = defineStore('finance', () => {
         })
     }
 
-    const deleteEarningsItemData = async (id: string) => {
+    const deleteEarningsItemData = async (id: string | undefined, month: string) => {
         loading.value = true
         try {
-            const {data, error, status} = await supabase
-                .from('earnings')
-                .delete()
-                .eq('id', id)
+            const selectedMonth = months.find(m => m.label === month)?.value
 
-            if (error) {
-                console.error('Error deleting item:', error)
-            } else if (status === 204) {
-                ElMessage.success('Удалено успешно!')
-                await incomeExpensesEarnings()
+            const expensesMonth = expenses.value.filter((e: IExpenses) =>
+                Number(e.date.slice(5,7)) - 1 === selectedMonth && Number(e.date.slice(0,4)) === new Date().getFullYear())
+
+            if(expensesMonth.length) {
+                ElMessage.warning('У вас в этом месяце есть расходы, вы не можете его удалить')
             } else {
-                console.log('Unexpected response:', data)
+                const {data, error, status} = await supabase
+                    .from('earnings')
+                    .delete()
+                    .eq('id', id)
+
+                if (error) {
+                    console.error('Error deleting item:', error)
+                } else if (status === 204) {
+                    isLoader.earnings = false
+                    await getUserEarnings()
+                    ElMessage.success('Удалено успешно!')
+                } else {
+                    console.log('Unexpected response:', data)
+                }
             }
         } catch (e) {
             console.error('Error during delete:', e)
@@ -131,19 +160,49 @@ export const useFinanceStore = defineStore('finance', () => {
         }
     }
 
-    const updateEarningsAmount = async (id: string | undefined, newAmount: number | null) => {
+    const updateEarningsAmount = async (id: string | undefined, newAmount: number | null, month: string) => {
         loading.value = true
         try {
-            const {data, error} = await supabase
+            const nowMonth = months.find(m => m.label === month)?.value
+            const {error} = await supabase
                 .from('earnings')
                 .update({amount: newAmount})
                 .eq('id', id)
 
             if (error) {
                 console.error('Ошибка обновления суммы:', error)
+            } else {
+                isLoader.earnings = false
+                await getUserEarnings()
+                if(nowMonth === new Date().getMonth() - 1){
+                    await incomeExpensesEarnings()
+                }
             }
-            await incomeExpensesEarnings()
-            return {data}
+        } catch (e) {
+            console.error(e)
+        } finally {
+            loading.value = false
+        }
+    }
+
+    const getUserExpenses = async () => {
+        if(isLoader.expenses) return
+
+        loading.value = true
+        try {
+            await authUser()
+
+            const {data, error} = await supabase
+                .from('expenses')
+                .select('*')
+                .eq('user_id', user.value?.id)
+
+            if (error) {
+                ElMessage.error(`${error.message}`)
+            } else {
+                expenses.value = data || []
+                isLoader.expenses = true
+            }
         } catch (e) {
             console.error(e)
         } finally {
@@ -160,19 +219,13 @@ export const useFinanceStore = defineStore('finance', () => {
         form.value.validate(async (valid: boolean) => {
             if (valid) {
                 try {
-                    const {data: dataUser, error: authError} = await supabase.auth.getUser()
-
-                    if (authError || !dataUser) {
-                        console.error(authError?.message || 'Пользователь не авторизован')
-                    }
-
-                    const userId: string | undefined = dataUser.user?.id
+                    await authUser()
 
                     const {error: insertError} = await supabase
                         .from('expenses')
                         .insert([
                             {
-                                user_id: userId,
+                                user_id: user.value?.id,
                                 category: model.category,
                                 amount: model.amount,
                                 date: model.date
@@ -183,6 +236,7 @@ export const useFinanceStore = defineStore('finance', () => {
                         ElMessage.error(`${insertError.message}`)
                     }
                     ElMessage.success('Расход успешно добавлен!')
+                    isLoader.expenses = false
                     await getUserExpenses()
                     model.amount = null
                     model.category = ''
@@ -199,37 +253,10 @@ export const useFinanceStore = defineStore('finance', () => {
         })
     }
 
-    const getUserExpenses = async () => {
-        loading.value = true
-        try {
-            const {data: dataUser, error: authError} = await supabase.auth.getUser()
-
-            if (authError || !dataUser) {
-                console.error(authError?.message || 'Пользователь не авторизован')
-            }
-
-            const userId: string | undefined = dataUser.user?.id
-
-            const {data, error} = await supabase
-                .from('expenses')
-                .select('*')
-                .eq('user_id', userId)
-
-            if (error) {
-                ElMessage.error(`${error.message}`)
-            }
-            expenses.value = data || []
-        } catch (e) {
-            console.error(e)
-        } finally {
-            loading.value = false
-        }
-    }
-
     const updateEarningsExpenses = async (id: string | undefined, newAmount: number | null) => {
         loading.value = true
         try {
-            const {data, error} = await supabase
+            const {error} = await supabase
                 .from('expenses')
                 .update({amount: newAmount})
                 .eq('id', id)
@@ -237,8 +264,8 @@ export const useFinanceStore = defineStore('finance', () => {
             if (error) {
                 console.error('Ошибка обновления суммы:', error)
             }
+            isLoader.expenses = false
             await getUserExpenses()
-            return {data}
         } catch (e) {
             console.error(e)
         } finally {
@@ -258,6 +285,7 @@ export const useFinanceStore = defineStore('finance', () => {
                 console.error('Error deleting item:', error)
             } else if (status === 204) {
                 ElMessage.success('Удалено успешно!')
+                isLoader.expenses = false
                 await getUserExpenses()
             } else {
                 console.log('Unexpected response:', data)
@@ -305,9 +333,6 @@ export const useFinanceStore = defineStore('finance', () => {
     const incomeExpensesEarnings = async () => {
         loading.value = true
         try {
-            await getUserEarnings()
-            await getUserExpenses()
-
             let lastMonth: number = new Date().getMonth()
             if(lastMonth === 0){
                 lastMonth = 12
@@ -317,7 +342,6 @@ export const useFinanceStore = defineStore('finance', () => {
 
             earningsLastMonthAmount.value = earnings.value
                 .find((e: IEarnings) => e.month === availableMonths)?.amount || 0
-
 
             const expensesLastMonth: number[] = expenses.value
                 .filter((e: IExpenses): boolean => Number(e.date.slice(5,7)) === lastMonth)
@@ -337,9 +361,6 @@ export const useFinanceStore = defineStore('finance', () => {
     const incomeExpensesEarningsCurrent = async () => {
         loading.value = true
         try {
-            await getUserEarnings()
-            await getUserExpenses()
-
             const currentMonth = new Date().getMonth()
             const availableMonths = months.find(month => month.value === currentMonth)?.label
 
