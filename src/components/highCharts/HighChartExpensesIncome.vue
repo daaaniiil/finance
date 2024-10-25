@@ -44,11 +44,13 @@ export default defineComponent({
       series: [
         {
           name: 'Доходы',
-          data: props.income
+          data: props.income,
+          color: '#30CA2C'
         },
         {
           name: 'Расходы',
-          data: props.expenses
+          data: props.expenses,
+          color: '#ef2b2b'
         }
       ]
     }))
