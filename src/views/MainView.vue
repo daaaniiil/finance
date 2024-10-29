@@ -18,7 +18,7 @@
 
     <el-card>
       <h2>Ваш заработок по месяцам</h2>
-      <el-table :data="sortedEarnings" style="width: 100%">
+      <el-table :data="earningsConverted" style="width: 100%">
         <el-table-column fixed prop="month" label="Месяц" width="120"/>
         <el-table-column prop="amount" label="Сумма" align="center"/>
         <el-table-column align="center" label="Действия" width="130">
@@ -71,6 +71,7 @@
 <script setup lang="ts">
 import {computed, onMounted, ref} from 'vue'
 import {useFinanceStore} from '@/store';
+import {useCurrencyStore} from "@/store/currency.ts";
 import EarningsForm from "@/forms/EarningsForm.vue";
 import HighChartEarnings from "../components/highCharts/HighChartEarnings.vue";
 import {IEarnings, IMonths} from "../resources/types";
@@ -83,7 +84,7 @@ import {
 import {ElMessage} from "element-plus";
 
 const store = useFinanceStore()
-
+const currencyStore = useCurrencyStore()
 
 const format = (balance: number) => {
   return balance.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
@@ -108,6 +109,14 @@ const sortedEarnings = computed(() => {
     return monthB - monthA
   })
 })
+
+const earningsConverted = computed(() => {
+  return sortedEarnings.value.map((e: IEarnings) => ({
+    ...e,
+    amount: (e.amount ?? 0) * currencyStore.getRate
+  }))
+})
+
 
 const editDialogVisible = ref<boolean>(false)
 const currentEditItem = ref<IEarnings>({

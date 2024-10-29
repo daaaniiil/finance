@@ -7,40 +7,14 @@
     <el-card>
       <h2>Профиль</h2>
       <hr>
-      <p>Имя: <span>Даниил</span></p>
+<!--      <p>Имя: <span>Даниил</span></p>-->
       <p>email: <strong>diniilmelnikov@gmail.com</strong></p>
       <p>Телефон: <span>+375333904420</span></p>
+      <p>Зарегистрирован: <span>{{ createdAt }}</span></p>
 
       <el-row :gutter="20">
         <el-col :md="18">
-          <div class="settings-page__currency-selector">
-            <el-radio-group v-model="selectedCurrency">
-              <el-radio-button label="BYN">
-                <el-tag type="success">
-                  <div>
-                    <el-image src="/src/assets/img/flag/belarus-flag-icon.png" alt="Беларусь" />
-                    BYN
-                  </div>
-                </el-tag>
-              </el-radio-button>
-              <el-radio-button label="RUB">
-                <el-tag type="warning">
-                  <div>
-                    <el-image src="/src/assets/img/flag/russian-flag-icon.png" alt="Россия" />
-                    RUB
-                  </div>
-                </el-tag>
-              </el-radio-button>
-              <el-radio-button label="USD">
-                <el-tag type="info">
-                  <div>
-                    <el-image src="/src/assets/img/flag/usa-flag-icon.png" alt="США" class="flag-usa" />
-                    USD
-                  </div>
-                </el-tag>
-              </el-radio-button>
-            </el-radio-group>
-          </div>
+          <currency-switcher />
 
           <div class="settings-page__password">
             <h3>Подтвердите пароль</h3>
@@ -61,9 +35,12 @@
 </template>
 
 <script setup lang="ts">
-import {computed, reactive, ref} from 'vue'
+import {computed, reactive, ref, onMounted} from 'vue'
 import {FormRules} from "element-plus";
+import {useFinanceStore} from "@/store";
+import CurrencySwitcher from "@/components/CurrencySwitcher.vue";
 
+const store = useFinanceStore()
 const form = ref()
 
 const model = reactive({
@@ -75,7 +52,11 @@ const rules = computed<FormRules>(() => {
   }
 })
 
-const selectedCurrency = ref('BYN')
+const createdAt = computed(() => store.user?.created_at?.slice(0,10).split('-').reverse().join('.'))
+
+onMounted(async () => {
+  await store.authUser()
+})
 </script>
 
 <style lang="scss">
@@ -99,43 +80,6 @@ const selectedCurrency = ref('BYN')
 
     span {
       font-weight: 500;
-    }
-  }
-
-  &__currency-selector {
-    margin-top: $padding - 10;
-    display: flex;
-    gap: 8px;
-    align-items: center;
-
-    .el-radio-button.is-active .el-radio-button__original-radio:not(:disabled) + .el-radio-button__inner {
-      background-color: #d8ffd7;
-      border-color: $color_main_green_2;
-      box-shadow: -1px 0 0 0 $color_main_green_2;
-    }
-
-    .el-radio-button .el-radio-button__inner {
-      padding: $padding - 15;
-      margin-right: $padding_main;
-      border-radius: $radius_tiny;
-      box-shadow: -1px 0 0 0 $color_border_gray;
-    }
-
-    .el-tag {
-      div {
-        display: flex;
-        align-items: center;
-        flex-direction: row;
-      }
-    }
-    .el-image {
-      width: 22px;
-      height: 13px;
-      margin-right: $padding - 10;
-      border-radius: $radius_tiny - 3;
-    }
-    .flag-usa {
-      height: 22px;
     }
   }
   &__password {
