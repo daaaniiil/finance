@@ -25,6 +25,9 @@ export default defineComponent({
       title: {
         text: 'Зарплата по месяцам'
       },
+      accessibility: {
+        enabled: false
+      },
       plotOptions: {
         areaspline: {
           color: 'blue',
@@ -41,7 +44,19 @@ export default defineComponent({
             lineColor: null,
             fillColor: 'white'
           }
-        }
+        },
+        // area: {
+        //   marker: {
+        //     enabled: false,
+        //     symbol: 'circle',
+        //     radius: 2,
+        //     states: {
+        //       hover: {
+        //         enabled: true
+        //       }
+        //     }
+        //   }
+        // }
       },
       xAxis: {
         categories: props.months,

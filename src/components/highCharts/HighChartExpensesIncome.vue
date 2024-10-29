@@ -29,6 +29,9 @@ export default defineComponent({
       title: {
         text: `Доходы и расходы ${year}`
       },
+      accessibility: {
+        enabled: false
+      },
       xAxis: {
         categories: props.months,
         crosshair: true

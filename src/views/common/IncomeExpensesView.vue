@@ -178,6 +178,8 @@ const incomeAmount = computed(() => {
 })
 
 onMounted(async () => {
+  await store.getUserEarnings()
+  await store.getUserExpenses()
   await store.incomeExpensesEarningsCurrent()
 })
 </script>

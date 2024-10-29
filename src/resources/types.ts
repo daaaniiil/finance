@@ -26,4 +26,5 @@ export interface IMonths {
 
 export interface IUser {
     id: string
+    created_at?: string
 }

@@ -384,6 +384,8 @@ export const useFinanceStore = defineStore('finance', () => {
     }
 
     return {
+        isLoader,
+        user,
         loading,
         earnings,
         expenses,
@@ -393,6 +395,7 @@ export const useFinanceStore = defineStore('finance', () => {
         earningsLastMonthAmount,
         earningsCurrentMonthAmount,
         expensesCurrentMonthAmount,
+        authUser,
         getUserEarnings,
         createUserDataEarnings,
         deleteEarningsItemData,
