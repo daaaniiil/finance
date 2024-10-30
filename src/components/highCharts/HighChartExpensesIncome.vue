@@ -49,12 +49,12 @@ export default defineComponent({
       series: [
         {
           name: 'Доходы',
-          data: props.income.map((value: number | null) => (value ?? 0) * currencyStore.getRate),
+          data: props.income.map((value: number | null) => Math.floor((value ?? 0) / currencyStore.getRate)),
           color: '#30CA2C'
         },
         {
           name: 'Расходы',
-          data: props.expenses.map((value: number | null) => (value ?? 0) * currencyStore.getRate),
+          data: props.expenses.map((value: number | null) => Math.floor((value ?? 0) / currencyStore.getRate)),
           color: '#ef2b2b'
         }
       ]

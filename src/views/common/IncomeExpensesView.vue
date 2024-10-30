@@ -14,7 +14,11 @@
         <el-table :data="expensesConverted" :height="500">
           <el-table-column fixed prop="date" label="Дата" width="120" />
           <el-table-column prop="category" label="Категория" width="300"/>
-          <el-table-column prop="amount" label="Сумма" align="center"/>
+          <el-table-column prop="amount" label="Сумма" align="center">
+            <template #default="scope">
+              <span>{{ formatNumber(scope.row.amount) }}{{currencyStore.getIcon}}</span>
+            </template>
+          </el-table-column>
           <el-table-column align="center" label="Действия" width="130">
             <template #default="scope">
               <el-dropdown trigger="click">
@@ -74,8 +78,8 @@ const currencyStore = useCurrencyStore()
 
 const editDialogVisible = ref(false)
 
-const format = (balance: number) => {
-  return balance.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+const formatNumber = (value: number) => {
+  return new Intl.NumberFormat('ru-RU').format(value)
 }
 
 const formatDate = (date: string) => {
@@ -145,7 +149,7 @@ const saveAmount = async () => {
 }
 
 const copyToClipboard = (row: any) => {
-  navigator.clipboard.writeText(`${row.date}: ${row.category} | ${format(row.amount)}`)
+  navigator.clipboard.writeText(`${row.date}: ${row.category} | ${formatNumber(row.amount)}${currencyStore.getIcon}`)
   ElMessage.success('Скопировано успешно!')
 }
 
@@ -169,7 +173,7 @@ const sortedExpenses = computed(() => {
 const expensesConverted = computed(() => {
   return sortedExpenses.value.map((e: IExpenses) => ({
     ...e,
-    amount: (e.amount ?? 0) * currencyStore.getRate
+    amount: Math.floor((e.amount ?? 0) / currencyStore.getRate)
   }))
 })
 

@@ -9,9 +9,9 @@
     <el-card v-if="!store.loading">
       <h2>Текущий месяц «<span>{{ availableMonths }}</span>»</h2>
       <hr>
-      <h1>Заработок: {{ format(Number(store.earningsCurrentMonthAmount)) }}{{currencyStore.getIcon}}</h1>
-      <h1>Доход: <span class="income">{{ format(Number(incomeCurrentMonthAmount)) }}{{currencyStore.getIcon}}</span></h1>
-      <h1>Расходы: <span class="expenses">{{ format(store.expensesCurrentMonthAmount) }}{{currencyStore.getIcon}}</span></h1>
+      <h1>Заработок: {{ formatNumber(Number(store.earningsCurrentMonthAmount.toFixed())) }}{{currencyStore.getIcon}}</h1>
+      <h1>Доход: <span class="income">{{ formatNumber(Number(incomeCurrentMonthAmount.toFixed())) }}{{currencyStore.getIcon}}</span></h1>
+      <h1>Расходы: <span class="expenses">{{ formatNumber(Number(store.expensesCurrentMonthAmount.toFixed())) }}{{currencyStore.getIcon}}</span></h1>
     </el-card>
     <el-card v-else>
       <el-skeleton animated/>
@@ -30,8 +30,9 @@ import {useCurrencyStore} from "@/store/currency.ts";
 
 const store = useFinanceStore()
 const currencyStore = useCurrencyStore()
-const format = (balance: number) => {
-  return balance.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+
+const formatNumber = (value: number) => {
+  return new Intl.NumberFormat('ru-RU').format(value)
 }
 
 const currentMonth = new Date().getMonth()

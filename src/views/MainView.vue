@@ -8,9 +8,9 @@
     <el-card v-if="!store.loading">
       <h2>Прошлый месяц «<span>{{ availableMonths }}</span>»</h2>
       <hr>
-      <h1>Заработок: {{ format(Number(store.earningsLastMonthAmount)) }}{{ currencyStore.getIcon }}</h1>
-      <h1>Доход: <span class="income">{{ format(Number(incomeLastMonthAmount)) }}{{ currencyStore.getIcon }}</span></h1>
-      <h1>Расходы: <span class="expenses">{{format(Number(store.expensesLastMonthAmount)) }}{{ currencyStore.getIcon }}</span></h1>
+      <h1>Заработок: {{ formatNumber(Number(store.earningsLastMonthAmount.toFixed())) }}{{ currencyStore.getIcon }}</h1>
+      <h1>Доход: <span class="income">{{ formatNumber(Number(incomeLastMonthAmount.toFixed())) }}{{ currencyStore.getIcon }}</span></h1>
+      <h1>Расходы: <span class="expenses">{{formatNumber(Number(store.expensesLastMonthAmount.toFixed())) }}{{ currencyStore.getIcon }}</span></h1>
     </el-card>
     <el-card v-else>
       <el-skeleton animated/>
@@ -20,7 +20,11 @@
       <h2>Ваш заработок по месяцам</h2>
       <el-table :data="earningsConverted" style="width: 100%">
         <el-table-column fixed prop="month" label="Месяц" width="120"/>
-        <el-table-column prop="amount" label="Сумма" align="center"/>
+        <el-table-column prop="amount" label="Сумма" align="center">
+          <template #default="scope">
+            <span>{{ formatNumber(scope.row.amount) }}{{currencyStore.getIcon}}</span>
+          </template>
+        </el-table-column>
         <el-table-column align="center" label="Действия" width="130">
           <template #default="scope">
             <el-dropdown trigger="click">
@@ -87,8 +91,8 @@ import {ElMessage} from "element-plus";
 const store = useFinanceStore()
 const currencyStore = useCurrencyStore()
 
-const format = (balance: number) => {
-  return balance.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+const formatNumber = (value: number) => {
+  return new Intl.NumberFormat('ru-RU').format(value)
 }
 
 let lastMonth = new Date().getMonth()
@@ -114,7 +118,7 @@ const sortedEarnings = computed(() => {
 const earningsConverted = computed(() => {
   return sortedEarnings.value.map((e: IEarnings) => ({
     ...e,
-    amount: (e.amount ?? 0) * currencyStore.getRate
+    amount: Math.floor((e.amount ?? 0) / currencyStore.getRate)
   }))
 })
 
@@ -176,7 +180,7 @@ const saveAmount = async () => {
 
 
 const copyToClipboard = (row: any) => {
-  navigator.clipboard.writeText(`Месяц: ${row.month}, Заработок: ${format(row.amount)}`)
+  navigator.clipboard.writeText(`Месяц: ${row.month}, Заработок: ${formatNumber(row.amount)}${currencyStore.getIcon}`)
   ElMessage.success('Скопировано успешно!')
 }
 const deleteItem = async (row: IEarnings) => {

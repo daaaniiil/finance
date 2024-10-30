@@ -63,7 +63,7 @@ export default defineComponent({
       series: [
         {
           name: 'Зарплата',
-          data: props.salaries.map((value: number | null) => (value ?? 0) * currencyStore.getRate)
+          data: props.salaries.map((value: number | null) => Math.floor((value ?? 0) / currencyStore.getRate))
         }
       ]
     }))

@@ -364,7 +364,7 @@ export const useFinanceStore = defineStore('finance', () => {
             earningsLastMonthAmount.value = earnings.value
                 .find((e: IEarnings) => e.month === availableMonths)?.amount || 0
 
-            earningsLastMonthAmount.value *= currencyStore.getRate
+            earningsLastMonthAmount.value /= currencyStore.getRate
 
             const expensesLastMonth: number[] = expenses.value
                 .filter((e: IExpenses): boolean => Number(e.date.slice(5,7)) === lastMonth)
@@ -374,7 +374,7 @@ export const useFinanceStore = defineStore('finance', () => {
             expensesLastMonthAmount.value = expensesLastMonth
                 .reduce((acc: number, current: number) => acc + current)
 
-            expensesLastMonthAmount.value *= currencyStore.getRate
+            expensesLastMonthAmount.value /= currencyStore.getRate
 
         } catch (e){
             console.error(e)
@@ -392,7 +392,7 @@ export const useFinanceStore = defineStore('finance', () => {
             earningsCurrentMonthAmount.value = earnings.value
                 .find((e: IEarnings) => e.month === availableMonths)?.amount || 0
 
-            earningsCurrentMonthAmount.value *= currencyStore.getRate
+            earningsCurrentMonthAmount.value /= currencyStore.getRate
 
             const expensesCurrentMonth: number[] = expenses.value
                 .filter((e: IExpenses): boolean => Number(e.date.slice(5,7)) === currentMonth + 1)
@@ -402,7 +402,7 @@ export const useFinanceStore = defineStore('finance', () => {
             expensesCurrentMonthAmount.value = expensesCurrentMonth
                 .reduce((acc: number, current: number) => acc + current)
 
-            expensesCurrentMonthAmount.value *= currencyStore.getRate
+            expensesCurrentMonthAmount.value /= currencyStore.getRate
         } catch (e) {
             console.error(e)
         } finally {
