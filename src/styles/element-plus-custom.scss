@@ -60,6 +60,7 @@
 }
 
 .el-backtop {
+  user-select: none;
   .el-icon {
     color: $color_main_green;
   }
@@ -153,8 +154,4 @@
 }
 .el-year-table td.today .el-date-table-cell__text {
   color: $color_main_green
-}
-
-.el-backtop {
-  user-select: none;
 }

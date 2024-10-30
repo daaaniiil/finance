@@ -18,6 +18,12 @@ strong {
 
 h2 {
   @media (max-width: 426px) {
+    font-size: $size_default;
+  }
+}
+
+h1 {
+  @media (max-width: 426px) {
     font-size: $size_default + 3;
   }
 }

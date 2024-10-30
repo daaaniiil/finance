@@ -39,6 +39,7 @@
         </el-col>
         <el-col :md="6">
           <p>Статус</p>
+          <el-button type="danger" @click="store.logout()">Выход</el-button>
         </el-col>
       </el-row>
     </el-card>

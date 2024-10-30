@@ -83,7 +83,7 @@ const formatNumber = (value: number) => {
 }
 
 const formatDate = (date: string) => {
-  return new Date(date).toISOString().slice(0, 10).replace(/-/g, '.')
+  return new Date(date).toISOString().slice(0,10).split('-').reverse().join('.')
 }
 
 const currentEditItem = ref<IExpenses>({
