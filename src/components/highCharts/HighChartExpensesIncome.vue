@@ -4,6 +4,7 @@
 
 <script lang="ts">
 import { defineComponent, computed } from 'vue';
+import {useCurrencyStore} from "@/store/currency.ts";
 
 export default defineComponent({
   props: {
@@ -21,6 +22,7 @@ export default defineComponent({
     }
   },
   setup(props) {
+    const currencyStore = useCurrencyStore()
     const year = new Date().getFullYear()
     const chartOptions = computed(() => ({
       chart: {
@@ -38,21 +40,21 @@ export default defineComponent({
       },
       yAxis: {
         title: {
-          text: 'Сумма'
+          text: `Сумма (${currencyStore.selectedCurrency})`
         }
       },
       tooltip: {
-        valueSuffix: '₽'
+        valueSuffix: `${currencyStore.getIcon}`
       },
       series: [
         {
           name: 'Доходы',
-          data: props.income,
+          data: props.income.map((value: number | null) => (value ?? 0) * currencyStore.getRate),
           color: '#30CA2C'
         },
         {
           name: 'Расходы',
-          data: props.expenses,
+          data: props.expenses.map((value: number | null) => (value ?? 0) * currencyStore.getRate),
           color: '#ef2b2b'
         }
       ]

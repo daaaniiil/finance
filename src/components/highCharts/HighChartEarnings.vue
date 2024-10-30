@@ -4,6 +4,7 @@
 
 <script lang="ts">
 import {computed, defineComponent} from 'vue';
+import {useCurrencyStore} from "@/store/currency.ts";
 
 export default defineComponent({
   name: 'EarningsChart',
@@ -18,6 +19,7 @@ export default defineComponent({
     }
   },
   setup(props) {
+    const currencyStore = useCurrencyStore()
     const chartOptions = computed(() => ({
       chart: {
         type: 'areaspline'
@@ -32,7 +34,7 @@ export default defineComponent({
         areaspline: {
           color: 'blue',
           fillColor: {
-            linearGradient: { x1: 0, x2: 0, y1: 0, y2: 1 },
+            linearGradient: { x1: 0, x2: 1, y1: 0, y2: 1 },
             stops: [
               [0, '#0000FFFF'],
               [1, 'rgba(50,94,205,0)']
@@ -44,19 +46,7 @@ export default defineComponent({
             lineColor: null,
             fillColor: 'white'
           }
-        },
-        // area: {
-        //   marker: {
-        //     enabled: false,
-        //     symbol: 'circle',
-        //     radius: 2,
-        //     states: {
-        //       hover: {
-        //         enabled: true
-        //       }
-        //     }
-        //   }
-        // }
+        }
       },
       xAxis: {
         categories: props.months,
@@ -64,16 +54,16 @@ export default defineComponent({
       },
       yAxis: {
         title: {
-          text: 'Сумма'
+          text: `Сумма (${currencyStore.selectedCurrency})`
         }
       },
       tooltip: {
-        valueSuffix: '₽'
+        valueSuffix: `${currencyStore.getIcon}`
       },
       series: [
         {
           name: 'Зарплата',
-          data: props.salaries
+          data: props.salaries.map((value: number | null) => (value ?? 0) * currencyStore.getRate)
         }
       ]
     }))
