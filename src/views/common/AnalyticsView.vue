@@ -9,9 +9,9 @@
     <el-card v-if="!store.loading">
       <h2>Текущий месяц «<span>{{ availableMonths }}</span>»</h2>
       <hr>
-      <h1>Заработок: {{ format(Number(store.earningsCurrentMonthAmount)) }}₽</h1>
-      <h1>Доход: <span class="income">{{ format(Number(incomeCurrentMonthAmount)) }}₽</span></h1>
-      <h1>Расходы: <span class="expenses">{{ format(store.expensesCurrentMonthAmount) }}₽</span></h1>
+      <h1>Заработок: {{ format(Number(store.earningsCurrentMonthAmount)) }}{{currencyStore.getIcon}}</h1>
+      <h1>Доход: <span class="income">{{ format(Number(incomeCurrentMonthAmount)) }}{{currencyStore.getIcon}}</span></h1>
+      <h1>Расходы: <span class="expenses">{{ format(store.expensesCurrentMonthAmount) }}{{currencyStore.getIcon}}</span></h1>
     </el-card>
     <el-card v-else>
       <el-skeleton animated/>
@@ -26,9 +26,10 @@ import {onMounted, computed} from "vue";
 import {useFinanceStore} from "@/store";
 import HighChartComponent from "@/components/highCharts/HighChartComponent.vue";
 import {IMonths} from "@/resources/types.ts";
+import {useCurrencyStore} from "@/store/currency.ts";
 
 const store = useFinanceStore()
-
+const currencyStore = useCurrencyStore()
 const format = (balance: number) => {
   return balance.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
 }

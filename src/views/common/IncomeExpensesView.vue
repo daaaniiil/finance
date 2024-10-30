@@ -11,7 +11,7 @@
       </el-card>
       <el-card>
         <h2>Ваши расходы</h2>
-        <el-table :data="sortedExpenses" :height="500">
+        <el-table :data="expensesConverted" :height="500">
           <el-table-column fixed prop="date" label="Дата" width="120" />
           <el-table-column prop="category" label="Категория" width="300"/>
           <el-table-column prop="amount" label="Сумма" align="center"/>
@@ -60,6 +60,7 @@
 import {computed, onMounted, ref} from "vue";
 import ExpensesForm from "@/forms/ExpensesForm.vue";
 import {useFinanceStore} from "@/store";
+import {useCurrencyStore} from "@/store/currency.ts";
 import {DeleteFilled, DocumentCopy, Edit} from "@element-plus/icons-vue";
 import {ElMessage} from "element-plus";
 import {IEarnings, IExpenses, IMonths} from "@/resources/types.ts";
@@ -69,6 +70,7 @@ import {
 } from '@element-plus/icons-vue'
 
 const store = useFinanceStore()
+const currencyStore = useCurrencyStore()
 
 const editDialogVisible = ref(false)
 
@@ -99,11 +101,38 @@ const saveAmount = async () => {
   if (currentEditItem.value && newAmount.value && newAmount.value !== 0) {
     try {
       if (newAmount.value !== currentEditItem.value.amount) {
-        await store.updateEarningsExpenses(currentEditItem.value.id, newAmount.value)
+        const selectedDate = new Date(currentEditItem.value.date)
+        const selectedMonth = selectedDate.getMonth()
+        const availableMonthLabel = store.months.find((month: IMonths) => month.value === selectedMonth)?.label
 
-        await store.getUserExpenses()
-        ElMessage.success('Сумма успешно обновлена!')
-        editDialogVisible.value = false
+        const monthEarnings = store.earnings
+            .find((earning: IEarnings) => earning.month === availableMonthLabel)?.amount || 0
+
+        const monthExpenses: number = store.expenses
+            .filter((expense: IExpenses) => {
+              const expenseDate = new Date(expense.date)
+              return expenseDate.getMonth() === selectedMonth && expenseDate.getFullYear() === new Date().getFullYear()
+            })
+            .reduce((acc: number, expense: IExpenses) => acc + (expense.amount || 0), 0)
+
+            if (currencyStore.selectedCurrency === 'BYN') {
+              newAmount.value *= 1
+            } else if (currencyStore.selectedCurrency === 'USD') {
+              newAmount.value *= 3.27
+            } else {
+              newAmount.value *= .033
+            }
+
+        if(monthEarnings > newAmount.value + monthExpenses) {
+          await store.updateEarningsExpenses(currentEditItem.value.id, newAmount.value)
+
+          await store.getUserExpenses()
+          ElMessage.success('Сумма успешно обновлена!')
+          editDialogVisible.value = false
+        } else {
+          newAmount.value = currentEditItem.value.amount
+          ElMessage.warning('Ваш расход превышает зарплату в выбранном месяце')
+        }
       } else {
         ElMessage.warning('Введите новую сумму!')
       }
@@ -135,6 +164,13 @@ const sortedExpenses = computed(() => {
       date: formatDate(e.date)
     }
   })
+})
+
+const expensesConverted = computed(() => {
+  return sortedExpenses.value.map((e: IExpenses) => ({
+    ...e,
+    amount: (e.amount ?? 0) * currencyStore.getRate
+  }))
 })
 
 const sortedEarnings = computed(() => {

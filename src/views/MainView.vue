@@ -8,9 +8,9 @@
     <el-card v-if="!store.loading">
       <h2>Прошлый месяц «<span>{{ availableMonths }}</span>»</h2>
       <hr>
-      <h1>Заработок: {{ format(Number(store.earningsLastMonthAmount)) }}₽</h1>
-      <h1>Доход: <span class="income">{{ format(Number(incomeLastMonthAmount)) }}₽</span></h1>
-      <h1>Расходы: <span class="expenses">{{ format(store.expensesLastMonthAmount) }}₽</span></h1>
+      <h1>Заработок: {{ format(Number(store.earningsLastMonthAmount)) }}{{ currencyStore.getIcon }}</h1>
+      <h1>Доход: <span class="income">{{ format(Number(incomeLastMonthAmount)) }}{{ currencyStore.getIcon }}</span></h1>
+      <h1>Расходы: <span class="expenses">{{format(Number(store.expensesLastMonthAmount)) }}{{ currencyStore.getIcon }}</span></h1>
     </el-card>
     <el-card v-else>
       <el-skeleton animated/>
@@ -26,8 +26,9 @@
             <el-dropdown trigger="click">
               <el-button class="el-dropdown-link">
                 <el-icon>
-                  <MoreFilled />
-                </el-icon> <i class="el-icon-arrow-down el-icon--right"></i>
+                  <MoreFilled/>
+                </el-icon>
+                <i class="el-icon-arrow-down el-icon--right"></i>
               </el-button>
               <template #dropdown>
                 <el-dropdown-menu slot="dropdown">
@@ -74,7 +75,7 @@ import {useFinanceStore} from '@/store';
 import {useCurrencyStore} from "@/store/currency.ts";
 import EarningsForm from "@/forms/EarningsForm.vue";
 import HighChartEarnings from "../components/highCharts/HighChartEarnings.vue";
-import {IEarnings, IMonths} from "../resources/types";
+import {IEarnings, IExpenses, IMonths} from "../resources/types";
 import {
   DocumentCopy,
   Edit,
@@ -91,7 +92,7 @@ const format = (balance: number) => {
 }
 
 let lastMonth = new Date().getMonth()
-if(lastMonth === 0){
+if (lastMonth === 0) {
   lastMonth = 12
 }
 
@@ -117,7 +118,6 @@ const earningsConverted = computed(() => {
   }))
 })
 
-
 const editDialogVisible = ref<boolean>(false)
 const currentEditItem = ref<IEarnings>({
   id: '',
@@ -136,10 +136,33 @@ const saveAmount = async () => {
   if (currentEditItem.value && newAmount.value && newAmount.value !== 0) {
     try {
       if (newAmount.value !== currentEditItem.value.amount) {
-        await store.updateEarningsAmount(currentEditItem.value.id, newAmount.value, currentEditItem.value.month)
+        const selectedMonth = store.months.find((m: IMonths) => m.label === currentEditItem.value.month)?.value
 
-        ElMessage.success('Сумма успешно обновлена!')
-        editDialogVisible.value = false
+        const monthExpenses: number = store.expenses
+            .filter((expense: IExpenses) => {
+              const expenseDate = new Date(expense.date)
+
+              return expenseDate.getMonth() === selectedMonth && expenseDate.getFullYear() === new Date().getFullYear()
+            })
+            .reduce((acc: number, expense: IExpenses) => acc + (expense.amount || 0), 0)
+
+            if (currencyStore.selectedCurrency === 'BYN') {
+              newAmount.value *= 1
+            } else if (currencyStore.selectedCurrency === 'USD') {
+              newAmount.value *= 3.27
+            } else {
+              newAmount.value *= .033
+            }
+
+        if (monthExpenses < newAmount.value) {
+          await store.updateEarningsAmount(currentEditItem.value.id, newAmount.value, currentEditItem.value.month)
+
+          editDialogVisible.value = false
+          ElMessage.success('Сумма успешно обновлена!')
+        } else {
+          newAmount.value = currentEditItem.value.amount
+          ElMessage.warning('Ваши раходы превышают зарплату в выбранном месяце')
+        }
       } else {
         ElMessage.warning('Введите новую сумму!')
       }
@@ -162,7 +185,6 @@ const deleteItem = async (row: IEarnings) => {
 
 const monthLabel = computed(() => sortedEarnings.value.map((e: IEarnings) => e.month).reverse())
 const salaryValues = computed(() => sortedEarnings.value.map((e: IEarnings) => e.amount).reverse())
-
 
 
 onMounted(async () => {
@@ -211,6 +233,7 @@ onMounted(async () => {
 
   a {
     background-size: 0;
+
     &:hover {
       padding-left: 0;
     }
