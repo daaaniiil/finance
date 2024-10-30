@@ -94,13 +94,7 @@ export const useFinanceStore = defineStore('finance', () => {
                     await authUser()
 
                     if(model.amount !== null){
-                        if(currencyStore.selectedCurrency === 'BYN') {
-                            model.amount *= 1
-                        } else if(currencyStore.selectedCurrency === 'USD') {
-                            model.amount *= 3.27
-                        } else {
-                            model.amount *= .033
-                        }
+                        model.amount *= currencyStore.getRate
                     }
 
                     const {error: insertError} = await supabase
@@ -233,13 +227,7 @@ export const useFinanceStore = defineStore('finance', () => {
                     await authUser()
 
                     if(model.amount !== null){
-                        if(currencyStore.selectedCurrency === 'BYN') {
-                            model.amount *= 1
-                        } else if(currencyStore.selectedCurrency === 'USD') {
-                            model.amount *= 3.27
-                        } else {
-                            model.amount *= .033
-                        }
+                        model.amount *= currencyStore.getRate
                     }
 
                     const {error: insertError} = await supabase

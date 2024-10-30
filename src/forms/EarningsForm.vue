@@ -11,7 +11,7 @@
       <el-form-item prop="month" label="Месяц">
         <el-select v-model="model.month" placeholder="Выберите месяц">
           <el-option
-            v-for="(month, index) in months"
+            v-for="(month, index) in store.months"
             :key="index"
             :label="month.label"
             :value="month.label"
@@ -59,26 +59,26 @@ const labelPosition = computed(() => {
 
 const currentMonth = new Date().getMonth()
 
-const months = [
-  { label: 'Январь', value: 0 },
-  { label: 'Февраль', value: 1 },
-  { label: 'Март', value: 2 },
-  { label: 'Апрель', value: 3 },
-  { label: 'Май', value: 4 },
-  { label: 'Июнь', value: 5 },
-  { label: 'Июль', value: 6 },
-  { label: 'Август', value: 7 },
-  { label: 'Сентябрь', value: 8 },
-  { label: 'Октябрь', value: 9 },
-  { label: 'Ноябрь', value: 10 },
-  { label: 'Декабрь', value: 11 },
-]
+// const months = [
+//   { label: 'Январь', value: 0 },
+//   { label: 'Февраль', value: 1 },
+//   { label: 'Март', value: 2 },
+//   { label: 'Апрель', value: 3 },
+//   { label: 'Май', value: 4 },
+//   { label: 'Июнь', value: 5 },
+//   { label: 'Июль', value: 6 },
+//   { label: 'Август', value: 7 },
+//   { label: 'Сентябрь', value: 8 },
+//   { label: 'Октябрь', value: 9 },
+//   { label: 'Ноябрь', value: 10 },
+//   { label: 'Декабрь', value: 11 },
+// ]
 
 const isMonthDisabled = (monthLabel: string) => {
   const addedMonths: string[] = store.earnings.map((e: IEarnings) => e.month)
   const isMonthAdded: boolean = addedMonths.includes(monthLabel)
 
-  const foundMonth = months.find(month => month.label === monthLabel)
+  const foundMonth = store.months.find(month => month.label === monthLabel)
   const isFutureMonth: boolean = foundMonth ? foundMonth.value > currentMonth : false
 
   return isMonthAdded || isFutureMonth

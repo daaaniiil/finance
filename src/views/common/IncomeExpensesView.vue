@@ -119,13 +119,7 @@ const saveAmount = async () => {
             })
             .reduce((acc: number, expense: IExpenses) => acc + (expense.amount || 0), 0)
 
-            if (currencyStore.selectedCurrency === 'BYN') {
-              newAmount.value *= 1
-            } else if (currencyStore.selectedCurrency === 'USD') {
-              newAmount.value *= 3.27
-            } else {
-              newAmount.value *= .033
-            }
+        newAmount.value *= currencyStore.getRate
 
         if(monthEarnings > newAmount.value + monthExpenses) {
           await store.updateEarningsExpenses(currentEditItem.value.id, newAmount.value)

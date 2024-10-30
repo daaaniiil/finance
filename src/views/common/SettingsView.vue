@@ -6,7 +6,7 @@
     </el-breadcrumb>
     <el-card>
       <h2>Профиль</h2>
-      <hr>
+
 <!--      <p>Имя: <span>Даниил</span></p>-->
       <p>email: <strong>diniilmelnikov@gmail.com</strong></p>
       <p>Телефон: <span>+375333904420</span></p>
@@ -16,6 +16,17 @@
         <el-col :md="18">
           <currency-switcher />
 
+<!--          <div class="settings-page__password">-->
+<!--            <h3>Добавьте ваш телефон</h3>-->
+<!--            <el-form ref="form" :rules="rules" :model="model" status-icon @submit.prevent>-->
+<!--              <el-form-item prop="password">-->
+<!--                <el-input v-model="model.password" type="password" placeholder="Введите ваш телефон"/>-->
+<!--              </el-form-item>-->
+<!--              <el-button type="primary">Сохранить</el-button>-->
+<!--            </el-form>-->
+<!--          </div>-->
+
+          <h2>Смена пароля</h2>
           <div class="settings-page__password">
             <h3>Подтвердите пароль</h3>
             <el-form ref="form" :rules="rules" :model="model" status-icon @submit.prevent>
@@ -68,10 +79,17 @@ onMounted(async () => {
   }
 
   h2 {
+    border-bottom: 1px solid gray;
+    padding-bottom: $padding_main;
     margin-bottom: $padding_main;
 
     span {
       color: $color_main_green;
+    }
+    &:nth-child(2) {
+      margin-top: $padding_average;
+      padding-bottom: $padding - 5;
+      border-bottom: 1px solid black;
     }
   }
 
@@ -83,7 +101,7 @@ onMounted(async () => {
     }
   }
   &__password {
-    margin-top: $padding_average;
+    margin-top: $padding_main;
     h3 {
       margin-bottom: $padding - 5;
     }
