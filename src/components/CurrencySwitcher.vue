@@ -38,23 +38,16 @@ export default defineComponent({
   name: "CurrencySwitcher",
   setup() {
     const currencyStore = useCurrencyStore()
-    const selectedCurrency = ref<'BYN' | 'RUB' | 'USD'>('BYN')
+    const selectedCurrency = ref(currencyStore.selectedCurrency)
 
     const updateCurrency = () => {
       currencyStore.setCurrency(selectedCurrency.value)
     }
 
-    // const amountInByn = ref(1300)
-
-    // const convertedAmount = computed(() => {
-    //   return amountInByn.value * currencyStore.getRate
-    // })
-
-    watch(() => selectedCurrency.value, () => {
+    watch(() => selectedCurrency, () => {
       currencyStore.setCurrency(selectedCurrency.value)
     })
     return {
-      // convertedAmount,
       selectedCurrency,
       updateCurrency
     }

@@ -5,7 +5,7 @@ import {IEarnings, IExpenses, IMonths, IUser} from "../resources/types.ts";
 import {ElMessage} from "element-plus";
 import {TInstanceForm} from "@/resources/auth.ts";
 import {useRouter} from "vue-router";
-
+import {useCurrencyStore} from "@/store/currency.ts";
 
 export const useFinanceStore = defineStore('finance', () => {
     const user = ref<IUser | null>(null)
@@ -32,6 +32,7 @@ export const useFinanceStore = defineStore('finance', () => {
     const yearNow = new Date().getFullYear()
     const loading = ref<boolean>(false)
     const router = useRouter()
+    const currencyStore = useCurrencyStore()
     const isLoader = reactive({
         earnings: false,
         expenses: false,
@@ -91,6 +92,16 @@ export const useFinanceStore = defineStore('finance', () => {
                 loading.value = true
                 try {
                     await authUser()
+
+                    if(model.amount !== null){
+                        if(currencyStore.selectedCurrency === 'BYN') {
+                            model.amount *= 1
+                        } else if(currencyStore.selectedCurrency === 'USD') {
+                            model.amount *= 3.27
+                        } else {
+                            model.amount *= .033
+                        }
+                    }
 
                     const {error: insertError} = await supabase
                         .from('earnings')
@@ -221,6 +232,16 @@ export const useFinanceStore = defineStore('finance', () => {
                 try {
                     await authUser()
 
+                    if(model.amount !== null){
+                        if(currencyStore.selectedCurrency === 'BYN') {
+                            model.amount *= 1
+                        } else if(currencyStore.selectedCurrency === 'USD') {
+                            model.amount *= 3.27
+                        } else {
+                            model.amount *= .033
+                        }
+                    }
+
                     const {error: insertError} = await supabase
                         .from('expenses')
                         .insert([
@@ -343,6 +364,8 @@ export const useFinanceStore = defineStore('finance', () => {
             earningsLastMonthAmount.value = earnings.value
                 .find((e: IEarnings) => e.month === availableMonths)?.amount || 0
 
+            earningsLastMonthAmount.value *= currencyStore.getRate
+
             const expensesLastMonth: number[] = expenses.value
                 .filter((e: IExpenses): boolean => Number(e.date.slice(5,7)) === lastMonth)
                 .map((e: IExpenses) => e.amount)
@@ -350,6 +373,8 @@ export const useFinanceStore = defineStore('finance', () => {
 
             expensesLastMonthAmount.value = expensesLastMonth
                 .reduce((acc: number, current: number) => acc + current)
+
+            expensesLastMonthAmount.value *= currencyStore.getRate
 
         } catch (e){
             console.error(e)
@@ -367,6 +392,7 @@ export const useFinanceStore = defineStore('finance', () => {
             earningsCurrentMonthAmount.value = earnings.value
                 .find((e: IEarnings) => e.month === availableMonths)?.amount || 0
 
+            earningsCurrentMonthAmount.value *= currencyStore.getRate
 
             const expensesCurrentMonth: number[] = expenses.value
                 .filter((e: IExpenses): boolean => Number(e.date.slice(5,7)) === currentMonth + 1)
@@ -376,6 +402,7 @@ export const useFinanceStore = defineStore('finance', () => {
             expensesCurrentMonthAmount.value = expensesCurrentMonth
                 .reduce((acc: number, current: number) => acc + current)
 
+            expensesCurrentMonthAmount.value *= currencyStore.getRate
         } catch (e) {
             console.error(e)
         } finally {
