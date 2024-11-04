@@ -40,15 +40,14 @@ a {
   &.active {
     font-weight: bold;
     color: $color_main_green;
-    //border-bottom: 2px solid $color_main_green;
+    padding-left: $padding_main;
     &:hover {
-      padding-left: 0;
+      padding-left: $padding_main;
       background-size: 0;
     }
   }
   &:hover {
     color: $color_main_green;
-    //background-size: 100% 2px;
     padding-left: $padding_main;
   }
 }
