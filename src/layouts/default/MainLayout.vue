@@ -419,7 +419,7 @@ export default defineComponent({
   &__aside-container {
     height: 100vh;
     position:relative;
-    padding-bottom:50px;
+    padding-bottom: $padding_average + 20;
     overflow: hidden;
 
     .el-footer {
@@ -456,6 +456,14 @@ export default defineComponent({
     display: flex;
     align-items: center;
     user-select: none;
+    img {
+      margin-right: $padding - 5;
+      height: 2em;
+    }
+    p {
+      color: $color_main_green;
+      font-weight: 700;
+    }
   }
 }
 </style>
