@@ -14,7 +14,7 @@
         <el-table :data="expensesConverted" :height="500">
           <el-table-column fixed prop="date" label="Дата" width="120" />
           <el-table-column prop="category" label="Категория" width="300"/>
-          <el-table-column prop="amount" label="Сумма" align="center">
+          <el-table-column prop="amount" label="Сумма" align="center" min-width="120">
             <template #default="scope">
               <span>{{ formatNumber(scope.row.amount) }}{{currencyStore.getIcon}}</span>
             </template>

@@ -8,7 +8,7 @@
     <el-card v-if="!store.loading">
       <h2>Прошлый месяц «<span>{{ availableMonths }}</span>»</h2>
       <hr>
-      <h1>Заработок: {{ formatNumber(Number(store.earningsLastMonthAmount.toFixed())) }}{{ currencyStore.getIcon }}</h1>
+      <h1>Заработок: <span>{{ formatNumber(Number(store.earningsLastMonthAmount.toFixed())) }}{{ currencyStore.getIcon }}</span></h1>
       <h1>Доход: <span class="income">{{ formatNumber(Number(incomeLastMonthAmount.toFixed())) }}{{ currencyStore.getIcon }}</span></h1>
       <h1>Расходы: <span class="expenses">{{formatNumber(Number(store.expensesLastMonthAmount.toFixed())) }}{{ currencyStore.getIcon }}</span></h1>
     </el-card>
@@ -19,8 +19,8 @@
     <el-card>
       <h2>Ваш заработок по месяцам</h2>
       <el-table :data="earningsConverted" style="width: 100%">
-        <el-table-column fixed prop="month" label="Месяц" width="120"/>
-        <el-table-column prop="amount" label="Сумма" align="center">
+        <el-table-column fixed prop="month" label="Месяц" width="100"/>
+        <el-table-column prop="amount" label="Сумма" align="center" min-width="120">
           <template #default="scope">
             <span>{{ formatNumber(scope.row.amount) }}{{currencyStore.getIcon}}</span>
           </template>
@@ -203,6 +203,12 @@ onMounted(async () => {
     color: $color_main_green;
   }
 
+  h1 {
+    font-weight: 500;
+    span {
+      font-weight: 700;
+    }
+  }
   h1:nth-child(4) {
     margin: $padding - 5 0;
   }

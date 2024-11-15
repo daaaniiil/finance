@@ -26,16 +26,16 @@
 <!--            </el-form>-->
 <!--          </div>-->
 
-          <h2>Смена пароля</h2>
-          <div class="settings-page__password">
-            <h3>Подтвердите пароль</h3>
-            <el-form ref="form" :rules="rules" :model="model" status-icon @submit.prevent>
-              <el-form-item prop="password">
-                <el-input v-model="model.password" type="password" placeholder="Введите ваш пароль"/>
-              </el-form-item>
-              <el-button type="primary">Сменить</el-button>
-            </el-form>
-          </div>
+<!--          <h2>Смена пароля</h2>-->
+<!--          <div class="settings-page__password">-->
+<!--            <h3>Подтвердите пароль</h3>-->
+<!--            <el-form ref="form" :rules="rules" :model="model" status-icon @submit.prevent>-->
+<!--              <el-form-item prop="password">-->
+<!--                <el-input v-model="model.password" type="password" placeholder="Введите ваш пароль"/>-->
+<!--              </el-form-item>-->
+<!--              <el-button type="primary">Сменить</el-button>-->
+<!--            </el-form>-->
+<!--          </div>-->
         </el-col>
         <el-col :md="6">
           <p>Статус</p>

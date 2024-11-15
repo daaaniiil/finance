@@ -4,7 +4,7 @@
       <el-radio-button value="BYN">
         <el-tag type="success">
           <div>
-            <el-image src="/src/assets/img/flag/belarus-flag-icon.png" alt="Беларусь" />
+            <img src="../assets/img/flag/belarus-flag-icon.png" alt="Беларусь" />
             BYN
           </div>
         </el-tag>
@@ -12,7 +12,7 @@
       <el-radio-button value="RUB">
         <el-tag type="warning">
           <div>
-            <el-image src="/src/assets/img/flag/russian-flag-icon.png" alt="Россия" />
+            <img src="../assets/img/flag/russian-flag-icon.png" alt="Россия" />
             RUB
           </div>
         </el-tag>
@@ -20,7 +20,7 @@
       <el-radio-button value="USD">
         <el-tag type="info">
           <div>
-            <el-image src="/src/assets/img/flag/usa-flag-icon.png" alt="США" class="flag-usa" />
+            <img src="../assets/img/flag/usa-flag-icon.png" alt="США" class="flag-usa" />
             USD
           </div>
         </el-tag>
@@ -84,7 +84,7 @@ export default defineComponent({
       flex-direction: row;
     }
   }
-  .el-image {
+  img {
     width: 22px;
     height: 13px;
     margin-right: $padding - 10;

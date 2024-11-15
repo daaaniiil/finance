@@ -22,7 +22,7 @@ export default defineComponent({
     const currencyStore = useCurrencyStore()
     const chartOptions = computed(() => ({
       chart: {
-        type: 'areaspline'
+        type: 'area'
       },
       title: {
         text: 'Зарплата по месяцам'
@@ -31,15 +31,16 @@ export default defineComponent({
         enabled: false
       },
       plotOptions: {
-        areaspline: {
-          color: 'blue',
-          fillColor: {
-            linearGradient: { x1: 0, x2: 1, y1: 0, y2: 1 },
-            stops: [
-              [0, '#0000FFFF'],
-              [1, 'rgba(50,94,205,0)']
-            ]
-          },
+        area: {
+          // color: 'blue',
+          // fillColor: {
+          //   linearGradient: { x1: 0, x2: 1, y1: 0, y2: 1 },
+          //   stops: [
+          //     [0, '#0000FFFF'],
+          //     [1, 'rgba(50,94,205,0)']
+          //   ]
+          // },
+          stacking: 'normal',
           threshold: null,
           marker: {
             lineWidth: 1,

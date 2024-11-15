@@ -26,7 +26,7 @@ export default defineComponent({
     const year = new Date().getFullYear()
     const chartOptions = computed(() => ({
       chart: {
-        type: 'line'
+        type: 'area'
       },
       title: {
         text: `Доходы и расходы ${year}`
@@ -41,6 +41,11 @@ export default defineComponent({
       yAxis: {
         title: {
           text: `Сумма (${currencyStore.selectedCurrency})`
+        }
+      },
+      plotOptions:{
+        area: {
+
         }
       },
       tooltip: {

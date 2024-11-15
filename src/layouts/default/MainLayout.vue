@@ -26,10 +26,10 @@
           <el-main>
             <el-scrollbar>
               <div class="main-layout__aside-content">
-                <router-link :to="{name:'main-page'}">Главная</router-link>
-                <router-link :to="{name:'income-expenses-page'}">Доходы & Расходы</router-link>
-                <router-link :to="{name:'analytics-page'}">Аналитика</router-link>
-                <router-link :to="{name:'settings-page'}">Настройки</router-link>
+                <router-link to="/main">Главная</router-link>
+                <router-link to="/income-expenses">Доходы & Расходы</router-link>
+                <router-link to="/analytics">Аналитика</router-link>
+                <router-link to="/settings">Настройки</router-link>
               </div>
             </el-scrollbar>
           </el-main>
@@ -57,92 +57,94 @@
         </el-container>
       </div>
     </el-drawer>
-    <el-container class="main-layout__main-container">
-      <el-header height="auto">
-        <indent-container>
-          <div class="main-layout__header">
-            <el-row :gutter="20">
-              <el-col :md="12" :lg="3" :xs="12" :sm="6">
-                <img src="../../../public/finance.png" alt="Logo">
-                <p>finance</p>
-              </el-col>
-              <el-col :md="12" :lg="21" :xs="12" :sm="18">
-                <div class="nav-links">
-                  <el-button type="primary" @click="drawerState = !drawerState">
-                    <el-icon size="25">
-                      <More/>
-                    </el-icon>
-                  </el-button>
-                </div>
-              </el-col>
-            </el-row>
-          </div>
-        </indent-container>
-      </el-header>
-      <el-main>
-        <el-scrollbar height="100vh">
-          <div class="main-layout__main-content">
-            <indent-container>
-              <router-view name="default" class="main-layout-view" v-slot="{ Component, route }">
-                <transition name="fade-down" mode="out-in" appear>
-                  <div :key="route.name">
-                    <component :is="Component"/>
-                  </div>
-                </transition>
-              </router-view>
-            </indent-container>
-          </div>
-          <el-footer>
-            <div class="main-layout__footer">
-              <el-row :gutter="20">
-                <el-col :md="8">
-                  <h3>Мой аккаунт</h3>
-                  <router-link :to="{name: 'settings-page'}">Мой профиль</router-link>
-                  <router-link :to="{name: 'main-page'}">Связаться с нами</router-link>
-                  <router-link :to="{name: 'main-page'}">Карьера</router-link>
-                  <router-link :to="{name: 'main-page'}">Специальные предложения</router-link>
-                </el-col>
-                <el-col :md="8">
-                  <h3>Навигация</h3>
-                  <router-link :to="{name: 'income-expenses-page'}">Доходы & Расходы</router-link>
-                  <router-link :to="{name: 'main-page'}">Главная</router-link>
-                  <router-link :to="{name: 'analytics-page'}">Аналитика</router-link>
-                  <router-link :to="{name: 'settings-page'}">Настройки</router-link>
-                </el-col>
-                <el-col :md="8">
-                  <h3>Социальные сети</h3>
-                  <div>
-                    <a href="#"><img src="../../assets/img/facebook.png" alt="facebook" width="30"></a>
-                    <a href="#"><img src="../../assets/img/vk.png" alt="vk" width="30"></a>
-                    <a href="#"><img src="../../assets/img/instagram.png" alt="instagram" width="30"></a>
-                  </div>
-                  <div>
-                    <a href="#"><img src="../../assets/img/twitter.png" alt="twitter" width="30"></a>
-                    <a href="#"><img src="../../assets/img/youtube.png" alt="youtube" width="30"></a>
-                  </div>
-                </el-col>
-              </el-row>
-              <el-row :gutter="20">
-                <el-col :md="8">
-                  <img src="../../../public/finance.png" alt="Logo" width="38">
-                  <p>finance</p>
-                </el-col>
-                <el-col :md="8">
-                  <img src="../../assets/img/letter.png" alt="letter" width="13">
-                  <p>finance@greenshop.com</p>
-                </el-col>
-                <el-col :md="8">
-                  <img src="../../assets/img/call.png" alt="call" width="12">
-                  <p>+88 01911 717 490</p>
-                </el-col>
-              </el-row>
-              <div style="margin-top: 10px;">© {{ year }} finance. Все права защищены.</div>
-            </div>
-          </el-footer>
-        </el-scrollbar>
-        <el-backtop target=".el-scrollbar__wrap"/>
-      </el-main>
-    </el-container>
+   <el-container class="main-layout__wrap">
+     <el-container class="main-layout__main-container">
+       <el-header height="auto">
+         <indent-container>
+           <div class="main-layout__header main-layout__header-content" ref="headerMain">
+             <el-row :gutter="20">
+               <el-col :md="12" :lg="3" :xs="12" :sm="6">
+                 <img src="../../../public/finance.png" alt="Logo">
+                 <p>finance</p>
+               </el-col>
+               <el-col :md="12" :lg="21" :xs="12" :sm="18">
+                 <div class="nav-links">
+                   <el-button type="primary" @click="drawerState = !drawerState">
+                     <el-icon size="25">
+                       <More/>
+                     </el-icon>
+                   </el-button>
+                 </div>
+               </el-col>
+             </el-row>
+           </div>
+         </indent-container>
+       </el-header>
+       <el-main>
+         <el-scrollbar height="100vh">
+           <div class="main-layout__main-content">
+             <indent-container>
+               <router-view name="default" class="main-layout-view" v-slot="{ Component, route }">
+                 <transition name="fade-down" mode="out-in" appear>
+                   <div :key="route.name">
+                     <component :is="Component"/>
+                   </div>
+                 </transition>
+               </router-view>
+             </indent-container>
+           </div>
+           <el-footer ref="footerMain">
+             <div class="main-layout__footer">
+               <el-row :gutter="20">
+                 <el-col :md="8">
+                   <h3>Мой аккаунт</h3>
+                   <router-link :to="{name: 'settings-page'}">Мой профиль</router-link>
+                   <router-link :to="{name: 'main-page'}">Связаться с нами</router-link>
+                   <router-link :to="{name: 'main-page'}">Карьера</router-link>
+                   <router-link :to="{name: 'main-page'}">Специальные предложения</router-link>
+                 </el-col>
+                 <el-col :md="8">
+                   <h3>Навигация</h3>
+                   <router-link :to="{name: 'income-expenses-page'}">Доходы & Расходы</router-link>
+                   <router-link :to="{name: 'main-page'}">Главная</router-link>
+                   <router-link :to="{name: 'analytics-page'}">Аналитика</router-link>
+                   <router-link :to="{name: 'settings-page'}">Настройки</router-link>
+                 </el-col>
+                 <el-col :md="8">
+                   <h3>Социальные сети</h3>
+                   <div>
+                     <a href="#"><img src="../../assets/img/facebook.png" alt="facebook" width="30"></a>
+                     <a href="#"><img src="../../assets/img/vk.png" alt="vk" width="30"></a>
+                     <a href="#"><img src="../../assets/img/instagram.png" alt="instagram" width="30"></a>
+                   </div>
+                   <div>
+                     <a href="#"><img src="../../assets/img/twitter.png" alt="twitter" width="30"></a>
+                     <a href="#"><img src="../../assets/img/youtube.png" alt="youtube" width="30"></a>
+                   </div>
+                 </el-col>
+               </el-row>
+               <el-row :gutter="20">
+                 <el-col :md="8">
+                   <img src="../../../public/finance.png" alt="Logo" width="38">
+                   <p>finance</p>
+                 </el-col>
+                 <el-col :md="8">
+                   <img src="../../assets/img/letter.png" alt="letter" width="13">
+                   <p>finance@greenshop.com</p>
+                 </el-col>
+                 <el-col :md="8">
+                   <img src="../../assets/img/call.png" alt="call" width="12">
+                   <p>+88 01911 717 490</p>
+                 </el-col>
+               </el-row>
+               <div style="margin-top: 10px;">© {{ year }} finance. Все права защищены.</div>
+             </div>
+           </el-footer>
+         </el-scrollbar>
+         <el-backtop target=".el-scrollbar__wrap"/>
+       </el-main>
+     </el-container>
+   </el-container>
   </div>
 </template>
 
@@ -159,12 +161,16 @@ export default defineComponent({
   components: {IndentContainer, CircleCloseFilled, More},
   setup() {
     const drawerState = ref(false)
+    const headerMain = ref<HTMLElement | null>(null)
     const headerAside = ref<HTMLElement | null>(null)
+    const footerMain = ref<HTMLElement | null>(null)
     const year = new Date().getFullYear()
 
     return {
       drawerState,
       headerAside,
+      footerMain,
+      headerMain,
       year
     }
   }
@@ -194,17 +200,22 @@ export default defineComponent({
     margin-top: $padding_medium - 1;
     border-top: $color_border_gray 1px solid;
     background: $color_background_gray;
-    height: 400px;
+    min-height: 380px;
     width: 100%;
+    box-sizing: border-box;
+
     @media(max-width: 769px) {
-      height: 760px;
+      min-height: 550px;
+      padding-bottom: $padding;
     }
     @media(max-width: 376px) {
-      height: 730px;
+      min-height: 520px;
+      padding-bottom: $padding - 5;
     }
   }
 
   &__footer {
+    padding: 0;
     text-align: center;
 
     h3 {
@@ -218,6 +229,7 @@ export default defineComponent({
       margin-bottom: $padding - 5;
 
       &.active {
+        padding-left: 0;
         font-weight: 400;
         color: $color_text;
       }
@@ -236,6 +248,11 @@ export default defineComponent({
           display: flex;
           flex-direction: column;
         }
+        &:nth-child(2){
+          @media(max-width: 769px) {
+            display: none;
+          }
+        }
 
         img {
           margin: $padding - 10;
@@ -243,7 +260,7 @@ export default defineComponent({
       }
 
       &:nth-child(2) {
-        height: 76px;
+        // height: 76px;
         margin-top: $padding_main;
         padding-top: 0;
         background-color: $color_empty_green;
@@ -308,7 +325,9 @@ export default defineComponent({
   .el-header {
     border-bottom: $color_border_gray 1px solid;
     padding: $padding 0;
+  }
 
+  &__header-content {
     img {
       margin-right: $padding - 5;
       height: 2em;
@@ -318,9 +337,7 @@ export default defineComponent({
       color: $color_main_green;
       font-weight: 700;
     }
-  }
 
-  &__header {
     .el-row {
       .el-col {
         display: flex;
@@ -342,9 +359,9 @@ export default defineComponent({
     padding: 0;
   }
 
-
   &__footer-menu {
     text-align: center;
+    box-sizing: border-box;
 
     a {
       margin-bottom: $padding - 5;
@@ -401,9 +418,14 @@ export default defineComponent({
 
   &__aside-container {
     height: 100vh;
+    position:relative;
+    padding-bottom:50px;
+    overflow: hidden;
 
     .el-footer {
-      max-height: 255px;
+      position: absolute;
+      bottom: 0;
+      min-height: 250px;
       align-items: center;
       border-top: $color_border_gray 1px solid;
     }
