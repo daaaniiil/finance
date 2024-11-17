@@ -75,6 +75,9 @@ export default defineComponent({
     margin-right: $padding_main;
     border-radius: $radius_tiny;
     box-shadow: -1px 0 0 0 $color_border_gray;
+    @media(max-width: 376px) {
+      margin-right: $padding_main - 13;
+    }
   }
 
   .el-tag {

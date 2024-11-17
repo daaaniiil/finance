@@ -44,8 +44,7 @@ export default defineComponent({
           threshold: null,
           marker: {
             lineWidth: 1,
-            lineColor: null,
-            fillColor: 'white'
+            lineColor: 'white'
           }
         }
       },
