@@ -6,68 +6,83 @@
     </el-breadcrumb>
     <el-card>
       <h2>Профиль</h2>
-
-<!--      <p>Имя: <span>Даниил</span></p>-->
-      <p>email: <strong>diniilmelnikov@gmail.com</strong></p>
-      <p>Телефон: <span>+375333904420</span></p>
+      <p>email: <strong>{{emailUser}}</strong></p>
       <p>Зарегистрирован: <span>{{ createdAt }}</span></p>
 
-      <el-row :gutter="20">
-        <el-col :md="18">
-          <currency-switcher />
-
-<!--          <div class="settings-page__password">-->
-<!--            <h3>Добавьте ваш телефон</h3>-->
-<!--            <el-form ref="form" :rules="rules" :model="model" status-icon @submit.prevent>-->
-<!--              <el-form-item prop="password">-->
-<!--                <el-input v-model="model.password" type="password" placeholder="Введите ваш телефон"/>-->
-<!--              </el-form-item>-->
-<!--              <el-button type="primary">Сохранить</el-button>-->
-<!--            </el-form>-->
-<!--          </div>-->
-
-<!--          <h2>Смена пароля</h2>-->
-<!--          <div class="settings-page__password">-->
-<!--            <h3>Подтвердите пароль</h3>-->
-<!--            <el-form ref="form" :rules="rules" :model="model" status-icon @submit.prevent>-->
-<!--              <el-form-item prop="password">-->
-<!--                <el-input v-model="model.password" type="password" placeholder="Введите ваш пароль"/>-->
-<!--              </el-form-item>-->
-<!--              <el-button type="primary">Сменить</el-button>-->
-<!--            </el-form>-->
-<!--          </div>-->
-        </el-col>
-        <el-col :md="6">
-          <p>Статус</p>
-          <el-button type="danger" @click="store.logout()">Выход</el-button>
-        </el-col>
-      </el-row>
+      <currency-switcher/>
+      <div class="settings-page__exit">
+        <el-popconfirm
+            width="220"
+            title="Вы уверены что вы хотите выйти?"
+            @confirm="store.logout()">
+          <template #reference>
+            <el-button type="danger">Выход</el-button>
+          </template>
+          <template #actions="{ confirm, cancel }">
+            <el-button type="warning" size="small" @click="cancel">Нет!</el-button>
+            <el-button type="danger" size="small" @click="confirm">Да</el-button>
+          </template>
+        </el-popconfirm>
+      </div>
     </el-card>
+
+    <high-chart-earnings :months="monthLabel" :salaries="salaryValues" />
+    <!--      <el-row :gutter="20">-->
+    <!--        <el-col :md="18">-->
+    <!--          <h2>Смена пароля</h2>-->
+    <!--          <div class="settings-page__password">-->
+    <!--            <h3>Подтвердите пароль</h3>-->
+    <!--            <el-form ref="form" :rules="rules" :model="model" status-icon @submit.prevent>-->
+    <!--              <el-form-item prop="password">-->
+    <!--                <el-input v-model="model.password" type="password" placeholder="Введите ваш пароль"/>-->
+    <!--              </el-form-item>-->
+    <!--              <el-button type="primary">Сменить</el-button>-->
+    <!--            </el-form>-->
+    <!--          </div>-->
+    <!--        </el-col>-->
+    <!--        <el-col :md="6">-->
+    <!--          <p>Статус</p>-->
+    <!--        </el-col>-->
+    <!--      </el-row>-->
   </div>
 </template>
 
 <script setup lang="ts">
-import {computed, reactive, ref, onMounted} from 'vue'
-import {FormRules} from "element-plus";
+import {computed, onMounted} from 'vue'
+// import {FormRules} from "element-plus";
 import {useFinanceStore} from "@/store";
 import CurrencySwitcher from "@/components/CurrencySwitcher.vue";
+import HighChartEarnings from "@/components/highCharts/HighChartEarnings.vue";
+import {IEarnings, IMonths} from "@/resources/types.ts";
 
 const store = useFinanceStore()
-const form = ref()
+// const form = ref()
+//
+// const model = reactive({
+//   password: '',
+// } as any)
+// const rules = computed<FormRules>(() => {
+//   return {
+//     password: {required: true, trigger: 'blur', message: 'Введите ваш пароль'},
+//   }
+//})
 
-const model = reactive({
-  password: '',
-} as any)
-const rules = computed<FormRules>(() => {
-  return {
-    password: {required: true, trigger: 'blur', message: 'Введите ваш пароль'},
-  }
+const createdAt = computed(() => store.user?.created_at?.slice(0, 10).split('-').reverse().join('.'))
+const emailUser = computed(() => store.user?.email)
+
+const sortedEarnings = computed(() => {
+  return store.earnings.slice().sort((a: IEarnings, b: IEarnings) => {
+    const monthA = store.months.findIndex((month: IMonths) => month.label === a.month)
+    const monthB = store.months.findIndex((month: IMonths) => month.label === b.month)
+    return monthB - monthA
+  })
 })
-
-const createdAt = computed(() => store.user?.created_at?.slice(0,10).split('-').reverse().join('.'))
+const monthLabel = computed(() => sortedEarnings.value.map((e: IEarnings) => e.month).reverse())
+const salaryValues = computed(() => sortedEarnings.value.map((e: IEarnings) => e.amount).reverse())
 
 onMounted(async () => {
   await store.authUser()
+  await store.getUserEarnings()
 })
 </script>
 
@@ -87,11 +102,16 @@ onMounted(async () => {
     span {
       color: $color_main_green;
     }
+
     &:nth-child(2) {
       margin-top: $padding_average;
       padding-bottom: $padding - 5;
       border-bottom: 1px solid black;
     }
+  }
+
+  &__exit {
+    margin-top: $padding;
   }
 
   p {
@@ -101,11 +121,14 @@ onMounted(async () => {
       font-weight: 500;
     }
   }
-  &__password {
+
+  &__phone {
     margin-top: $padding_main;
+
     h3 {
       margin-bottom: $padding - 5;
     }
+
     .el-input {
       max-width: 300px;
     }
