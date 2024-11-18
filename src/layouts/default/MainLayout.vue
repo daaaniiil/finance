@@ -196,11 +196,11 @@ export default defineComponent({
   }
 
   .el-footer {
-    padding: 0;
     margin-top: $padding_medium - 1;
     border-top: $color_border_gray 1px solid;
     background: $color_background_gray;
     min-height: 380px;
+    padding-bottom: $padding_main;
     width: 100%;
     box-sizing: border-box;
 
@@ -264,8 +264,7 @@ export default defineComponent({
         margin-top: $padding_main;
         padding-top: 0;
         background-color: $color_empty_green;
-        border-top: $color_main_green 1px solid;
-        border-bottom: $color_main_green 1px solid;
+        border: $color_main_green 1px solid;
 
         .el-col {
           justify-content: center;
@@ -397,8 +396,7 @@ export default defineComponent({
       justify-content: center;
       align-items: center;
       background-color: $color_empty_green;
-      border-top: $color_main_green 1px solid;
-      border-bottom: $color_main_green 1px solid;
+      border: $color_main_green 1px solid;
 
       p {
         margin-left: $padding - 5;
