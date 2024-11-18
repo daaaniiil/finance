@@ -27,6 +27,9 @@ export default defineComponent({
       title: {
         text: 'Зарплата по месяцам'
       },
+      credits: {
+        enabled: false
+      },
       accessibility: {
         enabled: false
       },

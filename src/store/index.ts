@@ -40,7 +40,7 @@ export const useFinanceStore = defineStore('finance', () => {
     })
 
     const authUser = async () => {
-        if(isLoader.user) return
+        if (isLoader.user) return
 
         try {
             const {data, error: authError} = await supabase.auth.getUser()
@@ -57,7 +57,7 @@ export const useFinanceStore = defineStore('finance', () => {
     }
 
     const getUserEarnings = async () => {
-        if(isLoader.earnings) return
+        if (isLoader.earnings) return
 
         loading.value = true
         try {
@@ -93,7 +93,7 @@ export const useFinanceStore = defineStore('finance', () => {
                 try {
                     await authUser()
 
-                    if(model.amount !== null){
+                    if (model.amount !== null) {
                         model.amount *= currencyStore.getRate
                     }
 
@@ -114,7 +114,7 @@ export const useFinanceStore = defineStore('finance', () => {
                         ElMessage.success('Заработок успешно добавлен!')
                         isLoader.earnings = false
                         await getUserEarnings()
-                        if(selectedMonth === new Date().getMonth() - 1){
+                        if (selectedMonth === new Date().getMonth() - 1) {
                             await incomeExpensesEarnings()
                         }
                         model.amount = null
@@ -138,9 +138,9 @@ export const useFinanceStore = defineStore('finance', () => {
             const selectedMonth = months.find(m => m.label === month)?.value
 
             const expensesMonth = expenses.value.filter((e: IExpenses) =>
-                Number(e.date.slice(5,7)) - 1 === selectedMonth && Number(e.date.slice(0,4)) === new Date().getFullYear())
+                Number(e.date.slice(5, 7)) - 1 === selectedMonth && Number(e.date.slice(0, 4)) === new Date().getFullYear())
 
-            if(expensesMonth.length) {
+            if (expensesMonth.length) {
                 ElMessage.warning('У вас в этом месяце есть расходы, вы не можете его удалить')
             } else {
                 const {data, error, status} = await supabase
@@ -179,7 +179,7 @@ export const useFinanceStore = defineStore('finance', () => {
             } else {
                 isLoader.earnings = false
                 await getUserEarnings()
-                if(nowMonth === new Date().getMonth() - 1){
+                if (nowMonth === new Date().getMonth() - 1) {
                     await incomeExpensesEarnings()
                 }
             }
@@ -191,7 +191,7 @@ export const useFinanceStore = defineStore('finance', () => {
     }
 
     const getUserExpenses = async () => {
-        if(isLoader.expenses) return
+        if (isLoader.expenses) return
 
         loading.value = true
         try {
@@ -226,7 +226,7 @@ export const useFinanceStore = defineStore('finance', () => {
                 try {
                     await authUser()
 
-                    if(model.amount !== null){
+                    if (model.amount !== null) {
                         model.amount *= currencyStore.getRate
                     }
 
@@ -343,7 +343,7 @@ export const useFinanceStore = defineStore('finance', () => {
         loading.value = true
         try {
             let lastMonth: number = new Date().getMonth()
-            if(lastMonth === 0){
+            if (lastMonth === 0) {
                 lastMonth = 12
             }
 
@@ -355,7 +355,7 @@ export const useFinanceStore = defineStore('finance', () => {
             earningsLastMonthAmount.value /= currencyStore.getRate
 
             const expensesLastMonth: number[] = expenses.value
-                .filter((e: IExpenses): boolean => Number(e.date.slice(5,7)) === lastMonth)
+                .filter((e: IExpenses): boolean => Number(e.date.slice(5, 7)) === lastMonth)
                 .map((e: IExpenses) => e.amount)
                 .filter((e: number | null): e is number => e !== null)
 
@@ -364,7 +364,7 @@ export const useFinanceStore = defineStore('finance', () => {
 
             expensesLastMonthAmount.value /= currencyStore.getRate
 
-        } catch (e){
+        } catch (e) {
             console.error(e)
         } finally {
             loading.value = false
@@ -383,7 +383,7 @@ export const useFinanceStore = defineStore('finance', () => {
             earningsCurrentMonthAmount.value /= currencyStore.getRate
 
             const expensesCurrentMonth: number[] = expenses.value
-                .filter((e: IExpenses): boolean => Number(e.date.slice(5,7)) === currentMonth + 1)
+                .filter((e: IExpenses): boolean => Number(e.date.slice(5, 7)) === currentMonth + 1)
                 .map((e: IExpenses) => e.amount)
                 .filter((e: number | null): e is number => e !== null)
 

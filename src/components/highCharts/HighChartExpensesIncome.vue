@@ -31,6 +31,9 @@ export default defineComponent({
       title: {
         text: `Доходы и расходы ${year}`
       },
+      credits: {
+        enabled: false
+      },
       accessibility: {
         enabled: false
       },
