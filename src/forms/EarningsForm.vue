@@ -30,7 +30,7 @@
 <script setup lang="ts">
 import {computed, reactive, ref} from 'vue'
 import {useFinanceStore} from "@/store";
-import {ElForm, FormRules} from "element-plus";
+import {ElForm, ElMessage, FormRules} from "element-plus";
 import {IEarnings} from "../resources/types";
 
 const store = useFinanceStore()
@@ -50,7 +50,15 @@ const rules = computed<FormRules>(() => {
 })
 
 const submitEarnings = async () => {
-  await store.createUserDataEarnings(form, model)
+  if(model.amount !== null) {
+    if (model.amount <= 0) {
+      ElMessage.warning('Введите положительную сумму')
+    } else {
+      await store.createUserDataEarnings(form, model)
+    }
+  } else {
+    ElMessage.warning('Заполните форму')
+  }
 }
 
 const labelPosition = computed(() => {
