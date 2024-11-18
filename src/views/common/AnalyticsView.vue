@@ -1,7 +1,6 @@
 <template>
   <div class="analytics-page">
     <el-breadcrumb separator="/">
-      <el-breadcrumb-item :to="{ name: 'income-expenses-page' }">Доходы & Расходы</el-breadcrumb-item>
       <el-breadcrumb-item :to="{ name: 'analytics-page' }">Аналитика</el-breadcrumb-item>
       <el-breadcrumb-item>Настройки</el-breadcrumb-item>
     </el-breadcrumb>
@@ -24,7 +23,7 @@
 <script setup lang="ts">
 import {onMounted, computed} from "vue";
 import {useFinanceStore} from "@/store";
-import HighChartComponent from "@/components/highCharts/HighChartComponent.vue";
+import HighChartComponent from "@/components/highCharts/HighChartPie.vue";
 import {IMonths} from "@/resources/types.ts";
 import {useCurrencyStore} from "@/store/currency.ts";
 

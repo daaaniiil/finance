@@ -158,7 +158,7 @@ const saveAmount = async () => {
           ElMessage.success('Сумма успешно обновлена!')
         } else {
           newAmount.value = currentEditItem.value.amount
-          ElMessage.warning('Ваши раходы превышают зарплату в выбранном месяце')
+          ElMessage.warning('Ваши раходы превышают зарплату в выбранном месяце или зарплата меньше 0')
         }
       } else {
         ElMessage.warning('Введите новую сумму!')

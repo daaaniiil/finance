@@ -57,6 +57,9 @@
       <el-empty v-if="monthLabel.length === 0"/>
       <high-chart-expenses-income :months="monthLabel" :expenses="expensesAmount" :income="incomeAmount" v-else />
     </div>
+    <router-link :to="{name:'analytics-page'}">
+      <el-button type="primary">Детальная аналитика</el-button>
+    </router-link>
   </div>
 </template>
 
@@ -102,7 +105,7 @@ const openEditDialog = (row: IExpenses) => {
 }
 
 const saveAmount = async () => {
-  if (currentEditItem.value && newAmount.value && newAmount.value !== 0) {
+  if (currentEditItem.value && newAmount.value && newAmount.value > 0) {
     try {
       if (newAmount.value !== currentEditItem.value.amount) {
         const selectedDate = new Date(currentEditItem.value.date)
@@ -234,6 +237,13 @@ onMounted(async () => {
       border: none;
       cursor: pointer;
       color: $color_main_green;
+    }
+  }
+  a {
+    background-size: 0;
+
+    &:hover {
+      padding-left: 0;
     }
   }
 }
