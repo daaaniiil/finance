@@ -108,7 +108,7 @@ const saveAmount = async () => {
   if (currentEditItem.value && newAmount.value && newAmount.value > 0) {
     try {
       if (newAmount.value !== currentEditItem.value.amount) {
-        const selectedDate = new Date(currentEditItem.value.date)
+        const selectedDate = new Date(currentEditItem.value.date.split('.').reverse().join('.'))
         const selectedMonth = selectedDate.getMonth()
         const availableMonthLabel = store.months.find((month: IMonths) => month.value === selectedMonth)?.label
 
