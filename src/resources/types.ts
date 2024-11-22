@@ -29,3 +29,8 @@ export interface IUser {
     created_at?: string
     email?: string
 }
+
+export interface IItemExpensesPie {
+    name: string
+    y: number | null
+}

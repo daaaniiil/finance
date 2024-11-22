@@ -1,7 +1,7 @@
 import {defineStore} from "pinia";
 import {ref, reactive} from 'vue'
 import {supabase} from "../resources/supabase.ts";
-import {IEarnings, IExpenses, IMonths, IUser} from "../resources/types.ts";
+import {IEarnings, IExpenses, IItemExpensesPie, IMonths, IUser} from "../resources/types.ts";
 import {ElMessage} from "element-plus";
 import {TInstanceForm} from "@/resources/auth.ts";
 import {useRouter} from "vue-router";
@@ -11,6 +11,8 @@ export const useFinanceStore = defineStore('finance', () => {
     const user = ref<IUser | null>(null)
     const earnings = ref<IEarnings[]>([])
     const expenses = ref<IExpenses[]>([])
+    const mergedExpenses = ref<IItemExpensesPie[]>([])
+    const amountExpenses = ref(0)
     const expensesLastMonthAmount = ref<number>(0)
     const earningsLastMonthAmount = ref<number>(0)
     const earningsCurrentMonthAmount = ref<number>(0)
@@ -398,7 +400,60 @@ export const useFinanceStore = defineStore('finance', () => {
         }
     }
 
+    const expensesCategories = async () => {
+        loading.value = true
+        try {
+            await getUserExpenses()
+
+            const mergeExpenses = (data: IItemExpensesPie[]) => {
+                const resultMap: Record<string, number> = {}
+
+                data.forEach((item) => {
+                    if(item.y !== null) {
+                        if(resultMap[item.name]){
+                            resultMap[item.name] += item.y
+                        } else {
+                            resultMap[item.name] = item.y
+                        }
+                    }
+                })
+
+                return Object.keys(resultMap).map((e) => ({
+                    name: e,
+                    y: resultMap[e]
+                }))
+            }
+
+            const expensesPie: IItemExpensesPie[] = expenses.value.map((e) => ({
+                name: e.category,
+                y: e.amount
+            }))
+
+            mergedExpenses.value = mergeExpenses(expensesPie)
+        } catch (e) {
+            console.error(e)
+        } finally {
+            loading.value = false
+        }
+    }
+
+    const amountExpensesCategories = async () => {
+        loading.value = true
+        try {
+            amountExpenses.value = mergedExpenses.value
+                .map((e: IItemExpensesPie) => e.y)
+                .filter((e: number | null): e is number => e !== null)
+                .reduce((acc: number, current: number) => acc + current)
+
+        } catch (e) {
+            console.error(e)
+        } finally {
+            loading.value = false
+        }
+    }
+
     return {
+        amountExpenses,
         isLoader,
         user,
         loading,
@@ -410,6 +465,8 @@ export const useFinanceStore = defineStore('finance', () => {
         earningsLastMonthAmount,
         earningsCurrentMonthAmount,
         expensesCurrentMonthAmount,
+        mergedExpenses,
+        amountExpensesCategories,
         authUser,
         getUserEarnings,
         createUserDataEarnings,
@@ -422,6 +479,7 @@ export const useFinanceStore = defineStore('finance', () => {
         logout,
         nowNewYear,
         incomeExpensesEarnings,
-        incomeExpensesEarningsCurrent
+        incomeExpensesEarningsCurrent,
+        expensesCategories
     }
 })
