@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import {defineComponent, watch, computed, nextTick} from 'vue';
+import {defineComponent, watch,ref, computed, nextTick} from 'vue';
 import {useCurrencyStore} from "@/store/currency";
 import Highcharts from 'highcharts'
 
@@ -45,6 +45,17 @@ export default defineComponent({
       '#958dff','#0035bb','#28b900','#b46c00',
       '#adff84','#fc6464']
 
+    const dynamicAmount = ref(props.amount)
+
+    const updateAmount = (chart) => {
+      dynamicAmount.value = chart.series[0].data
+          .filter((point) => point.visible)
+          .reduce((sum, point) => sum + point.y, 0)
+
+      chart.options.chart.custom.label.attr({
+        text: `Сумма<br/><strong>${formatNumber(dynamicAmount.value)}</strong>`
+      })
+    }
 
     const chartOptions = computed(() => ({
       chart: {
@@ -58,7 +69,7 @@ export default defineComponent({
 
             if (!customLabel) {
               customLabel = chart.options.chart.custom.label =
-                  chart.renderer.label('Сумма<br/>' + `<strong>${formatNumber(props.amount)}</strong>`)
+                  chart.renderer.label('Сумма<br/>' + `<strong>${formatNumber(dynamicAmount.value)}</strong>`)
                       .css({
                         color: '#000',
                         textAnchor: 'middle'
@@ -73,6 +84,9 @@ export default defineComponent({
             customLabel.css({
               fontSize: `${series.center[2] / 12}px`
             });
+          },
+          redraw() {
+            updateAmount(this)
           },
         }
       },

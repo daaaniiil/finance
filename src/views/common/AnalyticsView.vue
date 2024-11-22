@@ -8,7 +8,7 @@
     <el-card v-if="!store.loading">
       <h2>Текущий месяц «<span>{{ availableMonths }}</span>»</h2>
       <hr>
-      <h1>Заработок: {{formatNumber(Number(store.earningsCurrentMonthAmount.toFixed())) }}{{ currencyStore.getIcon }}</h1>
+      <h1>Заработок: <span>{{formatNumber(Number(store.earningsCurrentMonthAmount.toFixed())) }}{{ currencyStore.getIcon }}</span></h1>
       <h1>Доход: <span class="income">{{formatNumber(Number(incomeCurrentMonthAmount.toFixed())) }}{{ currencyStore.getIcon }}</span></h1>
       <h1>Расходы: <span class="expenses">{{formatNumber(Number(store.expensesCurrentMonthAmount.toFixed())) }}{{ currencyStore.getIcon }}</span></h1>
     </el-card>
@@ -16,7 +16,16 @@
       <el-skeleton animated/>
     </el-card>
 
-    <HighChartComponent :expenses="store.mergedExpenses" :amount="store.amountExpenses"/>
+    <el-row :gutter="20">
+      <el-col :md="12" >
+        <HighChartComponent :expenses="store.mergedExpenses" :amount="store.amountExpenses"/>
+      </el-col>
+      <el-col :md="12" >
+        <el-card><h3>Мин.расход - <span>40Br</span> (Телефон)</h3></el-card>
+        <el-card><h3>Макс.расход - <span>403Br</span> (Развлечение)</h3></el-card>
+        <el-card><h3>Сред.расходы - <span>652Br</span></h3></el-card>
+      </el-col>
+    </el-row>
   </div>
 </template>
 
@@ -59,6 +68,13 @@ onMounted(async () => {
     margin: $padding - 5 0;
   }
 
+  h1 {
+    font-weight: 500;
+    span {
+      font-weight: 700;
+    }
+  }
+
   h2 {
     margin-bottom: $padding_main;
 
@@ -66,7 +82,18 @@ onMounted(async () => {
       color: $color_main_green;
     }
   }
-
+  h3{
+    span {
+      color: $color_red_main;
+    }
+  }
+  .el-row {
+    .el-col {
+      .el-card {
+        border-radius: $radius_big;
+      }
+    }
+  }
   hr {
     margin: 0 0 $padding 0;
   }

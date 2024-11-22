@@ -424,7 +424,9 @@ export const useFinanceStore = defineStore('finance', () => {
                 }))
             }
 
-            const expensesPie: IItemExpensesPie[] = expenses.value.map((e) => ({
+            const expensesPie: IItemExpensesPie[] = expenses.value
+                .filter((e) => Number(e.date.slice(0, 4)) === new Date().getFullYear())
+                .map((e) => ({
                 name: e.category,
                 y: e.amount
             }))
