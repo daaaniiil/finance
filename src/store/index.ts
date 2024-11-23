@@ -414,7 +414,7 @@ export const useFinanceStore = defineStore('finance', () => {
                 const resultMap: Record<string, number> = {}
 
                 data.forEach((item) => {
-                    if(item.y !== null) {
+                    if(item.name !== null) {
                         if(resultMap[item.name]){
                             resultMap[item.name] += item.y
                         } else {
@@ -430,11 +430,11 @@ export const useFinanceStore = defineStore('finance', () => {
             }
 
             const expensesPie: IItemExpensesPie[] = expenses.value
-                .filter((e) => Number(e.date.slice(0, 4)) === new Date().getFullYear())
-                .map((e) => ({
-                name: e.category,
-                y: e.amount
-            }))
+                .filter((e: IExpenses) => Number(e.date.slice(0, 4)) === new Date().getFullYear())
+                .map((e: IExpenses) => ({
+                    name: e.category,
+                    y: Math.ceil((e.amount ?? 0) / currencyStore.getRate)
+                }))
 
             mergedExpenses.value = mergeExpenses(expensesPie)
         } catch (e) {
@@ -449,7 +449,7 @@ export const useFinanceStore = defineStore('finance', () => {
         try {
             amountExpenses.value = mergedExpenses.value
                 .map((e: IItemExpensesPie) => e.y)
-                .filter((e: number | null): e is number => e !== null)
+                .filter((e: number | undefined | null): e is number => e !== undefined)
                 .reduce((acc: number, current: number) => acc + current)
 
         } catch (e) {
@@ -462,9 +462,7 @@ export const useFinanceStore = defineStore('finance', () => {
     const minMaxExpensesAmount = async () => {
         loading.value = true
         try {
-            const amountMerge = mergedExpenses.value
-                .map((e) => e.y)
-                .filter((e: number | null): e is number => e !== null)
+            const amountMerge: number[] = mergedExpenses.value.map((e) => e.y)
 
             minExpenses.value = Math.min(...amountMerge)
             minExpensesCategories.value = mergedExpenses.value.find(e => e.y === minExpenses.value)?.name

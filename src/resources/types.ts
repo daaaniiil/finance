@@ -32,5 +32,5 @@ export interface IUser {
 
 export interface IItemExpensesPie {
     name: string
-    y: number | null
+    y: number
 }
