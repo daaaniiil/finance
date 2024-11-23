@@ -12,7 +12,12 @@ export const useFinanceStore = defineStore('finance', () => {
     const earnings = ref<IEarnings[]>([])
     const expenses = ref<IExpenses[]>([])
     const mergedExpenses = ref<IItemExpensesPie[]>([])
-    const amountExpenses = ref(0)
+    const minExpenses = ref<number>(0)
+    const minExpensesCategories = ref<string | undefined>('Пусто')
+    const maxExpenses = ref<number>(0)
+    const maxExpensesCategories = ref<string | undefined>('Пусто')
+    const amountExpenses = ref<number>(0)
+    const averageExpenses = ref<number>(0)
     const expensesLastMonthAmount = ref<number>(0)
     const earningsLastMonthAmount = ref<number>(0)
     const earningsCurrentMonthAmount = ref<number>(0)
@@ -71,7 +76,7 @@ export const useFinanceStore = defineStore('finance', () => {
                 .eq('user_id', user.value?.id)
 
             if (error) {
-                ElMessage.error(`${error.message}`)
+                console.error(`${error.message}`)
             } else {
                 earnings.value = data || []
                 isLoader.earnings = true
@@ -205,7 +210,7 @@ export const useFinanceStore = defineStore('finance', () => {
                 .eq('user_id', user.value?.id)
 
             if (error) {
-                ElMessage.error(`${error.message}`)
+                console.error(`${error.message}`)
             } else {
                 expenses.value = data || []
                 isLoader.expenses = true
@@ -454,6 +459,28 @@ export const useFinanceStore = defineStore('finance', () => {
         }
     }
 
+    const minMaxExpensesAmount = async () => {
+        loading.value = true
+        try {
+            const amountMerge = mergedExpenses.value
+                .map((e) => e.y)
+                .filter((e: number | null): e is number => e !== null)
+
+            minExpenses.value = Math.min(...amountMerge)
+            minExpensesCategories.value = mergedExpenses.value.find(e => e.y === minExpenses.value)?.name
+
+            maxExpenses.value = Math.max(...amountMerge)
+            maxExpensesCategories.value = mergedExpenses.value.find(e  => e.y === maxExpenses.value)?.name
+
+            const dayPassed = new Date().getDate()
+            averageExpenses.value = expensesCurrentMonthAmount.value / dayPassed
+        } catch (e) {
+            console.error(e)
+        } finally {
+            loading.value = false
+        }
+    }
+
     return {
         amountExpenses,
         isLoader,
@@ -468,6 +495,12 @@ export const useFinanceStore = defineStore('finance', () => {
         earningsCurrentMonthAmount,
         expensesCurrentMonthAmount,
         mergedExpenses,
+        minExpenses,
+        minExpensesCategories,
+        maxExpenses,
+        maxExpensesCategories,
+        averageExpenses,
+        minMaxExpensesAmount,
         amountExpensesCategories,
         authUser,
         getUserEarnings,

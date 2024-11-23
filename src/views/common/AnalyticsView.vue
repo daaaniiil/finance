@@ -21,9 +21,13 @@
         <HighChartComponent :expenses="store.mergedExpenses" :amount="store.amountExpenses"/>
       </el-col>
       <el-col :md="12" >
-        <el-card><h3>Мин.расход - <span>40Br</span> (Телефон)</h3></el-card>
-        <el-card><h3>Макс.расход - <span>403Br</span> (Развлечение)</h3></el-card>
-        <el-card><h3>Сред.расходы - <span>652Br</span></h3></el-card>
+        <el-card><h3>Мин.расход - <span>{{ formatNumber(Number(store.minExpenses.toFixed())) }}{{ currencyStore.getIcon }}</span>
+          {{minExpensesCategories}}</h3></el-card>
+
+        <el-card><h3>Макс.расход - <span>{{ formatNumber(Number(store.maxExpenses.toFixed())) }}{{ currencyStore.getIcon }}</span>
+          {{maxExpensesCategories}}</h3></el-card>
+
+        <el-card><h3>Сред.расходы - <span>{{ formatNumber(Number(store.averageExpenses.toFixed())) }}{{ currencyStore.getIcon }}</span></h3></el-card>
       </el-col>
     </el-row>
   </div>
@@ -43,6 +47,8 @@ const formatNumber = (value: number) => {
   return new Intl.NumberFormat('ru-RU').format(value)
 }
 
+const minExpensesCategories = computed(() => `(${store.minExpensesCategories})`)
+const maxExpensesCategories = computed(()=> `(${store.maxExpensesCategories})`)
 
 const currentMonth = new Date().getMonth()
 const availableMonths = store.months.find((month: IMonths) => month.value === currentMonth)?.label
@@ -57,6 +63,7 @@ onMounted(async () => {
   await store.incomeExpensesEarningsCurrent()
   await store.expensesCategories()
   await store.amountExpensesCategories()
+  await store.minMaxExpensesAmount()
 })
 </script>
 
