@@ -12,6 +12,7 @@ export const useFinanceStore = defineStore('finance', () => {
     const earnings = ref<IEarnings[]>([])
     const expenses = ref<IExpenses[]>([])
     const mergedExpenses = ref<IItemExpensesPie[]>([])
+    const mergedExpensesCurrent = ref<IItemExpensesPie[]>([])
     const minExpenses = ref<number>(0)
     const minExpensesCategories = ref<string | undefined>('Пусто')
     const maxExpenses = ref<number>(0)
@@ -433,10 +434,20 @@ export const useFinanceStore = defineStore('finance', () => {
                 .filter((e: IExpenses) => Number(e.date.slice(0, 4)) === new Date().getFullYear())
                 .map((e: IExpenses) => ({
                     name: e.category,
+                    date: e.date,
+                    y: Math.ceil((e.amount ?? 0) / currencyStore.getRate)
+                }))
+
+            const expensesCurrentMonthAmount: IItemExpensesPie[] = expenses.value
+                .filter((e: IExpenses) => Number(e.date.slice(5, 7)) === new Date().getMonth() + 1)
+                .map((e: IExpenses) => ({
+                    name: e.category,
+                    date: e.date,
                     y: Math.ceil((e.amount ?? 0) / currencyStore.getRate)
                 }))
 
             mergedExpenses.value = mergeExpenses(expensesPie)
+            mergedExpensesCurrent.value = mergeExpenses(expensesCurrentMonthAmount)
         } catch (e) {
             console.error(e)
         } finally {
@@ -462,13 +473,13 @@ export const useFinanceStore = defineStore('finance', () => {
     const minMaxExpensesAmount = async () => {
         loading.value = true
         try {
-            const amountMerge: number[] = mergedExpenses.value.map((e) => e.y)
+            const amountMerge: number[] = mergedExpensesCurrent.value.map((e) => e.y)
 
             minExpenses.value = Math.min(...amountMerge)
-            minExpensesCategories.value = mergedExpenses.value.find(e => e.y === minExpenses.value)?.name
+            minExpensesCategories.value = mergedExpensesCurrent.value.find(e => e.y === minExpenses.value)?.name
 
             maxExpenses.value = Math.max(...amountMerge)
-            maxExpensesCategories.value = mergedExpenses.value.find(e  => e.y === maxExpenses.value)?.name
+            maxExpensesCategories.value = mergedExpensesCurrent.value.find(e  => e.y === maxExpenses.value)?.name
 
             const dayPassed = new Date().getDate()
             averageExpenses.value = expensesCurrentMonthAmount.value / dayPassed
