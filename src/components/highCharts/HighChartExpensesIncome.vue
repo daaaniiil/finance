@@ -44,6 +44,9 @@ export default defineComponent({
       yAxis: {
         title: {
           text: `Сумма (${currencyStore.selectedCurrency})`
+        },
+        labels: {
+          format: `{value} ${currencyStore.getIcon}`
         }
       },
       plotOptions:{
@@ -58,12 +61,18 @@ export default defineComponent({
         {
           name: 'Доходы',
           data: props.income.map((value: number | null) => Math.floor((value ?? 0) / currencyStore.getRate)),
-          color: '#30CA2C'
+          color: '#30CA2C',
+          marker: {
+            enabled: false
+          }
         },
         {
           name: 'Расходы',
           data: props.expenses.map((value: number | null) => Math.floor((value ?? 0) / currencyStore.getRate)),
-          color: '#ef2b2b'
+          color: '#ef2b2b',
+          marker: {
+            enabled: false
+          }
         }
       ]
     }))

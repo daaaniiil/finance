@@ -123,6 +123,9 @@ export default defineComponent({
         symbolPadding: 5,
         borderWidth: 1,
         backgroundColor: '#FFFFFF',
+        title: {
+          text: 'Категории'
+        }
       },
       plotOptions: {
         series: {
