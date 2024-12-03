@@ -21,10 +21,10 @@
         <HighChartComponent :expenses="store.mergedExpenses" :amount="store.amountExpenses"/>
       </el-col>
       <el-col :md="12" >
-        <el-card><h3>Мин.расход - <span>{{ formatNumber(Number(store.minExpenses.toFixed())) }}{{ currencyStore.getIcon }}</span>
+        <el-card><h3>Мин.расход - <span>{{ store.minExpenses < 0 ? formatNumber(Number(store.minExpenses.toFixed())) : 0 }}{{ currencyStore.getIcon }}</span>
           {{minExpensesCategories}}</h3></el-card>
 
-        <el-card><h3>Макс.расход - <span>{{ formatNumber(Number(store.maxExpenses.toFixed())) }}{{ currencyStore.getIcon }}</span>
+        <el-card><h3>Макс.расход - <span>{{ store.maxExpenses > 0 ? formatNumber(Number(store.maxExpenses.toFixed())) : 0 }}{{ currencyStore.getIcon }}</span>
           {{maxExpensesCategories}}</h3></el-card>
 
         <el-card><h3>Сред.расходы - <span>{{ formatNumber(Number(store.averageExpenses.toFixed())) }}{{ currencyStore.getIcon }}</span></h3></el-card>
@@ -47,8 +47,8 @@ const formatNumber = (value: number) => {
   return new Intl.NumberFormat('ru-RU').format(value)
 }
 
-const minExpensesCategories = computed(() => `(${store.minExpensesCategories})`)
-const maxExpensesCategories = computed(()=> `(${store.maxExpensesCategories})`)
+const minExpensesCategories = computed(() => `(${store.minExpensesCategories ?? 'Нету'})`)
+const maxExpensesCategories = computed(()=> `(${store.maxExpensesCategories ?? 'Нету'})`)
 
 const currentMonth = new Date().getMonth()
 const availableMonths = store.months.find((month: IMonths) => month.value === currentMonth)?.label
