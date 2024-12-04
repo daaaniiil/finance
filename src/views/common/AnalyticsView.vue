@@ -18,10 +18,10 @@
 
     <el-row :gutter="20">
       <el-col :md="12" >
-        <HighChartComponent :expenses="store.mergedExpenses" :amount="store.amountExpenses"/>
+        <HighChartPie :expenses="store.mergedExpenses" :amount="store.amountExpenses"/>
       </el-col>
       <el-col :md="12" >
-        <el-card><h3>Мин.расход - <span>{{ store.minExpenses < 0 ? formatNumber(Number(store.minExpenses.toFixed())) : 0 }}{{ currencyStore.getIcon }}</span>
+        <el-card><h3>Мин.расход - <span>{{ store.minExpenses > 0 ? formatNumber(Number(store.minExpenses.toFixed())) : 0 }}{{ currencyStore.getIcon }}</span>
           {{minExpensesCategories}}</h3></el-card>
 
         <el-card><h3>Макс.расход - <span>{{ store.maxExpenses > 0 ? formatNumber(Number(store.maxExpenses.toFixed())) : 0 }}{{ currencyStore.getIcon }}</span>
@@ -30,13 +30,16 @@
         <el-card><h3>Сред.расходы - <span>{{ formatNumber(Number(store.averageExpenses.toFixed())) }}{{ currencyStore.getIcon }}</span></h3></el-card>
       </el-col>
     </el-row>
+
+    <HighChartExpensesMonth :expenses="store.expensesDaysCurrentMonth"/>
   </div>
 </template>
 
 <script setup lang="ts">
 import {onMounted, computed} from "vue";
 import {useFinanceStore} from "@/store";
-import HighChartComponent from "@/components/highCharts/HighChartPie.vue";
+import HighChartPie from "@/components/highCharts/HighChartPie.vue";
+import HighChartExpensesMonth from "@/components/highCharts/HighChartExpensesMonth.vue";
 import {IMonths} from "@/resources/types.ts";
 import {useCurrencyStore} from "@/store/currency.ts";
 
@@ -64,6 +67,7 @@ onMounted(async () => {
   await store.expensesCategories()
   await store.amountExpensesCategories()
   await store.minMaxExpensesAmount()
+  await store.expensesDaysMonthCurrent()
 })
 </script>
 

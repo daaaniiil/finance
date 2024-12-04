@@ -13,6 +13,7 @@ export const useFinanceStore = defineStore('finance', () => {
     const expenses = ref<IExpenses[]>([])
     const mergedExpenses = ref<IItemExpensesPie[]>([])
     const mergedExpensesCurrent = ref<IItemExpensesPie[]>([])
+    const expensesDaysCurrentMonth = ref<(number | null)[]>([])
     const minExpenses = ref<number>(0)
     const minExpensesCategories = ref<string | undefined>('Нету')
     const maxExpenses = ref<number>(0)
@@ -475,7 +476,8 @@ export const useFinanceStore = defineStore('finance', () => {
         try {
             const amountMerge: number[] = mergedExpensesCurrent.value.map((e) => e.y)
 
-            minExpenses.value = Math.min(...amountMerge)
+            minExpenses.value = amountMerge.reduce((acc: number, current: number) => Math.min(acc, current))
+            //minExpenses.value = Math.min(...amountMerge)
             minExpensesCategories.value = mergedExpensesCurrent.value.find(e => e.y === minExpenses.value)?.name
 
             maxExpenses.value = Math.max(...amountMerge)
@@ -483,6 +485,29 @@ export const useFinanceStore = defineStore('finance', () => {
 
             const dayPassed = new Date().getDate()
             averageExpenses.value = expensesCurrentMonthAmount.value / dayPassed
+        } catch (e) {
+            console.error(e)
+        } finally {
+            loading.value = false
+        }
+    }
+
+    const expensesDaysMonthCurrent = async () => {
+        loading.value = true
+        try {
+            expensesDaysCurrentMonth.value = expenses.value
+                .filter((e: IExpenses) => Number(e.date.slice(5, 7)) === new Date().getMonth() + 1)
+                .sort(function(a,b){
+                    if (a.date > b.date){
+                        return 1
+                    }
+                    if (a.date < b.date){
+                        return -1
+                    }
+                    return 0
+                })
+                .map((e: IExpenses) => e.amount)
+
         } catch (e) {
             console.error(e)
         } finally {
@@ -509,6 +534,8 @@ export const useFinanceStore = defineStore('finance', () => {
         maxExpenses,
         maxExpensesCategories,
         averageExpenses,
+        expensesDaysCurrentMonth,
+        expensesDaysMonthCurrent,
         minMaxExpensesAmount,
         amountExpensesCategories,
         authUser,

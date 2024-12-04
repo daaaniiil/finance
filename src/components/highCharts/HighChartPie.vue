@@ -96,6 +96,9 @@ export default defineComponent({
       credits: {
         enabled: false
       },
+      accessibility: {
+        enabled: false
+      },
       subtitle: {
         text: `Формат: ${formattedSubTitle()}`
       },

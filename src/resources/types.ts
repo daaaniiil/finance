@@ -19,6 +19,13 @@ export interface IExpenses {
     category: string
 }
 
+export interface IExpensesMonth {
+    id?: string | undefined
+    amount: number
+    date: string
+    category: string
+}
+
 export interface IMonths {
     label: string
     value: number
