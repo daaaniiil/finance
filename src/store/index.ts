@@ -1,7 +1,14 @@
 import {defineStore} from "pinia";
 import {ref, reactive} from 'vue'
 import {supabase} from "../resources/supabase.ts";
-import {IEarnings, IExpenses, IItemExpensesPie, IMonths, IUser} from "../resources/types.ts";
+import {
+    IEarnings,
+    IExpenses,
+    IExpensesMonthAnalytics,
+    IItemExpensesPie,
+    IMonths,
+    IUser
+} from "../resources/types.ts";
 import {ElMessage} from "element-plus";
 import {TInstanceForm} from "@/resources/auth.ts";
 import {useRouter} from "vue-router";
@@ -13,7 +20,7 @@ export const useFinanceStore = defineStore('finance', () => {
     const expenses = ref<IExpenses[]>([])
     const mergedExpenses = ref<IItemExpensesPie[]>([])
     const mergedExpensesCurrent = ref<IItemExpensesPie[]>([])
-    const expensesDaysCurrentMonth = ref<(number | null)[]>([])
+    const expensesDaysCurrentMonth = ref<IExpensesMonthAnalytics[]>([])
     const minExpenses = ref<number>(0)
     const minExpensesCategories = ref<string | undefined>('Нету')
     const maxExpenses = ref<number>(0)
@@ -477,7 +484,6 @@ export const useFinanceStore = defineStore('finance', () => {
             const amountMerge: number[] = mergedExpensesCurrent.value.map((e) => e.y)
 
             minExpenses.value = amountMerge.reduce((acc: number, current: number) => Math.min(acc, current))
-            //minExpenses.value = Math.min(...amountMerge)
             minExpensesCategories.value = mergedExpensesCurrent.value.find(e => e.y === minExpenses.value)?.name
 
             maxExpenses.value = Math.max(...amountMerge)
@@ -496,7 +502,7 @@ export const useFinanceStore = defineStore('finance', () => {
         loading.value = true
         try {
             expensesDaysCurrentMonth.value = expenses.value
-                .filter((e: IExpenses) => Number(e.date.slice(5, 7)) === new Date().getMonth() + 1)
+                .filter((e: IExpenses) => Number(e.date.slice(5, 7)) === new Date().getMonth() + 1 && Number(e.date.slice(0, 4)) === new Date().getFullYear())
                 .sort(function(a,b){
                     if (a.date > b.date){
                         return 1
@@ -505,9 +511,30 @@ export const useFinanceStore = defineStore('finance', () => {
                         return -1
                     }
                     return 0
-                })
-                .map((e: IExpenses) => e.amount)
+                }).map((e: IExpenses) => ({
+                    amount: Math.floor((e.amount ?? 0) / currencyStore.getRate),
+                    date: e.date.slice(8, 10)
+                }))
 
+            const mergeExpensesDay = (data: IExpensesMonthAnalytics[]) => {
+                const resultMap: Record<string, number> = {}
+
+                data.forEach((item) => {
+                    if(item.amount !== null){
+                        if(resultMap[item.date]){
+                            resultMap[item.date] += item.amount
+                        } else {
+                            resultMap[item.date] = item.amount
+                        }
+                    }
+                })
+                return Object.keys(resultMap).map((e) => ({
+                    date: e,
+                    amount: resultMap[e]
+                }))
+            }
+
+            expensesDaysCurrentMonth.value = mergeExpensesDay(expensesDaysCurrentMonth.value)
         } catch (e) {
             console.error(e)
         } finally {

@@ -7,12 +7,13 @@ import {computed, defineComponent} from 'vue';
 import {useCurrencyStore} from "../../store/currency";
 import {useFinanceStore} from "../../store/index";
 import {IMonths} from "../../resources/types";
+import {IExpensesMonthAnalytics} from "../../resources/types";
 
 export default defineComponent({
   name: 'ExpensesMonthChart',
   props: {
     expenses: {
-      type: Array as () => number[],
+      type: Array as () => IExpensesMonthAnalytics[],
       required: true
     }
   },
@@ -48,7 +49,7 @@ export default defineComponent({
         enabled: false
       },
       xAxis: {
-        categories: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31],
+        categories: props.expenses.map((e: IExpensesMonthAnalytics) => e.date),
         crosshair: true
       },
       yAxis: {
@@ -69,7 +70,7 @@ export default defineComponent({
           enabled: false
         },
         name: 'Расходы',
-        data: props.expenses.map((value: number) => Math.floor((value ?? 0) / currencyStore.getRate)),
+        data: props.expenses.map((e: IExpensesMonthAnalytics) => e.amount),
         color: '#ef2b2b'
       }]
     }))
