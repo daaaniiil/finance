@@ -105,7 +105,7 @@ const openEditDialog = (row: IExpenses) => {
 }
 
 const saveAmount = async () => {
-  if (currentEditItem.value && newAmount.value && newAmount.value > 0) {
+  if (currentEditItem.value && newAmount.value && newAmount.value > 0 && currentEditItem.value.amount !== null) {
     try {
       if (newAmount.value !== currentEditItem.value.amount) {
         const selectedDate = new Date(currentEditItem.value.date.split('.').reverse().join('.'))
@@ -124,7 +124,7 @@ const saveAmount = async () => {
 
         newAmount.value *= currencyStore.getRate
 
-        if(monthEarnings > newAmount.value + monthExpenses) {
+        if(monthEarnings > newAmount.value + (monthExpenses - currentEditItem.value.amount)) {
           await store.updateEarningsExpenses(currentEditItem.value.id, newAmount.value)
 
           await store.getUserExpenses()

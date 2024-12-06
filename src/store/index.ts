@@ -4,7 +4,7 @@ import {supabase} from "../resources/supabase.ts";
 import {
     IEarnings,
     IExpenses,
-    IExpensesMonthAnalytics,
+    IExpensesMonthAnalytics, IExpensesMonthAnalyticsLast,
     IItemExpensesPie,
     IMonths,
     IUser
@@ -21,6 +21,7 @@ export const useFinanceStore = defineStore('finance', () => {
     const mergedExpenses = ref<IItemExpensesPie[]>([])
     const mergedExpensesCurrent = ref<IItemExpensesPie[]>([])
     const expensesDaysCurrentMonth = ref<IExpensesMonthAnalytics[]>([])
+    const expensesDaysLastMonth = ref<IExpensesMonthAnalyticsLast[]>([])
     const minExpenses = ref<number>(0)
     const minExpensesCategories = ref<string | undefined>('Нету')
     const maxExpenses = ref<number>(0)
@@ -342,6 +343,7 @@ export const useFinanceStore = defineStore('finance', () => {
     const nowNewYear = async () => {
         loading.value = true
         try {
+            // проверять что настал новый год
             if (yearNow === yearNow + 1) {
                 // заносить данные в last-year-earnings и удалять из earnings
                 console.log('Данные очищены')
@@ -371,7 +373,7 @@ export const useFinanceStore = defineStore('finance', () => {
             earningsLastMonthAmount.value /= currencyStore.getRate
 
             const expensesLastMonth: number[] = expenses.value
-                .filter((e: IExpenses): boolean => Number(e.date.slice(5, 7)) === lastMonth)
+                .filter((e: IExpenses): boolean => Number(e.date.slice(5, 7)) === lastMonth && Number(e.date.slice(0, 4)) === new Date().getFullYear())
                 .map((e: IExpenses) => e.amount)
                 .filter((e: number | null): e is number => e !== null)
 
@@ -399,7 +401,7 @@ export const useFinanceStore = defineStore('finance', () => {
             earningsCurrentMonthAmount.value /= currencyStore.getRate
 
             const expensesCurrentMonth: number[] = expenses.value
-                .filter((e: IExpenses): boolean => Number(e.date.slice(5, 7)) === currentMonth + 1)
+                .filter((e: IExpenses): boolean => Number(e.date.slice(5, 7)) === currentMonth + 1 && Number(e.date.slice(0, 4)) === new Date().getFullYear())
                 .map((e: IExpenses) => e.amount)
                 .filter((e: number | null): e is number => e !== null)
 
@@ -447,7 +449,7 @@ export const useFinanceStore = defineStore('finance', () => {
                 }))
 
             const expensesCurrentMonthAmount: IItemExpensesPie[] = expenses.value
-                .filter((e: IExpenses) => Number(e.date.slice(5, 7)) === new Date().getMonth() + 1)
+                .filter((e: IExpenses) => Number(e.date.slice(5, 7)) === new Date().getMonth() + 1 && Number(e.date.slice(0, 4)) === new Date().getFullYear())
                 .map((e: IExpenses) => ({
                     name: e.category,
                     date: e.date,
@@ -542,6 +544,58 @@ export const useFinanceStore = defineStore('finance', () => {
         }
     }
 
+    const expensesDaysMonthLast = async () => {
+        loading.value = true
+        try {
+            expensesDaysLastMonth.value = expenses.value
+                .filter((e: IExpenses) => Number(e.date.slice(5, 7)) === new Date().getMonth() && Number(e.date.slice(0, 4)) === new Date().getFullYear())
+                .sort(function(a,b){
+                    if (a.date > b.date){
+                        return 1
+                    }
+                    if (a.date < b.date){
+                        return -1
+                    }
+                    return 0
+                }).map((e: IExpenses) => ({
+                    amount: Math.floor((e.amount ?? 0) / currencyStore.getRate),
+                    date: e.date.slice(8, 10)
+                }))
+            const mergeExpensesDay = (data: IExpensesMonthAnalyticsLast[]) => {
+                const resultMap: Record<string, number> = {}
+
+                data.forEach((item) => {
+                    if(item.amount !== null){
+                        if(resultMap[item.date]){
+                            resultMap[item.date] += item.amount
+                        } else {
+                            resultMap[item.date] = item.amount
+                        }
+                    }
+                })
+                return Object.keys(resultMap).map((e) => ({
+                    date: e,
+                    amount: resultMap[e]
+                }))
+            }
+
+            expensesDaysLastMonth.value = mergeExpensesDay(expensesDaysLastMonth.value)
+            expensesDaysLastMonth.value.sort(function(a,b){
+                if (a.date > b.date){
+                    return 1
+                }
+                if (a.date < b.date){
+                    return -1
+                }
+                return 0
+            })
+        } catch (e) {
+            console.error(e)
+        } finally {
+            loading.value = false
+        }
+    }
+
     return {
         amountExpenses,
         isLoader,
@@ -562,6 +616,8 @@ export const useFinanceStore = defineStore('finance', () => {
         maxExpensesCategories,
         averageExpenses,
         expensesDaysCurrentMonth,
+        expensesDaysLastMonth,
+        expensesDaysMonthLast,
         expensesDaysMonthCurrent,
         minMaxExpensesAmount,
         amountExpensesCategories,

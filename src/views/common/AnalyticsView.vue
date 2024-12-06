@@ -31,7 +31,7 @@
       </el-col>
     </el-row>
 
-    <HighChartExpensesMonth :expenses="store.expensesDaysCurrentMonth"/>
+    <HighChartExpensesMonth :expenses="store.expensesDaysCurrentMonth" :month="currentMonth"/>
   </div>
 </template>
 

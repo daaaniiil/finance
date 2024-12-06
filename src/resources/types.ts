@@ -24,6 +24,11 @@ export interface IExpensesMonthAnalytics {
     date: number | string
 }
 
+export interface IExpensesMonthAnalyticsLast {
+    amount: number | null
+    date: number | string
+}
+
 export interface IExpensesMonth {
     id?: string | undefined
     amount: number

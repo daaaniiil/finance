@@ -15,12 +15,16 @@ export default defineComponent({
     expenses: {
       type: Array as () => IExpensesMonthAnalytics[],
       required: true
+    },
+    month: {
+      type: Number,
+      required: true
     }
   },
   setup(props) {
     const currencyStore = useCurrencyStore()
     const store = useFinanceStore()
-    const currentMonth = new Date().getMonth()
+    const currentMonth = props.month
     const currentMonthName = store.months.find((m: IMonths) => m.value == currentMonth)?.label
     const chartOptions = computed(() => ({
       chart: {

@@ -67,6 +67,7 @@
 
     <el-empty v-if="monthLabel.length === 0"/>
     <high-chart-earnings :months="monthLabel" :salaries="salaryValues" v-else/>
+    <HighChartExpensesMonth :expenses="store.expensesDaysLastMonth" :month="lastMonthValue"/>
     <router-link :to="{name:'analytics-page'}">
       <el-button type="primary">Детальная аналитика</el-button>
     </router-link>
@@ -87,6 +88,7 @@ import {
   DeleteFilled
 } from '@element-plus/icons-vue'
 import {ElMessage} from "element-plus";
+import HighChartExpensesMonth from "@/components/highCharts/HighChartExpensesMonth.vue";
 
 const store = useFinanceStore()
 const currencyStore = useCurrencyStore()
@@ -94,7 +96,7 @@ const currencyStore = useCurrencyStore()
 const formatNumber = (value: number) => {
   return new Intl.NumberFormat('ru-RU').format(value)
 }
-
+const lastMonthValue = new Date().getMonth() - 1
 let lastMonth = new Date().getMonth()
 if (lastMonth === 0) {
   lastMonth = 12
@@ -188,6 +190,7 @@ onMounted(async () => {
   await store.getUserEarnings()
   await store.getUserExpenses()
   await store.incomeExpensesEarnings()
+  await store.expensesDaysMonthLast()
 })
 </script>
 
