@@ -51,3 +51,14 @@ export interface IItemExpensesPie {
     name: string
     y: number
 }
+
+export interface IGoal {
+    id: string
+    name: string
+    targetAmount: number
+    currentAmount: number
+    type: 'saving' | 'spending'
+    category?: string
+    deadline: Date
+    status: 'in_progress' | 'completed' | 'failed'
+}
