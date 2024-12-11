@@ -67,7 +67,7 @@
 
     <el-empty v-if="monthLabel.length === 0"/>
     <high-chart-earnings :months="monthLabel" :salaries="salaryValues" v-else/>
-    <HighChartExpensesMonth :expenses="store.expensesDaysLastMonth" :month="lastMonthValue"/>
+    <HighChartExpensesMonth :expenses="store.expensesDaysLastMonth" :month="lastMonthValue" v-else/>
     <router-link :to="{name:'analytics-page'}">
       <el-button type="primary">Детальная аналитика</el-button>
     </router-link>

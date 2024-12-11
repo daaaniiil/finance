@@ -15,7 +15,6 @@
         <p v-if="goal.status === 'failed'" class="status error">Цель провалена</p>
       </el-card>
     </div>
-    <el-button @click="addGoal" type="primary">Добавить цель</el-button>
   </div>
 </template>
 
@@ -41,10 +40,6 @@ const customColors = [
 
 const addToGoal = (goalId: string) => {
   console.log(`Добавлено ${amountToAdd.value} руб. к цели`)
-}
-
-const addGoal = () => {
-  console.log('Add!')
 }
 
 const daysLeft = (deadline: Date) => {
@@ -75,6 +70,9 @@ const percentageLeft = (current: number, target: number) => {
     padding: $padding - 5 0;
   }
 
+  .status {
+    padding: $padding 0 0;
+  }
   .status.success{
     color: green
   }

@@ -5,7 +5,7 @@ import {
     IEarnings,
     IExpenses,
     IExpensesMonthAnalytics, IExpensesMonthAnalyticsLast,
-    IItemExpensesPie,
+    IItemExpensesPie, IGoal,
     IMonths,
     IUser
 } from "../resources/types.ts";
@@ -18,6 +18,7 @@ export const useFinanceStore = defineStore('finance', () => {
     const user = ref<IUser | null>(null)
     const earnings = ref<IEarnings[]>([])
     const expenses = ref<IExpenses[]>([])
+    const goals = ref<IGoal[]>([])
     const mergedExpenses = ref<IItemExpensesPie[]>([])
     const mergedExpensesCurrent = ref<IItemExpensesPie[]>([])
     const expensesDaysCurrentMonth = ref<IExpensesMonthAnalytics[]>([])
@@ -51,6 +52,7 @@ export const useFinanceStore = defineStore('finance', () => {
     const router = useRouter()
     const currencyStore = useCurrencyStore()
     const isLoader = reactive({
+        goals: false,
         earnings: false,
         expenses: false,
         user: false
@@ -323,6 +325,78 @@ export const useFinanceStore = defineStore('finance', () => {
         }
     }
 
+    const getUserGoals = async () => {
+        if (isLoader.goals) return
+
+        loading.value = true
+        try {
+            await authUser()
+
+            const {data, error} = await supabase
+                .from('goals')
+                .select('*')
+                .eq('user_id', user.value?.id)
+
+            if (error) {
+                console.error(`${error.message}`)
+            } else {
+                goals.value = data || []
+                isLoader.goals = true
+            }
+        } catch (e) {
+            console.error(e)
+        } finally {
+            loading.value = false
+        }
+    }
+
+    const createUserGoal = async (form: TInstanceForm, model: IGoal) => {
+        if (!form.value) {
+            console.error('Add goal form not found')
+            ElMessage.success('Заполните форму')
+            return
+        }
+
+        form.value.validate(async (valid: boolean) => {
+            if (valid) {
+                try {
+                    await getUserGoals()
+
+                    model.targetAmount *= currencyStore.getRate
+
+                    const {error: insertError} = await supabase
+                        .from('goals')
+                        .insert([
+                            {
+                                user_id: user.value?.id,
+                                name: model.name,
+                                targetAmount: model.targetAmount,
+                                currentAmount: 0,
+                                status: 'in_progress',
+                                deadline: model.deadline
+                            }
+                        ])
+
+                    if (insertError) {
+                        ElMessage.error(`${insertError.message}`)
+                    }
+                    ElMessage.success('Цель успешно добавлена!')
+                    isLoader.goals = false
+                    await getUserGoals()
+                    model.name = ''
+                    model.targetAmount = 0
+                } catch (e) {
+                    console.error(e)
+                } finally {
+                    loading.value = false
+                }
+            } else {
+                console.error('Form validation failed')
+                loading.value = false
+            }
+        })
+    }
+
     const logout = async () => {
         loading.value = true
         try {
@@ -537,6 +611,15 @@ export const useFinanceStore = defineStore('finance', () => {
             }
 
             expensesDaysCurrentMonth.value = mergeExpensesDay(expensesDaysCurrentMonth.value)
+            expensesDaysCurrentMonth.value.sort(function(a,b){
+                if (a.date > b.date){
+                    return 1
+                }
+                if (a.date < b.date){
+                    return -1
+                }
+                return 0
+            })
         } catch (e) {
             console.error(e)
         } finally {
@@ -562,20 +645,20 @@ export const useFinanceStore = defineStore('finance', () => {
                     date: e.date.slice(8, 10)
                 }))
             const mergeExpensesDay = (data: IExpensesMonthAnalyticsLast[]) => {
-                const resultMap: Record<string, number> = {}
+                const resultMapExpenses: Record<string, number> = {}
 
                 data.forEach((item) => {
                     if(item.amount !== null){
-                        if(resultMap[item.date]){
-                            resultMap[item.date] += item.amount
+                        if(resultMapExpenses[item.date]){
+                            resultMapExpenses[item.date] += item.amount
                         } else {
-                            resultMap[item.date] = item.amount
+                            resultMapExpenses[item.date] = item.amount
                         }
                     }
                 })
-                return Object.keys(resultMap).map((e) => ({
+                return Object.keys(resultMapExpenses).map((e) => ({
                     date: e,
-                    amount: resultMap[e]
+                    amount: resultMapExpenses[e]
                 }))
             }
 
@@ -596,6 +679,7 @@ export const useFinanceStore = defineStore('finance', () => {
         }
     }
 
+
     return {
         amountExpenses,
         isLoader,
@@ -603,6 +687,7 @@ export const useFinanceStore = defineStore('finance', () => {
         loading,
         earnings,
         expenses,
+        goals,
         yearNow,
         months,
         expensesLastMonthAmount,
@@ -630,6 +715,8 @@ export const useFinanceStore = defineStore('finance', () => {
         deleteExpensesItem,
         updateEarningsExpenses,
         createUserDataExpenses,
+        getUserGoals,
+        createUserGoal,
         logout,
         nowNewYear,
         incomeExpensesEarnings,

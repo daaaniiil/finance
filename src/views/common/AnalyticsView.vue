@@ -32,16 +32,22 @@
     </el-row>
 
     <HighChartExpensesMonth :expenses="store.expensesDaysCurrentMonth" :month="currentMonth"/>
+
+    <Goals :goals="store.goals"/>
+
+    <add-goal-form />
   </div>
 </template>
 
 <script setup lang="ts">
-import {onMounted, computed} from "vue";
+import {onMounted, ref,computed} from "vue";
 import {useFinanceStore} from "@/store";
 import HighChartPie from "@/components/highCharts/HighChartPie.vue";
 import HighChartExpensesMonth from "@/components/highCharts/HighChartExpensesMonth.vue";
 import {IMonths} from "@/resources/types.ts";
 import {useCurrencyStore} from "@/store/currency.ts";
+import Goals from "@/components/Goals.vue";
+import AddGoalForm from "@/forms/AddGoalForm.vue";
 
 const store = useFinanceStore()
 const currencyStore = useCurrencyStore()
@@ -68,6 +74,7 @@ onMounted(async () => {
   await store.amountExpensesCategories()
   await store.minMaxExpensesAmount()
   await store.expensesDaysMonthCurrent()
+  await store.getUserGoals()
 })
 </script>
 
