@@ -128,6 +128,7 @@ const saveAmount = async () => {
           await store.updateEarningsExpenses(currentEditItem.value.id, newAmount.value)
 
           await store.getUserExpenses()
+          await store.changeBudget()
           ElMessage.success('Сумма успешно обновлена!')
           editDialogVisible.value = false
         } else {
@@ -152,6 +153,7 @@ const copyToClipboard = (row: any) => {
 
 const deleteItem = async (id: string) => {
   await store.deleteExpensesItem(id)
+  await store.changeBudget()
 }
 
 const sortedExpenses = computed(() => {

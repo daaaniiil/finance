@@ -155,6 +155,7 @@ const saveAmount = async () => {
           newAmount.value *= currencyStore.getRate
         if (monthExpenses < newAmount.value) {
           await store.updateEarningsAmount(currentEditItem.value.id, newAmount.value, currentEditItem.value.month)
+          await store.changeBudget()
 
           editDialogVisible.value = false
           ElMessage.success('Сумма успешно обновлена!')
@@ -179,6 +180,7 @@ const copyToClipboard = (row: any) => {
 }
 const deleteItem = async (row: IEarnings) => {
   await store.deleteEarningsItemData(row.id, row.month)
+  await store.changeBudget()
 }
 
 const monthLabel = computed(() => sortedEarnings.value.map((e: IEarnings) => e.month).reverse())
@@ -191,6 +193,7 @@ onMounted(async () => {
   await store.getUserExpenses()
   await store.incomeExpensesEarnings()
   await store.expensesDaysMonthLast()
+  await store.currentBudget()
 })
 </script>
 

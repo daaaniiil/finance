@@ -26,46 +26,26 @@
       </div>
     </el-card>
 
+    <p>Бюджет: <strong>{{ formatNumber(Number(store.budget.toFixed(2))) }} {{ currencyStore.getIcon }}</strong></p>
+
     <high-chart-earnings :months="monthLabel" :salaries="salaryValues" />
-    <!--      <el-row :gutter="20">-->
-    <!--        <el-col :md="18">-->
-    <!--          <h2>Смена пароля</h2>-->
-    <!--          <div class="settings-page__password">-->
-    <!--            <h3>Подтвердите пароль</h3>-->
-    <!--            <el-form ref="form" :rules="rules" :model="model" status-icon @submit.prevent>-->
-    <!--              <el-form-item prop="password">-->
-    <!--                <el-input v-model="model.password" type="password" placeholder="Введите ваш пароль"/>-->
-    <!--              </el-form-item>-->
-    <!--              <el-button type="primary">Сменить</el-button>-->
-    <!--            </el-form>-->
-    <!--          </div>-->
-    <!--        </el-col>-->
-    <!--        <el-col :md="6">-->
-    <!--          <p>Статус</p>-->
-    <!--        </el-col>-->
-    <!--      </el-row>-->
   </div>
 </template>
 
 <script setup lang="ts">
 import {computed, onMounted} from 'vue'
-// import {FormRules} from "element-plus";
 import {useFinanceStore} from "@/store";
 import CurrencySwitcher from "@/components/CurrencySwitcher.vue";
 import HighChartEarnings from "@/components/highCharts/HighChartEarnings.vue";
 import {IEarnings, IMonths} from "@/resources/types.ts";
+import {useCurrencyStore} from "@/store/currency.ts";
 
 const store = useFinanceStore()
-// const form = ref()
-//
-// const model = reactive({
-//   password: '',
-// } as any)
-// const rules = computed<FormRules>(() => {
-//   return {
-//     password: {required: true, trigger: 'blur', message: 'Введите ваш пароль'},
-//   }
-//})
+const currencyStore = useCurrencyStore()
+
+const formatNumber = (value: number) => {
+  return new Intl.NumberFormat('ru-RU').format(value)
+}
 
 const createdAt = computed(() => store.user?.created_at?.slice(0, 10).split('-').reverse().join('.'))
 const emailUser = computed(() => store.user?.email)
@@ -83,6 +63,7 @@ const salaryValues = computed(() => sortedEarnings.value.map((e: IEarnings) => e
 onMounted(async () => {
   await store.authUser()
   await store.getUserEarnings()
+  await store.currentBudget()
 })
 </script>
 

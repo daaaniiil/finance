@@ -33,10 +33,12 @@
 import {defineComponent} from 'vue'
 import {ref, watch} from "vue";
 import {useCurrencyStore} from "@/store/currency";
+import {useFinanceStore} from "@/store";
 
 export default defineComponent({
   name: "CurrencySwitcher",
   setup() {
+    const store = useFinanceStore()
     const currencyStore = useCurrencyStore()
     const selectedCurrency = ref(currencyStore.selectedCurrency)
 
@@ -46,6 +48,12 @@ export default defineComponent({
 
     watch(() => selectedCurrency, () => {
       currencyStore.setCurrency(selectedCurrency.value)
+    })
+
+    watch(selectedCurrency,  async () => {
+      store.budget *= currencyStore.getRate
+      currencyStore.setCurrency(selectedCurrency.value)
+      store.budget /= currencyStore.getRate
     })
     return {
       selectedCurrency,

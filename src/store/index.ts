@@ -15,6 +15,7 @@ import {useRouter} from "vue-router";
 import {useCurrencyStore} from "@/store/currency.ts";
 
 export const useFinanceStore = defineStore('finance', () => {
+    const budget = ref<number>(0)
     const user = ref<IUser | null>(null)
     const earnings = ref<IEarnings[]>([])
     const expenses = ref<IExpenses[]>([])
@@ -55,7 +56,8 @@ export const useFinanceStore = defineStore('finance', () => {
         goals: false,
         earnings: false,
         expenses: false,
-        user: false
+        user: false,
+        budget: false
     })
 
     const authUser = async () => {
@@ -397,6 +399,37 @@ export const useFinanceStore = defineStore('finance', () => {
         })
     }
 
+    const updateUserGoal = async (id: string, newAmount: number) => {
+        loading.value = true
+        try {
+            const { data, error: fetchError} = await supabase
+                .from('goals')
+                .select('currentAmount')
+                .eq('id', id)
+                .single()
+
+            if (fetchError) {
+                console.error('Ошибка получения текущей суммы цели:', fetchError)
+                return
+            }
+            const updateAmount = (data.currentAmount || 0) + Number(newAmount.toFixed())
+
+            const {error} = await supabase
+                .from('goals')
+                .update({currentAmount: updateAmount})
+                .eq('id', id)
+            if (error) {
+                console.error('Ошибка обновления цели:', error)
+            }
+            isLoader.goals = false
+            await getUserGoals()
+        } catch (e) {
+            console.error(e)
+        } finally {
+            loading.value = false
+        }
+    }
+
     const logout = async () => {
         loading.value = true
         try {
@@ -679,8 +712,118 @@ export const useFinanceStore = defineStore('finance', () => {
         }
     }
 
+    const changeBudget = async () => {
+        loading.value = true
+        try {
+            await getUserExpenses()
+            await getUserEarnings()
+            await currentBudget()
+
+            budget.value *= currencyStore.getRate
+
+            const ear = earnings.value
+                .map((e: IEarnings) => e.amount)
+                .filter((e: number | null): e is number => e !== null)
+                .reduce((acc: number, current: number) => acc + current)
+
+            const exp = expenses.value
+                .map((e: IExpenses) => e.amount)
+                .filter((e: number | null): e is number => e !== null)
+                .reduce((acc: number, current: number) => acc + current)
+
+            budget.value = ear - exp
+
+            const {error} = await supabase
+                .from('budget')
+                .update({budget:  budget.value})
+                .eq('user_id', user.value?.id)
+
+            budget.value /= currencyStore.getRate
+            if(error){
+                console.error(`${error.message}`)
+            }
+        } catch (e) {
+            console.error(e)
+        } finally {
+            loading.value = false
+        }
+    }
+
+    const currentBudget = async () => {
+        if (isLoader.budget) return
+
+        loading.value = true
+        try {
+            const {data, error} = await supabase
+                .from('budget')
+                .select('*')
+                .eq('user_id', user.value?.id)
+
+            if(error){
+                console.error(`${error.message}`)
+            } else {
+                const budgetData = data.map((b) => b.budget)[0]
+                budget.value = budgetData || 0
+                budget.value /= currencyStore.getRate
+                isLoader.budget = true
+            }
+
+            if (!budget.value){
+                await getUserExpenses()
+                await getUserEarnings()
+
+                const ear = earnings.value
+                    .map((e: IEarnings) => e.amount)
+                    .filter((e: number | null): e is number => e !== null)
+                    .reduce((acc: number, current: number) => acc + current)
+
+                const exp = expenses.value
+                    .map((e: IExpenses) => e.amount)
+                    .filter((e: number | null): e is number => e !== null)
+                    .reduce((acc: number, current: number) => acc + current)
+
+                budget.value = ear - exp
+                const {error} = await supabase
+                    .from('budget')
+                    .insert({budget:  budget.value})
+                    .eq('user_id', user.value?.id)
+
+                if(error){
+                    console.error(`${error.message}`)
+                }
+            }
+        } catch (e) {
+            console.error(e)
+        } finally {
+            loading.value = false
+        }
+    }
+
+    const updateBudget = async (amountGoal: number) => {
+        loading.value = true
+        try {
+            await currentBudget()
+            budget.value *= currencyStore.getRate
+            const newBudget = budget.value - amountGoal
+
+            const {error} = await supabase
+                .from('budget')
+                .update({budget: newBudget})
+                .eq('user_id', user.value?.id)
+
+            if(error){
+                console.error(`${error.message}`)
+            }
+            isLoader.budget = false
+        } catch (e) {
+            console.error(e)
+        } finally {
+            loading.value = false
+        }
+    }
 
     return {
+        budget,
         amountExpenses,
         isLoader,
         user,
@@ -717,10 +860,14 @@ export const useFinanceStore = defineStore('finance', () => {
         createUserDataExpenses,
         getUserGoals,
         createUserGoal,
+        updateUserGoal,
         logout,
         nowNewYear,
         incomeExpensesEarnings,
         incomeExpensesEarningsCurrent,
-        expensesCategories
+        expensesCategories,
+        currentBudget,
+        updateBudget,
+        changeBudget
     }
 })
