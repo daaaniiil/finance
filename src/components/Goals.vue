@@ -2,13 +2,14 @@
   <div class="finance-goals">
     <h2>Ваши финансовые цели</h2>
     <div class="goal-list">
-      <el-card v-for="goal in props.goals" :key="goal.id">
+      <el-card v-for="goal in goalsConverted" :key="goal.id">
         <h3>{{ goal.name }}</h3>
-        <p>Прогресс: {{ goal.currentAmount }} / {{ goal.targetAmount }}</p>
+        <p>Прогресс: <strong>{{ formatNumber(Number(goal.currentAmount)) }}{{currencyStore.getIcon}}</strong> /
+          <strong>{{ formatNumber(Number(goal.targetAmount)) }}{{currencyStore.getIcon}}</strong></p>
         <el-progress :percentage="percentageLeft(goal.currentAmount, goal.targetAmount)" :color="customColors" />
         <p>Осталось: {{ daysLeft(goal.deadline) }} дней</p>
 
-        <el-input v-model.number="amountToAdd" placeholder="Сумма для пополнения"/>
+        <el-input v-model.number="amountToAdd[goal.id]" placeholder="Сумма для пополнения"/>
         <el-button type="warning" @click="addToGoal(goal.id)">Пополнить</el-button>
 
         <p v-if="goal.status === 'completed'" class="status success">Цель достигнута!</p>
@@ -19,15 +20,23 @@
 </template>
 
 <script setup lang="ts">
-import {ref} from 'vue'
-import {IGoal} from "../resources/types";
+import {ref, computed} from 'vue'
+import { IGoal} from "../resources/types";
+import {useFinanceStore} from "@/store";
+import {ElMessage} from "element-plus";
+import {useCurrencyStore} from "@/store/currency.ts";
 
 const props = defineProps<{
   goals: IGoal[]
 }>()
 
+const store = useFinanceStore()
+const currencyStore = useCurrencyStore()
+const amountToAdd = ref<Record<string, number>>({})
 
-const amountToAdd = ref<number>(0)
+const formatNumber = (value: number) => {
+  return new Intl.NumberFormat('ru-RU').format(value)
+}
 
 const customColors = [
   { color: '#909399', percentage: 20 },
@@ -38,9 +47,26 @@ const customColors = [
   { color: '#5cb87a', percentage: 100 },
 ]
 
-const addToGoal = (goalId: string) => {
-  console.log(`Добавлено ${amountToAdd.value} руб. к цели`)
+const addToGoal = async (goalId: string) => {
+  const amount = ref<number>(amountToAdd.value[goalId] || 0)
+  if (amount.value > 0) {
+    // при полном завершение суммы менять статус на completed
+    // при истечение срока и не завершение суммы менять статус на failed
+      if(store.budget) {
+        amount.value *= currencyStore.getRate
+        await store.updateBudget(amount.value)
+        await store.updateUserGoal(goalId, amount.value)
+        ElMessage.success('Цель успешно пополнена')
+        amountToAdd.value[goalId] = 0
+      }
+  } else {
+    ElMessage.warning('Введите сумму')
+  }
 }
+
+const sortedGoals = computed(() => {
+  return [...props.goals].sort((a,b) => a.id.localeCompare(b.id))
+})
 
 const daysLeft = (deadline: Date) => {
   const today = new Date()
@@ -51,6 +77,14 @@ const daysLeft = (deadline: Date) => {
 const percentageLeft = (current: number, target: number) => {
   return Number(((current / target) * 100).toFixed(2))
 }
+
+const goalsConverted = computed(() => {
+  return sortedGoals.value.map((g: IGoal) => ({
+    ...g,
+    currentAmount: Math.floor((g.currentAmount ?? 0) / currencyStore.getRate),
+    targetAmount:  Math.floor((g.targetAmount ?? 0) / currencyStore.getRate)
+  }))
+})
 </script>
 
 <style lang="scss">

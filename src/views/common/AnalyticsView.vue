@@ -31,16 +31,17 @@
       </el-col>
     </el-row>
 
-    <HighChartExpensesMonth :expenses="store.expensesDaysCurrentMonth" :month="currentMonth"/>
+    <HighChartExpensesMonth :expenses="store.expensesDaysCurrentMonth" :month="currentMonth" v-if="store.expensesDaysCurrentMonth.length"/>
+    <el-empty v-else/>
 
-    <Goals :goals="store.goals"/>
-
+    <Goals :goals="store.goals" v-if="store.goals.length"/>
+    <p v-else>У вас пока нет целей, добавьте!</p> <br>
     <add-goal-form />
   </div>
 </template>
 
 <script setup lang="ts">
-import {onMounted, ref,computed} from "vue";
+import {onMounted,computed} from "vue";
 import {useFinanceStore} from "@/store";
 import HighChartPie from "@/components/highCharts/HighChartPie.vue";
 import HighChartExpensesMonth from "@/components/highCharts/HighChartExpensesMonth.vue";
@@ -75,6 +76,7 @@ onMounted(async () => {
   await store.minMaxExpensesAmount()
   await store.expensesDaysMonthCurrent()
   await store.getUserGoals()
+  await store.currentBudget()
 })
 </script>
 
