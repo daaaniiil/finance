@@ -399,7 +399,7 @@ export const useFinanceStore = defineStore('finance', () => {
         })
     }
 
-    const updateUserGoal = async (id: string, newAmount: number) => {
+    const updateUserGoal = async (id: string, newAmount: number, newStatus: string) => {
         loading.value = true
         try {
             const { data, error: fetchError} = await supabase
@@ -416,11 +416,47 @@ export const useFinanceStore = defineStore('finance', () => {
 
             const {error} = await supabase
                 .from('goals')
-                .update({currentAmount: updateAmount})
+                .update({currentAmount: updateAmount, status: newStatus})
                 .eq('id', id)
             if (error) {
                 console.error('Ошибка обновления цели:', error)
             }
+            isLoader.goals = false
+            await getUserGoals()
+        } catch (e) {
+            console.error(e)
+        } finally {
+            loading.value = false
+        }
+    }
+
+    const updateGoalStatus = async () => {
+        loading.value = true
+        try {
+            const today = new Date().toISOString().split('T')[0]
+
+            const updateGoals = goals.value.map(async (goal: IGoal) => {
+                let newStatus = goal.status
+                let deadline = goal.deadline
+
+                if (goal.currentAmount >= goal.targetAmount && newStatus !== 'completed'){
+                    newStatus = 'completed'
+                    deadline = today
+                }
+
+                if(new Date(goal.deadline) < new Date(today) && newStatus !== 'completed'){
+                    newStatus = 'failed'
+                }
+
+                if(newStatus !== goal.status){
+                    await supabase
+                        .from('goals')
+                        .update({status: newStatus, deadline})
+                        .eq('id', goal.id)
+                }
+            })
+
+            await Promise.all(updateGoals)
             isLoader.goals = false
             await getUserGoals()
         } catch (e) {
@@ -861,6 +897,7 @@ export const useFinanceStore = defineStore('finance', () => {
         getUserGoals,
         createUserGoal,
         updateUserGoal,
+        updateGoalStatus,
         logout,
         nowNewYear,
         incomeExpensesEarnings,

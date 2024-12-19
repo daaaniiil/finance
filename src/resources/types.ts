@@ -59,6 +59,6 @@ export interface IGoal {
     currentAmount: number
     type: 'saving' | 'spending'
     category?: string
-    deadline: Date
+    deadline: Date | string
     status: 'in_progress' | 'completed' | 'failed'
 }
