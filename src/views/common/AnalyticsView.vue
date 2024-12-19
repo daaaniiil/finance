@@ -32,9 +32,9 @@
     </el-row>
 
     <HighChartExpensesMonth :expenses="store.expensesDaysCurrentMonth" :month="currentMonth" v-if="store.expensesDaysCurrentMonth.length"/>
-    <el-empty v-else/>
+    <el-empty v-else description="У вас еще нет расходов в текущем месяце"/>
 
-    <Goals :goals="store.goals" v-if="store.goals.length"/>
+    <Goals :goals="goalsProgress" v-if="store.goals.length" title="Ваши финансовые цели"/>
     <p v-else>У вас пока нет целей, добавьте!</p> <br>
     <add-goal-form />
   </div>
@@ -60,6 +60,8 @@ const formatNumber = (value: number) => {
 const minExpensesCategories = computed(() => `(${store.minExpensesCategories ?? 'Нету'})`)
 const maxExpensesCategories = computed(()=> `(${store.maxExpensesCategories ?? 'Нету'})`)
 
+const goalsProgress = computed(() => store.goals.filter((goal) => goal.status !== 'completed'))
+
 const currentMonth = new Date().getMonth()
 const availableMonths = store.months.find((month: IMonths) => month.value === currentMonth)?.label
 
@@ -77,6 +79,7 @@ onMounted(async () => {
   await store.expensesDaysMonthCurrent()
   await store.getUserGoals()
   await store.currentBudget()
+  await store.updateGoalStatus()
 })
 </script>
 

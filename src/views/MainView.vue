@@ -18,7 +18,7 @@
 
     <el-card>
       <h2>Ваш заработок по месяцам</h2>
-      <el-table :data="earningsConverted" style="width: 100%">
+      <el-table :data="earningsConverted" style="width: 100%" v-loading="store.loading">
         <el-table-column fixed prop="month" label="Месяц" width="100"/>
         <el-table-column prop="amount" label="Сумма" align="center" min-width="120">
           <template #default="scope">
@@ -65,7 +65,7 @@
       <earnings-form/>
     </el-card>
 
-    <el-empty v-if="monthLabel.length === 0"/>
+    <el-empty v-if="monthLabel.length === 0" description="Вы еще не добавили зарплату"/>
     <high-chart-earnings :months="monthLabel" :salaries="salaryValues" v-else/>
     <HighChartExpensesMonth :expenses="store.expensesDaysLastMonth" :month="lastMonthValue" v-else/>
     <router-link :to="{name:'analytics-page'}">

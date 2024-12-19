@@ -29,6 +29,7 @@
                 <router-link to="/main">Главная</router-link>
                 <router-link to="/income-expenses">Доходы & Расходы</router-link>
                 <router-link to="/analytics">Аналитика</router-link>
+                <router-link to="/completed-goals">Завершенные цели</router-link>
                 <router-link to="/settings">Настройки</router-link>
               </div>
             </el-scrollbar>

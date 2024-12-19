@@ -60,6 +60,7 @@ const rules = computed<FormRules>(() => {
 
 const addGoal = async () => {
   await store.createUserGoal(form, model)
+  visibleGoalForm.value = false
 }
 
 const labelPosition = computed(() => {

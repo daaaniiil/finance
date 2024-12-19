@@ -11,7 +11,7 @@
       </el-card>
       <el-card>
         <h2>Ваши расходы</h2>
-        <el-table :data="expensesConverted" :height="500">
+        <el-table :data="expensesConverted" :height="500" v-loading="store.loading">
           <el-table-column fixed prop="date" label="Дата" width="120" />
           <el-table-column prop="category" label="Категория" width="300"/>
           <el-table-column prop="amount" label="Сумма" align="center" min-width="120">
@@ -54,7 +54,7 @@
         </template>
       </el-dialog>
 
-      <el-empty v-if="monthLabel.length === 0"/>
+      <el-empty v-if="monthLabel.length === 0" description="Вы еще не добавили расходы"/>
       <high-chart-expenses-income :months="monthLabel" :expenses="expensesAmount" :income="incomeAmount" v-else />
     </div>
     <router-link :to="{name:'analytics-page'}">

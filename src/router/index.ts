@@ -36,6 +36,15 @@ const router = createRouter({
             }
         },
         {
+            path: '/completed-goals',
+            name: 'completed-goals-page',
+            component: () => import('../views/common/CompletedGoalsView.vue'),
+            meta: {
+                layout: 'main-layout',
+                auth: true
+            }
+        },
+        {
             path: '/settings',
             name: 'settings-page',
             component: () => import('../views/common/SettingsView.vue'),
