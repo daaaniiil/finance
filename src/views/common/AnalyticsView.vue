@@ -34,8 +34,8 @@
     <HighChartExpensesMonth :expenses="store.expensesDaysCurrentMonth" :month="currentMonth" v-if="store.expensesDaysCurrentMonth.length"/>
     <el-empty v-else description="У вас еще нет расходов в текущем месяце"/>
 
-    <Goals :goals="goalsProgress" v-if="store.goals.length" title="Ваши финансовые цели"/>
-    <p v-else>У вас пока нет целей, добавьте!</p> <br>
+    <Goals :goals="visibleGoals" v-if="visibleGoals.length" :visible-hidden="true" title="Ваши финансовые цели"/>
+    <el-empty v-else description="У вас пока нет целей, добавьте!"/> <br>
     <add-goal-form />
   </div>
 </template>
@@ -45,7 +45,7 @@ import {onMounted,computed} from "vue";
 import {useFinanceStore} from "@/store";
 import HighChartPie from "@/components/highCharts/HighChartPie.vue";
 import HighChartExpensesMonth from "@/components/highCharts/HighChartExpensesMonth.vue";
-import {IMonths} from "@/resources/types.ts";
+import {IGoal, IMonths} from "@/resources/types.ts";
 import {useCurrencyStore} from "@/store/currency.ts";
 import Goals from "@/components/Goals.vue";
 import AddGoalForm from "@/forms/AddGoalForm.vue";
@@ -60,14 +60,14 @@ const formatNumber = (value: number) => {
 const minExpensesCategories = computed(() => `(${store.minExpensesCategories ?? 'Нету'})`)
 const maxExpensesCategories = computed(()=> `(${store.maxExpensesCategories ?? 'Нету'})`)
 
-const goalsProgress = computed(() => store.goals.filter((goal) => goal.status !== 'completed'))
-
 const currentMonth = new Date().getMonth()
 const availableMonths = store.months.find((month: IMonths) => month.value === currentMonth)?.label
 
 const incomeCurrentMonthAmount = computed(() => {
   return store.earningsCurrentMonthAmount - store.expensesCurrentMonthAmount
 })
+
+const visibleGoals = computed(() => store.goals.filter((goal: IGoal) => !store.hiddenGoals.includes(goal.id)))
 
 onMounted(async () => {
   await store.getUserEarnings()

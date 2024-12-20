@@ -34,7 +34,7 @@
 <script setup lang="ts">
 import {computed, reactive, ref} from 'vue'
 import {useFinanceStore} from "../../src/store";
-import {ElForm, FormRules} from "element-plus";
+import {ElForm, ElMessage, FormRules} from "element-plus";
 import {IGoal} from "../resources/types";
 
 const visibleGoalForm = ref(false)
@@ -59,8 +59,12 @@ const rules = computed<FormRules>(() => {
 })
 
 const addGoal = async () => {
-  await store.createUserGoal(form, model)
-  visibleGoalForm.value = false
+  if (model.targetAmount > 0) {
+    await store.createUserGoal(form, model)
+    visibleGoalForm.value = false
+  } else {
+    ElMessage.warning('Введите коректную сумму')
+  }
 }
 
 const labelPosition = computed(() => {

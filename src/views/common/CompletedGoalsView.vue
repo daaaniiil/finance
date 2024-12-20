@@ -1,6 +1,6 @@
 <template>
   <div class="complete-goals">
-    <Goals :goals="completedGoals" v-if="completedGoals.length" title="Ваши завершенные цели"/>
+    <Goals :goals="completedGoals" v-if="completedGoals.length" :visible-hidden="false" title="Ваши завершенные цели"/>
     <el-empty description="У вас пока нет завершенных целей" v-else/>
   </div>
 </template>

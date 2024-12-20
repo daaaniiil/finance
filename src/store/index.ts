@@ -20,6 +20,7 @@ export const useFinanceStore = defineStore('finance', () => {
     const earnings = ref<IEarnings[]>([])
     const expenses = ref<IExpenses[]>([])
     const goals = ref<IGoal[]>([])
+    const hiddenGoals = JSON.parse(localStorage.getItem('hiddenGoals') || '[]')
     const mergedExpenses = ref<IItemExpensesPie[]>([])
     const mergedExpensesCurrent = ref<IItemExpensesPie[]>([])
     const expensesDaysCurrentMonth = ref<IExpensesMonthAnalytics[]>([])
@@ -366,6 +367,9 @@ export const useFinanceStore = defineStore('finance', () => {
 
                     model.targetAmount *= currencyStore.getRate
 
+                    const deadline = new Date(model.deadline)
+                    const formattedDeadline = `${deadline.getFullYear()}-${String(deadline.getMonth() + 1).padStart(2, '0')}-${String(deadline.getDate()).padStart(2, '0')}`
+
                     const {error: insertError} = await supabase
                         .from('goals')
                         .insert([
@@ -375,7 +379,7 @@ export const useFinanceStore = defineStore('finance', () => {
                                 targetAmount: model.targetAmount,
                                 currentAmount: 0,
                                 status: 'in_progress',
-                                deadline: model.deadline
+                                deadline: formattedDeadline
                             }
                         ])
 
@@ -444,7 +448,7 @@ export const useFinanceStore = defineStore('finance', () => {
                     deadline = today
                 }
 
-                if(new Date(goal.deadline) < new Date(today) && newStatus !== 'completed'){
+                if(new Date(goal.deadline) <= new Date(today) && newStatus !== 'completed'){
                     newStatus = 'failed'
                 }
 
@@ -858,6 +862,15 @@ export const useFinanceStore = defineStore('finance', () => {
         }
     }
 
+    const hideGoal = (goalId: string) => {
+        if(!hiddenGoals.includes(goalId)) {
+            hiddenGoals.push(goalId)
+            localStorage.setItem('hiddenGoals', JSON.stringify(hiddenGoals))
+            isLoader.goals = false
+        }
+    }
+
+
     return {
         budget,
         amountExpenses,
@@ -881,6 +894,7 @@ export const useFinanceStore = defineStore('finance', () => {
         averageExpenses,
         expensesDaysCurrentMonth,
         expensesDaysLastMonth,
+        hiddenGoals,
         expensesDaysMonthLast,
         expensesDaysMonthCurrent,
         minMaxExpensesAmount,
@@ -905,6 +919,7 @@ export const useFinanceStore = defineStore('finance', () => {
         expensesCategories,
         currentBudget,
         updateBudget,
-        changeBudget
+        changeBudget,
+        hideGoal
     }
 })
