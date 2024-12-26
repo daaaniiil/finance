@@ -5,7 +5,7 @@
       <el-card v-for="goal in goalsConverted" :key="goal.id">
         <div class="goal-list__title">
           <h3>{{ goal.name }}</h3>
-          <el-button @click="hideGoal(goal.id)" v-if="visibleHidden && goal.status === 'completed' || goal.status === 'failed'" type="warning">
+          <el-button @click="hideGoal(goal.id)" v-if="visibleHidden && goal.status === 'completed' || visibleHidden && goal.status === 'failed'" type="warning">
             Скрыть
           </el-button>
         </div>
@@ -19,11 +19,11 @@
         <p v-else-if="goal.status === 'in_progress'">
           Осталось:
           <template v-if="timeLeft(goal.deadline).days > 0">
-            {{ timeLeft(goal.deadline).days }} {{ timeLeft(goal.deadline).days > 4 ? 'дней' : 'дня' }}
-            {{ timeLeft(goal.deadline).hours }} {{ timeLeft(goal.deadline).hours > 4 ? 'часов' : 'часа' }}
+            {{ timeLeft(goal.deadline).days }} {{ timeLeft(goal.deadline).days > 4 ? 'дней' : timeLeft(goal.deadline).days < 2 ? 'день' : 'дня' }}
+            {{ timeLeft(goal.deadline).hours }} {{ timeLeft(goal.deadline).hours > 4 ? 'часов' : timeLeft(goal.deadline).hours < 2 ? 'час' : 'часа'  }}
           </template>
           <template v-else>
-            {{ timeLeft(goal.deadline).hours }} {{ timeLeft(goal.deadline).hours > 4 ? 'часов' : 'часа' }}
+            {{ timeLeft(goal.deadline).hours }} {{ timeLeft(goal.deadline).hours > 4 ? 'часов' : timeLeft(goal.deadline).hours < 2 ? 'час' : 'часа'  }}
           </template>
         </p>
 

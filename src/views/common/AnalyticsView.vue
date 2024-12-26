@@ -2,7 +2,7 @@
   <div class="analytics-page">
     <el-breadcrumb separator="/">
       <el-breadcrumb-item :to="{ name: 'analytics-page' }">Аналитика</el-breadcrumb-item>
-      <el-breadcrumb-item>Настройки</el-breadcrumb-item>
+      <el-breadcrumb-item>Цели</el-breadcrumb-item>
     </el-breadcrumb>
 
     <el-card v-if="!store.loading">
