@@ -313,7 +313,7 @@ export const useFinanceStore = defineStore('finance', () => {
                 .eq('id', id)
 
             if (error) {
-                console.error('Error deleting item:', error)
+                console.error('Error deleting expenses:', error)
             } else if (status === 204) {
                 ElMessage.success('Удалено успешно!')
                 isLoader.expenses = false
@@ -427,6 +427,30 @@ export const useFinanceStore = defineStore('finance', () => {
             }
             isLoader.goals = false
             await getUserGoals()
+        } catch (e) {
+            console.error(e)
+        } finally {
+            loading.value = false
+        }
+    }
+
+    const deleteGoal = async (goalId: string) => {
+        loading.value = true
+        try {
+            const {data, error, status} = await supabase
+                .from('goals')
+                .delete()
+                .eq('id', goalId)
+
+            if(error) {
+                console.error('Error deleting goal:', error)
+            } else if (status === 204) {
+                ElMessage.success('Цель удалена!')
+                isLoader.goals = false
+                await getUserGoals()
+            } else {
+                console.log('Unexpected response:', data)
+            }
         } catch (e) {
             console.error(e)
         } finally {
@@ -839,12 +863,18 @@ export const useFinanceStore = defineStore('finance', () => {
         }
     }
 
-    const updateBudget = async (amountGoal: number) => {
+    const updateBudget = async (amountGoal: number, difference: boolean) => {
         loading.value = true
         try {
             await currentBudget()
             budget.value *= currencyStore.getRate
-            const newBudget = budget.value - amountGoal
+            let newBudget
+
+            if(difference) {
+                newBudget = budget.value - amountGoal
+            } else {
+                newBudget = budget.value + amountGoal
+            }
 
             const {error} = await supabase
                 .from('budget')
@@ -869,7 +899,6 @@ export const useFinanceStore = defineStore('finance', () => {
             isLoader.goals = false
         }
     }
-
 
     return {
         budget,
@@ -920,6 +949,7 @@ export const useFinanceStore = defineStore('finance', () => {
         currentBudget,
         updateBudget,
         changeBudget,
-        hideGoal
+        hideGoal,
+        deleteGoal
     }
 })

@@ -49,6 +49,14 @@
   }
 }
 
+.el-button.el-button--text {
+  color: $color_red_main;
+  transition: all linear .15s;
+  &:hover {
+    color: $color_red_empty;
+  }
+}
+
 .el-switch.is-checked .el-switch__core{
   background-color: $color_main_green;
   border-color: $color_main_green;

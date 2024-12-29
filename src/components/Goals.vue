@@ -2,41 +2,60 @@
   <div class="finance-goals">
     <h2>{{ props.title }}</h2>
     <div class="goal-list">
-      <el-card v-for="goal in goalsConverted" :key="goal.id">
-        <div class="goal-list__title">
-          <h3>{{ goal.name }}</h3>
-          <el-button @click="hideGoal(goal.id)" v-if="visibleHidden && goal.status === 'completed' || visibleHidden && goal.status === 'failed'" type="warning">
-            Скрыть
-          </el-button>
-        </div>
-        <p>Прогресс:
-          <strong>{{ formatNumber(Number(goal.currentAmount)) }}{{ currencyStore.getIcon }}</strong> /
-          <strong>{{ formatNumber(Number(goal.targetAmount)) }}{{ currencyStore.getIcon }}</strong>
-        </p>
-        <el-progress :percentage="percentageLeft(goal.currentAmount, goal.targetAmount)" :color="customColors"/>
-        <p v-if="goal.status === 'completed'"> Цель достигнута: {{ formatDate(goal.deadline) }}</p>
+      <transition-group name="fade-up" tag="div" class="goal-list">
+        <el-card v-for="goal in goalsConverted" :key="goal.id">
+          <div class="goal-list__title">
+            <h3>{{ goal.name }}</h3>
+            <el-button @click="hideGoal(goal.id)" v-if="visibleHidden && goal.status === 'completed' || visibleHidden && goal.status === 'failed'" type="warning">
+              Скрыть
+            </el-button>
+          </div>
+          <p>Прогресс:
+            <strong>{{ formatNumber(Number(goal.currentAmount)) }}{{ currencyStore.getIcon }}</strong> /
+            <strong>{{ formatNumber(Number(goal.targetAmount)) }}{{ currencyStore.getIcon }}</strong>
+          </p>
+          <el-progress :percentage="percentageLeft(goal.currentAmount, goal.targetAmount)" :color="customColors"/>
+          <p v-if="goal.status === 'completed'"> Цель достигнута: {{ formatDate(goal.deadline) }}</p>
 
-        <p v-else-if="goal.status === 'in_progress'">
-          Осталось:
-          <template v-if="timeLeft(goal.deadline).days > 0">
-            {{ timeLeft(goal.deadline).days }} {{ timeLeft(goal.deadline).days > 4 ? 'дней' : timeLeft(goal.deadline).days < 2 ? 'день' : 'дня' }}
-            {{ timeLeft(goal.deadline).hours }} {{ timeLeft(goal.deadline).hours > 4 ? 'часов' : timeLeft(goal.deadline).hours < 2 ? 'час' : 'часа'  }}
-          </template>
-          <template v-else>
-            {{ timeLeft(goal.deadline).hours }} {{ timeLeft(goal.deadline).hours > 4 ? 'часов' : timeLeft(goal.deadline).hours < 2 ? 'час' : 'часа'  }}
-          </template>
-        </p>
+          <p v-else-if="goal.status === 'in_progress'">
+            Осталось:
+            <template v-if="timeLeft(goal.deadline).days > 0">
+              {{ timeLeft(goal.deadline).days }} {{ timeLeft(goal.deadline).days > 4 ? 'дней' : timeLeft(goal.deadline).days < 2 ? 'день' : 'дня' }}
+              {{ timeLeft(goal.deadline).hours }} {{ timeLeft(goal.deadline).hours > 4 ? 'часов' : timeLeft(goal.deadline).hours < 2 ? 'час' : 'часа'  }}
+            </template>
+            <template v-else>
+              {{ timeLeft(goal.deadline).hours }} {{ timeLeft(goal.deadline).hours > 4 ? 'часов' : timeLeft(goal.deadline).hours < 2 ? 'час' : 'часа'  }}
+            </template>
+          </p>
 
-        <div v-if="goal.status === 'in_progress'">
-          <el-input v-model.number="amountToAdd[goal.id]" placeholder="Сумма для пополнения"/>
-          <el-button type="warning" @click="addToGoal(goal.id, goal.targetAmount, goal.currentAmount, goal.status)">
-            Пополнить
-          </el-button>
-        </div>
+          <div v-if="goal.status === 'in_progress'">
+            <el-input v-model.number="amountToAdd[goal.id]" placeholder="Сумма для пополнения"/>
+            <div class="goal-list__footer">
+              <el-button type="warning" @click="addToGoal(goal.id, goal.targetAmount, goal.currentAmount, goal.status)">
+                Пополнить
+              </el-button>
+<!--              <el-button type="text" @click="deleteGoal(goal.id)">-->
+<!--                Удалить-->
+<!--              </el-button>-->
+              <el-popconfirm
+                  width="220"
+                  title="Вы уверены что хотите удалить эту цель?"
+                  @confirm="deleteGoal(goal.id, goal.currentAmount)">
+                <template #reference>
+                  <el-button type="text">Удалить</el-button>
+                </template>
+                <template #actions="{ confirm, cancel }">
+                  <el-button type="warning" size="small" @click="cancel">Нет</el-button>
+                  <el-button type="danger" size="small" @click="confirm">Да</el-button>
+                </template>
+              </el-popconfirm>
+            </div>
+          </div>
 
-        <p v-if="goal.status === 'completed'" class="status success">Цель достигнута!</p>
-        <p v-if="goal.status === 'failed'" class="status error">Цель провалена</p>
-      </el-card>
+          <p v-if="goal.status === 'completed'" class="status success">Цель достигнута!</p>
+          <p v-if="goal.status === 'failed'" class="status error">Цель провалена</p>
+        </el-card>
+      </transition-group>
     </div>
   </div>
 </template>
@@ -85,7 +104,7 @@ const addToGoal = async (goalId: string, targetAmount: number, currentAmount: nu
       } else {
         ElMessage.success('Цель успешно пополнена')
       }
-      await store.updateBudget(amount.value)
+      await store.updateBudget(amount.value, true)
       await store.updateUserGoal(goalId, amount.value, status)
       await store.updateGoalStatus()
       amountToAdd.value[goalId] = 0
@@ -95,6 +114,12 @@ const addToGoal = async (goalId: string, targetAmount: number, currentAmount: nu
   } else {
     ElMessage.warning('Введите сумму')
   }
+}
+
+const deleteGoal = async (goalId: string, amount: number) => {
+  await store.deleteGoal(goalId)
+  amount *= currencyStore.getRate
+  await store.updateBudget(amount, false)
 }
 
 const sortedGoals = computed(() => {
@@ -158,6 +183,12 @@ const hideGoal = async (goalId: string) => {
         }
       }
     }
+
+    &__footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
   }
 
   h3 {
@@ -186,7 +217,19 @@ const hideGoal = async (goalId: string) => {
   }
 
   .status.error {
-    color: red
+    color: red;
+    font-weight: bold;
+  }
+
+  .fade-up-enter-active,
+  .fade-up-leave-active {
+    animation-duration: 0.6s;
+  }
+
+  .fade-up-enter-from,
+  .fade-up-leave-to {
+    opacity: 0;
+    transform: translateY(20px);
   }
 }
 </style>
