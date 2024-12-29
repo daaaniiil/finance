@@ -7,7 +7,7 @@ import {
     IExpensesMonthAnalytics, IExpensesMonthAnalyticsLast,
     IItemExpensesPie, IGoal,
     IMonths,
-    IUser
+    IUser, IBackup
 } from "../resources/types.ts";
 import {ElMessage} from "element-plus";
 import {TInstanceForm} from "@/resources/auth.ts";
@@ -514,13 +514,72 @@ export const useFinanceStore = defineStore('finance', () => {
     const nowNewYear = async () => {
         loading.value = true
         try {
-            // проверять что настал новый год
-            if (yearNow === yearNow + 1) {
-                // заносить данные в last-year-earnings и удалять из earnings
-                console.log('Данные очищены')
-            } else {
-                console.log('Новый год еще не наступил')
+            await authUser()
+            await getUserEarnings()
+
+            const lastRunDate = localStorage.getItem('lastRunDate')
+            const todayDate = new Date().toLocaleDateString()
+
+            if(lastRunDate === todayDate){
+                console.log('Функция уже вызвана сегодня')
+                return
             }
+
+            localStorage.setItem('lastRunDate', todayDate)
+
+            const currentYear = new Date().getFullYear()
+            const isNewYear = new Date().toLocaleDateString() === `01.01.${currentYear}`
+
+            if (!isNewYear) {
+                console.log('Новый год еще не наступил')
+                return
+            }
+
+            const lastMonth = new Date().getMonth() === 0 ? 12 : new Date().getMonth()
+            const availableMonths = months.find(month => month.value === lastMonth - 1)?.label
+
+            const lastMonthEarnings = earnings.value
+                .find((e: IEarnings) => e.month === availableMonths)
+
+            if (lastMonthEarnings) {
+                const { error: backupError } = await supabase
+                    .from('earnings_backup')
+                    .insert({
+                        user_id: user.value?.id,
+                        month: lastMonthEarnings.month,
+                        amount: lastMonthEarnings.amount,
+                        year: currentYear - 1
+                    })
+
+                if (backupError) console.error(`Ошибка при сохранении зарплаты за прошлый месяц: ${backupError.message}`)
+            }
+
+            const {data: earningsData, error: fetchError} = await supabase
+                .from('earnings')
+                .select('*')
+
+            if (fetchError) console.error(`Ошибка при получение данных из earnings: ${fetchError.message}`)
+            if (!earningsData || earningsData.length === 0) {
+                console.log('Данные в earnings отсуствуют')
+                return
+            }
+
+            const newEarnings = earningsData.map((earning) => ({...earning, year: currentYear - 1}))
+
+            const { error: insertError } = await supabase
+                .from('last-year-earnings')
+                .insert(newEarnings)
+
+            if (insertError) console.error(`Ошибка при переносе данных: ${insertError.message}`)
+
+            const {error: deleteError} = await supabase
+                .from('earnings')
+                .delete()
+                .eq('user_id', user.value?.id)
+
+            if (deleteError) console.error(`Ошибка при очистке таблицы earnings: ${deleteError.message}`)
+
+            console.log('Данные успешно перенесены и очищены')
         } catch (e) {
             console.error(e)
         } finally {
@@ -531,6 +590,8 @@ export const useFinanceStore = defineStore('finance', () => {
     const incomeExpensesEarnings = async () => {
         loading.value = true
         try {
+            await authUser()
+
             let lastMonth: number = new Date().getMonth()
             if (lastMonth === 0) {
                 lastMonth = 12
@@ -538,8 +599,25 @@ export const useFinanceStore = defineStore('finance', () => {
 
             const availableMonths = months.find(month => month.value === lastMonth - 1)?.label
 
-            earningsLastMonthAmount.value = earnings.value
-                .find((e: IEarnings) => e.month === availableMonths)?.amount || 0
+            const earningsDate = earnings.value
+                .find((e: IEarnings) => e.month === availableMonths)
+
+            if(earningsDate) {
+                earningsLastMonthAmount.value = earningsDate?.amount || 0
+            } else {
+                const {data: backupEarnings, error: backupError} = await supabase
+                    .from('earnings_backup')
+                    .select('amount, user_id')
+                    .eq('user_id', user.value?.id)
+                    .eq('month', availableMonths)
+                    .eq('year', new Date().getFullYear() - 1)
+
+                if(backupError) console.error(`Ошибка при получение данных из earnings_backup: ${backupError.message}`)
+
+                const backup: IBackup[] = backupEarnings || []
+                const backupItem = backup.find((b: IBackup) => b.user_id === user.value?.id)
+                earningsLastMonthAmount.value = backupItem?.amount || 0
+            }
 
             earningsLastMonthAmount.value /= currencyStore.getRate
 
@@ -549,7 +627,7 @@ export const useFinanceStore = defineStore('finance', () => {
                 .filter((e: number | null): e is number => e !== null)
 
             expensesLastMonthAmount.value = expensesLastMonth
-                .reduce((acc: number, current: number) => acc + current)
+                .reduce((acc: number, current: number) => acc + current) || 0
 
             expensesLastMonthAmount.value /= currencyStore.getRate
 
@@ -577,7 +655,7 @@ export const useFinanceStore = defineStore('finance', () => {
                 .filter((e: number | null): e is number => e !== null)
 
             expensesCurrentMonthAmount.value = expensesCurrentMonth
-                .reduce((acc: number, current: number) => acc + current)
+                .reduce((acc: number, current: number) => acc + current) || 0
 
             expensesCurrentMonthAmount.value /= currencyStore.getRate
         } catch (e) {
@@ -776,6 +854,7 @@ export const useFinanceStore = defineStore('finance', () => {
         }
     }
 
+    // Переделать
     const changeBudget = async () => {
         loading.value = true
         try {
@@ -795,7 +874,7 @@ export const useFinanceStore = defineStore('finance', () => {
                 .filter((e: number | null): e is number => e !== null)
                 .reduce((acc: number, current: number) => acc + current)
 
-            budget.value = ear - exp
+            budget.value += ear - exp
 
             const {error} = await supabase
                 .from('budget')

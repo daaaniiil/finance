@@ -1,3 +1,8 @@
+export interface IBackup {
+    user_id: string
+    amount: number
+}
+
 export interface IAuthCredential {
     [key: string]: any
     password: '',

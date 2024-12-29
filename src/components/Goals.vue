@@ -34,9 +34,6 @@
               <el-button type="warning" @click="addToGoal(goal.id, goal.targetAmount, goal.currentAmount, goal.status)">
                 Пополнить
               </el-button>
-<!--              <el-button type="text" @click="deleteGoal(goal.id)">-->
-<!--                Удалить-->
-<!--              </el-button>-->
               <el-popconfirm
                   width="220"
                   title="Вы уверены что хотите удалить эту цель?"

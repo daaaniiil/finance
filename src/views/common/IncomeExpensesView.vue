@@ -29,10 +29,17 @@
                 </el-button>
                 <template #dropdown>
                   <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item :icon="Edit" @click="openEditDialog(scope.row)">Edit</el-dropdown-item>
+                    <el-dropdown-item
+                        :icon="Edit"
+                        :disabled="Number(scope.row.date.slice(6, 10)) !== new Date().getFullYear()"
+                        @click="openEditDialog(scope.row)"
+                    >Edit</el-dropdown-item>
                     <el-dropdown-item :icon="DocumentCopy" @click="copyToClipboard(scope.row)">Copy</el-dropdown-item>
-                    <el-dropdown-item :icon="DeleteFilled" @click="deleteItem(scope.row.id)" style="color: red;">
-                      Delete
+                    <el-dropdown-item
+                        :icon="DeleteFilled"
+                        :disabled="Number(scope.row.date.slice(6, 10)) !== new Date().getFullYear()"
+                        @click="deleteItem(scope.row.id)" style="color: red;"
+                    >Delete
                     </el-dropdown-item>
                   </el-dropdown-menu>
                 </template>
@@ -54,7 +61,7 @@
         </template>
       </el-dialog>
 
-      <el-empty v-if="monthLabel.length === 0" description="Вы еще не добавили расходы"/>
+      <el-empty v-if="monthLabel.length === 0" description="Вы еще не добавили расходы или зарплату в текущем году"/>
       <high-chart-expenses-income :months="monthLabel" :expenses="expensesAmount" :income="incomeAmount" v-else />
     </div>
     <router-link :to="{name:'analytics-page'}">
