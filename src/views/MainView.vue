@@ -65,7 +65,7 @@
       <earnings-form/>
     </el-card>
 
-    <HighChartExpensesMonth :expenses="store.expensesDaysLastMonth" :month="lastMonthValue" v-if="store.expensesDaysLastMonth" />
+    <HighChartExpensesMonth :expenses="store.expensesDaysLastMonth" :month="lastMonthValue" v-if="store.expensesDaysLastMonth.length" />
     <el-empty v-if="monthLabel.length === 0" description="Вы еще не добавили зарплату"/>
     <high-chart-earnings :months="monthLabel" :salaries="salaryValues" v-else-if="monthLabel.length" />
     <router-link :to="{name:'analytics-page'}">
@@ -96,7 +96,11 @@ const currencyStore = useCurrencyStore()
 const formatNumber = (value: number) => {
   return new Intl.NumberFormat('ru-RU').format(value)
 }
-const lastMonthValue = new Date().getMonth() - 1
+let lastMonthValue = new Date().getMonth() - 1
+if(lastMonthValue === -1) {
+  lastMonthValue = 0
+}
+
 let lastMonth = new Date().getMonth()
 if (lastMonth === 0) {
   lastMonth = 12

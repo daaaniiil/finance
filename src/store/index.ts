@@ -511,6 +511,7 @@ export const useFinanceStore = defineStore('finance', () => {
         }
     }
 
+    // пофиксить
     const nowNewYear = async () => {
         loading.value = true
         try {
@@ -519,6 +520,8 @@ export const useFinanceStore = defineStore('finance', () => {
 
             const lastRunDate = localStorage.getItem('lastRunDate')
             const todayDate = new Date().toLocaleDateString()
+            const month = new Date().toLocaleDateString().slice(3,5)
+            const year = new Date().toLocaleDateString().slice(6,10)
 
             if(lastRunDate === todayDate){
                 console.log('Функция уже вызвана сегодня')
@@ -528,10 +531,9 @@ export const useFinanceStore = defineStore('finance', () => {
             localStorage.setItem('lastRunDate', todayDate)
 
             const currentYear = new Date().getFullYear()
-            const isNewYear = new Date().toLocaleDateString() === `01.01.${currentYear}`
+            const isNewYear = `${month}.${year}` === `01.01.${currentYear}`
 
             if (!isNewYear) {
-                console.log('Новый год еще не наступил')
                 return
             }
 
@@ -592,6 +594,8 @@ export const useFinanceStore = defineStore('finance', () => {
         try {
             await authUser()
 
+            const month = new Date().toLocaleDateString().slice(3,5)
+
             let lastMonth: number = new Date().getMonth()
             if (lastMonth === 0) {
                 lastMonth = 12
@@ -621,10 +625,17 @@ export const useFinanceStore = defineStore('finance', () => {
 
             earningsLastMonthAmount.value /= currencyStore.getRate
 
-            const expensesLastMonth: number[] = expenses.value
+            let expensesLastMonth: number[] = expenses.value
                 .filter((e: IExpenses): boolean => Number(e.date.slice(5, 7)) === lastMonth && Number(e.date.slice(0, 4)) === new Date().getFullYear())
                 .map((e: IExpenses) => e.amount)
                 .filter((e: number | null): e is number => e !== null)
+
+            if(!expensesLastMonth.length && month === '01') {
+                expensesLastMonth = expenses.value
+                    .filter((e: IExpenses): boolean => Number(e.date.slice(5, 7)) === lastMonth && Number(e.date.slice(0, 4)) === new Date().getFullYear() - 1)
+                    .map((e: IExpenses) => e.amount)
+                    .filter((e: number | null): e is number => e !== null)
+            }
 
             expensesLastMonthAmount.value = expensesLastMonth
                 .reduce((acc: number, current: number) => acc + current) || 0
