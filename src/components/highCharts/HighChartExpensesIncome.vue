@@ -19,17 +19,20 @@ export default defineComponent({
     expenses: {
       type: Array as () => (number | null)[],
       required: true
+    },
+    title: {
+      type: String,
+      required: true
     }
   },
   setup(props) {
     const currencyStore = useCurrencyStore()
-    const year = new Date().getFullYear()
     const chartOptions = computed(() => ({
       chart: {
         type: 'area'
       },
       title: {
-        text: `Доходы и расходы ${year}`
+        text: `${props.title}`
       },
       credits: {
         enabled: false

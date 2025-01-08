@@ -16,6 +16,14 @@ export default defineComponent({
     salaries: {
       type: Array as () => (number | null)[],
       required: true
+    },
+    title: {
+      type: String,
+      required: true
+    },
+    color: {
+      type: String,
+      required: false
     }
   },
   setup(props) {
@@ -25,7 +33,7 @@ export default defineComponent({
         type: 'area',
       },
       title: {
-        text: 'Зарплата по месяцам'
+        text: `${props.title}`
       },
       credits: {
         enabled: false
@@ -35,14 +43,7 @@ export default defineComponent({
       },
       plotOptions: {
         area: {
-          // color: 'blue',
-          // fillColor: {
-          //   linearGradient: { x1: 0, x2: 0, y1: 0, y2: 1 },
-          //   stops: [
-          //     [0, '#0000FFFF'],
-          //     [1, 'rgba(50,94,205,0)']
-          //   ]
-          // },
+          color: props.color || '',
           stacking: 'normal',
           threshold: null,
           marker: {
