@@ -18,6 +18,7 @@ export const useFinanceStore = defineStore('finance', () => {
     const budget = ref<number>(0)
     const user = ref<IUser | null>(null)
     const earnings = ref<IEarnings[]>([])
+    const lastYearEarnings = ref<IEarnings[]>([])
     const expenses = ref<IExpenses[]>([])
     const goals = ref<IGoal[]>([])
     const hiddenGoals = JSON.parse(localStorage.getItem('hiddenGoals') || '[]')
@@ -56,6 +57,7 @@ export const useFinanceStore = defineStore('finance', () => {
     const isLoader = reactive({
         goals: false,
         earnings: false,
+        lastYearEarnings: false,
         expenses: false,
         user: false,
         budget: false
@@ -816,8 +818,14 @@ export const useFinanceStore = defineStore('finance', () => {
     const expensesDaysMonthLast = async () => {
         loading.value = true
         try {
+            const month = new Date().toLocaleDateString().slice(3,5)
+            let lastMonth: number = new Date().getMonth()
+            if (lastMonth === 0) {
+                lastMonth = 12
+            }
+
             expensesDaysLastMonth.value = expenses.value
-                .filter((e: IExpenses) => Number(e.date.slice(5, 7)) === new Date().getMonth() && Number(e.date.slice(0, 4)) === new Date().getFullYear())
+                .filter((e: IExpenses) => Number(e.date.slice(5, 7)) === lastMonth && Number(e.date.slice(0, 4)) === new Date().getFullYear())
                 .sort(function(a,b){
                     if (a.date > b.date){
                         return 1
@@ -830,6 +838,23 @@ export const useFinanceStore = defineStore('finance', () => {
                     amount: Math.floor((e.amount ?? 0) / currencyStore.getRate),
                     date: e.date.slice(8, 10)
                 }))
+
+            if(!expensesDaysLastMonth.value.length && month === '01') {
+                expensesDaysLastMonth.value = expenses.value
+                    .filter((e: IExpenses) => Number(e.date.slice(5, 7)) === lastMonth && Number(e.date.slice(0, 4)) === new Date().getFullYear() - 1)
+                    .sort(function(a,b){
+                        if (a.date > b.date){
+                            return 1
+                        }
+                        if (a.date < b.date){
+                            return -1
+                        }
+                        return 0
+                    }).map((e: IExpenses) => ({
+                        amount: Math.floor((e.amount ?? 0) / currencyStore.getRate),
+                        date: e.date.slice(8, 10)
+                    }))
+            }
             const mergeExpensesDay = (data: IExpensesMonthAnalyticsLast[]) => {
                 const resultMapExpenses: Record<string, number> = {}
 
@@ -990,6 +1015,31 @@ export const useFinanceStore = defineStore('finance', () => {
         }
     }
 
+    const getLastYearEarnings = async () => {
+        if(isLoader.lastYearEarnings) return
+
+        loading.value = true
+        try {
+            await authUser()
+
+            const {data, error} = await supabase
+                .from('last-year-earnings')
+                .select('id, month, amount, year')
+                .eq('user_id', user.value?.id)
+
+            if (error) {
+                console.error(`${error.message}`)
+            } else {
+                lastYearEarnings.value = data || []
+                isLoader.lastYearEarnings = true
+            }
+        } catch (e) {
+            console.error(e)
+        } finally {
+            loading.value = false
+        }
+    }
+
     return {
         budget,
         amountExpenses,
@@ -1014,6 +1064,7 @@ export const useFinanceStore = defineStore('finance', () => {
         expensesDaysCurrentMonth,
         expensesDaysLastMonth,
         hiddenGoals,
+        lastYearEarnings,
         expensesDaysMonthLast,
         expensesDaysMonthCurrent,
         minMaxExpensesAmount,
@@ -1040,6 +1091,7 @@ export const useFinanceStore = defineStore('finance', () => {
         updateBudget,
         changeBudget,
         hideGoal,
-        deleteGoal
+        deleteGoal,
+        getLastYearEarnings
     }
 })

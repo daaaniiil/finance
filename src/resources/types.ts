@@ -15,6 +15,7 @@ export interface IEarnings {
     id?: string | undefined
     amount: number | null
     month: string
+    year?: number
 }
 
 export interface IExpenses {

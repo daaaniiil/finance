@@ -28,7 +28,24 @@
 
     <p>Бюджет: <strong>{{ formatNumber(Number(store.budget.toFixed(2))) }} {{ currencyStore.getIcon }}</strong></p>
 
-    <high-chart-earnings :months="monthLabel" :salaries="salaryValues" />
+    <high-chart-earnings :months="monthLabel" :salaries="salaryValues" title="Зарплата" v-if="monthLabel.length"/>
+    <el-empty v-else-if="monthLabel.length === 0" description="Вы еще не добавили зарплату"/>
+
+    <h3 v-if="monthLabelLastYear.length">Прошлый год</h3>
+    <high-chart-earnings
+        v-if="monthLabelLastYear.length"
+        :months="monthLabelLastYear"
+        :salaries="salaryLastYearValues"
+        color="darkblue"
+        :title="`Зарплата прошлого года (${new Date().getFullYear() - 1})`"/>
+
+    <high-chart-expenses-income
+        :months="monthLabelLastYear"
+        :expenses="expensesAmount"
+        :income="incomeAmount"
+        title="Доходы и расходы прошлого года"
+        v-if="monthLabelLastYear.length"
+    />
   </div>
 </template>
 
@@ -37,8 +54,9 @@ import {computed, onMounted} from 'vue'
 import {useFinanceStore} from "@/store";
 import CurrencySwitcher from "@/components/CurrencySwitcher.vue";
 import HighChartEarnings from "@/components/highCharts/HighChartEarnings.vue";
-import {IEarnings, IMonths} from "@/resources/types.ts";
+import {IEarnings, IExpenses, IMonths} from "@/resources/types.ts";
 import {useCurrencyStore} from "@/store/currency.ts";
+import HighChartExpensesIncome from "@/components/highCharts/HighChartExpensesIncome.vue";
 
 const store = useFinanceStore()
 const currencyStore = useCurrencyStore()
@@ -60,10 +78,54 @@ const sortedEarnings = computed(() => {
 const monthLabel = computed(() => sortedEarnings.value.map((e: IEarnings) => e.month).reverse())
 const salaryValues = computed(() => sortedEarnings.value.map((e: IEarnings) => e.amount).reverse())
 
+
+const sortedLastYearEarnings = computed(() => {
+  return store.lastYearEarnings.filter((e: IEarnings) => e.year === new Date().getFullYear() - 1).slice().sort((a: IEarnings, b: IEarnings) => {
+    const monthA = store.months.findIndex((month: IMonths) => month.label === a.month)
+    const monthB = store.months.findIndex((month: IMonths) => month.label === b.month)
+    return monthB - monthA
+  })
+})
+const monthLabelLastYear = computed(() => sortedLastYearEarnings.value.map((e: IEarnings) => e.month).reverse())
+const salaryLastYearValues = computed(() => sortedLastYearEarnings.value.map((e: IEarnings) => e.amount).reverse())
+
+
+const expensesAmount = computed(() => {
+  const groupedExpenses = store.expenses.reduce((acc: Record<string, number>, expense: IExpenses) =>{
+    const yearExpense = new Date(expense.date).getFullYear()
+    const month = new Date(expense.date).toLocaleString('ru-RU', {month: 'long'}).toLowerCase()
+    if(yearExpense === new Date().getFullYear() - 1){
+      acc[month] = (acc[month] || 0) + (expense.amount || 0)
+    }
+    return acc
+  }, {})
+
+  return monthLabelLastYear.value.map((month: string) => groupedExpenses[month.toLowerCase()] || 0)
+})
+
+const incomeAmount = computed(() => {
+  return sortedLastYearEarnings.value.map((earning: IEarnings) => {
+    const month = earning.month.toLowerCase()
+    const monthExpenses = store.expenses
+        .filter((expense: IExpenses) => {
+          const yearExpense = new Date(expense.date).getFullYear()
+          const monthExpense = new Date(expense.date).toLocaleString('ru-RU', {month:'long'}).toLowerCase()
+          if(yearExpense === new Date().getFullYear() - 1){
+            return monthExpense === month
+          }
+        })
+        .reduce((acc: number, expense: IExpenses) => acc + (expense.amount || 0), 0)
+
+    return Number(earning.amount) - monthExpenses
+  }).reverse()
+})
+
 onMounted(async () => {
   await store.authUser()
   await store.getUserEarnings()
+  await store.getUserExpenses()
   await store.currentBudget()
+  await store.getLastYearEarnings()
 })
 </script>
 
@@ -91,6 +153,10 @@ onMounted(async () => {
     }
   }
 
+  h3 {
+    margin-top: $padding_main;
+  }
+
   &__exit {
     margin-top: $padding;
   }
@@ -100,18 +166,6 @@ onMounted(async () => {
 
     span {
       font-weight: 500;
-    }
-  }
-
-  &__phone {
-    margin-top: $padding_main;
-
-    h3 {
-      margin-bottom: $padding - 5;
-    }
-
-    .el-input {
-      max-width: 300px;
     }
   }
 }

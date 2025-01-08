@@ -62,7 +62,12 @@
       </el-dialog>
 
       <el-empty v-if="monthLabel.length === 0" description="Вы еще не добавили расходы или зарплату в текущем году"/>
-      <high-chart-expenses-income :months="monthLabel" :expenses="expensesAmount" :income="incomeAmount" v-else />
+      <high-chart-expenses-income
+          :months="monthLabel"
+          :expenses="expensesAmount"
+          :income="incomeAmount"
+          :title="`Доходы и расходы ${new Date().getFullYear()}`"
+          v-else />
     </div>
     <router-link :to="{name:'analytics-page'}">
       <el-button type="primary">Детальная аналитика</el-button>

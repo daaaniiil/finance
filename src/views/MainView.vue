@@ -67,7 +67,7 @@
 
     <HighChartExpensesMonth :expenses="store.expensesDaysLastMonth" :month="lastMonthValue" v-if="store.expensesDaysLastMonth.length" />
     <el-empty v-if="monthLabel.length === 0" description="Вы еще не добавили зарплату"/>
-    <high-chart-earnings :months="monthLabel" :salaries="salaryValues" v-else-if="monthLabel.length" />
+    <high-chart-earnings :months="monthLabel" :salaries="salaryValues" title="Зарплата" v-else-if="monthLabel.length" />
     <router-link :to="{name:'analytics-page'}">
       <el-button type="primary">Детальная аналитика</el-button>
     </router-link>
