@@ -132,7 +132,7 @@ export default defineComponent({
       },
       plotOptions: {
         series: {
-          allowPointSelect: true,
+          allowPointSelect: false,
           cursor: 'pointer',
           borderRadius: 8,
           dataLabels: [{
