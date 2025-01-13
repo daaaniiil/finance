@@ -31,6 +31,8 @@
     <high-chart-earnings :months="monthLabel" :salaries="salaryValues" title="Зарплата" v-if="monthLabel.length"/>
     <el-empty v-else-if="monthLabel.length === 0" description="Вы еще не добавили зарплату"/>
 
+<!--    <HighChartPieExpensesIncome />-->
+
     <h3 v-if="monthLabelLastYear.length">Прошлый год</h3>
     <high-chart-earnings
         v-if="monthLabelLastYear.length"
@@ -57,6 +59,7 @@ import HighChartEarnings from "@/components/highCharts/HighChartEarnings.vue";
 import {IEarnings, IExpenses, IMonths} from "@/resources/types.ts";
 import {useCurrencyStore} from "@/store/currency.ts";
 import HighChartExpensesIncome from "@/components/highCharts/HighChartExpensesIncome.vue";
+//import HighChartPieExpensesIncome from "@/components/highCharts/HighChartPieExpensesIncome.vue";
 
 const store = useFinanceStore()
 const currencyStore = useCurrencyStore()
@@ -120,12 +123,17 @@ const incomeAmount = computed(() => {
   }).reverse()
 })
 
+console.log(store.amountExpenses) // expenses amount
+console.log(store.amountEarnings) // earnings amount
+
 onMounted(async () => {
   await store.authUser()
   await store.getUserEarnings()
   await store.getUserExpenses()
   await store.currentBudget()
   await store.getLastYearEarnings()
+  await store.expensesEarningsCategories()
+  await store.amountExpensesEarningsCategories()
 })
 </script>
 
@@ -154,7 +162,10 @@ onMounted(async () => {
   }
 
   h3 {
+    border-top: 1px solid gray;
+    padding-top: $padding;
     margin-top: $padding_main;
+    margin-bottom: $padding_main;
   }
 
   &__exit {

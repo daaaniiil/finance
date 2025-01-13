@@ -23,6 +23,7 @@ export const useFinanceStore = defineStore('finance', () => {
     const goals = ref<IGoal[]>([])
     const hiddenGoals = JSON.parse(localStorage.getItem('hiddenGoals') || '[]')
     const mergedExpenses = ref<IItemExpensesPie[]>([])
+    const mergedEarnings = ref<IItemExpensesPie[]>([])
     const mergedExpensesCurrent = ref<IItemExpensesPie[]>([])
     const expensesDaysCurrentMonth = ref<IExpensesMonthAnalytics[]>([])
     const expensesDaysLastMonth = ref<IExpensesMonthAnalyticsLast[]>([])
@@ -31,6 +32,7 @@ export const useFinanceStore = defineStore('finance', () => {
     const maxExpenses = ref<number>(0)
     const maxExpensesCategories = ref<string | undefined>('Нету')
     const amountExpenses = ref<number>(0)
+    const amountEarnings = ref<number>(0)
     const averageExpenses = ref<number>(0)
     const expensesLastMonthAmount = ref<number>(0)
     const earningsLastMonthAmount = ref<number>(0)
@@ -678,7 +680,7 @@ export const useFinanceStore = defineStore('finance', () => {
         }
     }
 
-    const expensesCategories = async () => {
+    const expensesEarningsCategories = async () => {
         loading.value = true
         try {
             await getUserExpenses()
@@ -710,6 +712,12 @@ export const useFinanceStore = defineStore('finance', () => {
                     y: Math.ceil((e.amount ?? 0) / currencyStore.getRate)
                 }))
 
+            const earningsPie: IItemExpensesPie[] = earnings.value
+                .map((e: IEarnings) => ({
+                    name: e.month,
+                    y: Math.ceil((e.amount ?? 0) / currencyStore.getRate)
+                }))
+
             const expensesCurrentMonthAmount: IItemExpensesPie[] = expenses.value
                 .filter((e: IExpenses) => Number(e.date.slice(5, 7)) === new Date().getMonth() + 1 && Number(e.date.slice(0, 4)) === new Date().getFullYear())
                 .map((e: IExpenses) => ({
@@ -719,6 +727,7 @@ export const useFinanceStore = defineStore('finance', () => {
                 }))
 
             mergedExpenses.value = mergeExpenses(expensesPie)
+            mergedEarnings.value = mergeExpenses(earningsPie)
             mergedExpensesCurrent.value = mergeExpenses(expensesCurrentMonthAmount)
         } catch (e) {
             console.error(e)
@@ -727,10 +736,15 @@ export const useFinanceStore = defineStore('finance', () => {
         }
     }
 
-    const amountExpensesCategories = async () => {
+    const amountExpensesEarningsCategories = async () => {
         loading.value = true
         try {
             amountExpenses.value = mergedExpenses.value
+                .map((e: IItemExpensesPie) => e.y)
+                .filter((e: number | undefined | null): e is number => e !== undefined)
+                .reduce((acc: number, current: number) => acc + current)
+
+            amountEarnings.value = mergedEarnings.value
                 .map((e: IItemExpensesPie) => e.y)
                 .filter((e: number | undefined | null): e is number => e !== undefined)
                 .reduce((acc: number, current: number) => acc + current)
@@ -1065,10 +1079,11 @@ export const useFinanceStore = defineStore('finance', () => {
         expensesDaysLastMonth,
         hiddenGoals,
         lastYearEarnings,
+        amountEarnings,
         expensesDaysMonthLast,
         expensesDaysMonthCurrent,
         minMaxExpensesAmount,
-        amountExpensesCategories,
+        amountExpensesEarningsCategories,
         authUser,
         getUserEarnings,
         createUserDataEarnings,
@@ -1086,7 +1101,7 @@ export const useFinanceStore = defineStore('finance', () => {
         nowNewYear,
         incomeExpensesEarnings,
         incomeExpensesEarningsCurrent,
-        expensesCategories,
+        expensesEarningsCategories,
         currentBudget,
         updateBudget,
         changeBudget,
