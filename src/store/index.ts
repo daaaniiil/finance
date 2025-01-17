@@ -515,31 +515,36 @@ export const useFinanceStore = defineStore('finance', () => {
         }
     }
 
-    // пофиксить
     const nowNewYear = async () => {
         loading.value = true
         try {
             await authUser()
             await getUserEarnings()
 
-            const lastRunDate = localStorage.getItem('lastRunDate')
-            const todayDate = new Date().toLocaleDateString()
-            const month = new Date().toLocaleDateString().slice(3,5)
-            const year = new Date().toLocaleDateString().slice(6,10)
-
-            if(lastRunDate === todayDate){
-                console.log('Функция уже вызвана сегодня')
-                return
-            }
-
-            localStorage.setItem('lastRunDate', todayDate)
-
             const currentYear = new Date().getFullYear()
-            const isNewYear = `${month}.${year}` === `01.01.${currentYear}`
+            const lastRunYear = localStorage.getItem('lastRunYear')
 
-            if (!isNewYear) {
+            if(lastRunYear === String(currentYear)) {
+                //console.log('Функция уже была вызвана в этом году')
                 return
             }
+
+            localStorage.setItem('lastRunYear', String(currentYear))
+
+            const {data: earningsData, error: earningsError} = await supabase
+                .from('earnings')
+                .select('*')
+
+            if(earningsError){
+                console.error(`Ошибка при получение данных из earnings: ${earningsError.message}`)
+            }
+
+            if(!earningsData || earningsData.length === 0) {
+                //console.log('Пользователь новый, функция не будет выполняться')
+                return
+            }
+
+            const previousYear = currentYear - 1
 
             const lastMonth = new Date().getMonth() === 0 ? 12 : new Date().getMonth()
             const availableMonths = months.find(month => month.value === lastMonth - 1)?.label
@@ -554,23 +559,16 @@ export const useFinanceStore = defineStore('finance', () => {
                         user_id: user.value?.id,
                         month: lastMonthEarnings.month,
                         amount: lastMonthEarnings.amount,
-                        year: currentYear - 1
+                        year: previousYear
                     })
 
                 if (backupError) console.error(`Ошибка при сохранении зарплаты за прошлый месяц: ${backupError.message}`)
             }
 
-            const {data: earningsData, error: fetchError} = await supabase
-                .from('earnings')
-                .select('*')
-
-            if (fetchError) console.error(`Ошибка при получение данных из earnings: ${fetchError.message}`)
-            if (!earningsData || earningsData.length === 0) {
-                console.log('Данные в earnings отсуствуют')
-                return
-            }
-
-            const newEarnings = earningsData.map((earning) => ({...earning, year: currentYear - 1}))
+            const newEarnings = earningsData.map((earning) => ({
+                ...earning,
+                year: previousYear
+            }))
 
             const { error: insertError } = await supabase
                 .from('last-year-earnings')
@@ -585,7 +583,7 @@ export const useFinanceStore = defineStore('finance', () => {
 
             if (deleteError) console.error(`Ошибка при очистке таблицы earnings: ${deleteError.message}`)
 
-            console.log('Данные успешно перенесены и очищены')
+            //console.log('Данные успешно перенесены и очищены')
         } catch (e) {
             console.error(e)
         } finally {
