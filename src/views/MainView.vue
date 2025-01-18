@@ -66,8 +66,8 @@
     </el-card>
 
     <HighChartExpensesMonth :expenses="store.expensesDaysLastMonth" :month="lastMonthValue" v-if="store.expensesDaysLastMonth.length" />
-    <el-empty v-if="monthLabel.length === 0" description="Вы еще не добавили зарплату"/>
-    <high-chart-earnings :months="monthLabel" :salaries="salaryValues" title="Зарплата" v-else-if="monthLabel.length" />
+    <el-empty v-if="monthLabel.length === 0" description="Вы еще не добавили заработок"/>
+    <high-chart-earnings :months="monthLabel" :salaries="salaryValues" title="Заработок" v-else-if="monthLabel.length" />
     <router-link :to="{name:'analytics-page'}">
       <el-button type="primary">Детальная аналитика</el-button>
     </router-link>
@@ -98,7 +98,7 @@ const formatNumber = (value: number) => {
 }
 let lastMonthValue = new Date().getMonth() - 1
 if(lastMonthValue === -1) {
-  lastMonthValue = 0
+  lastMonthValue = 11
 }
 
 let lastMonth = new Date().getMonth()
@@ -165,7 +165,7 @@ const saveAmount = async () => {
           ElMessage.success('Сумма успешно обновлена!')
         } else {
           newAmount.value = currentEditItem.value.amount
-          ElMessage.warning('Ваши раходы превышают зарплату в выбранном месяце или зарплата меньше 0')
+          ElMessage.warning('Ваши раходы превышают заработок в выбранном месяце или заработок меньше 0')
         }
       } else {
         ElMessage.warning('Введите новую сумму!')

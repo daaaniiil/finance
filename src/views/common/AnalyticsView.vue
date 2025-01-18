@@ -18,7 +18,8 @@
 
     <el-row :gutter="20">
       <el-col :md="12" >
-        <HighChartPie :expenses="store.mergedExpenses" :amount="store.amountExpenses"/>
+        <HighChartPie v-if="store.amountExpenses" :expenses="store.mergedExpenses" :amount="store.amountExpenses"/>
+        <el-empty v-else :description="`Расходы ${new Date().getFullYear()} года`"/>
       </el-col>
       <el-col :md="12" >
         <el-card><h3>Мин.расход - <span>{{ store.minExpenses > 0 ? formatNumber(Number(store.minExpenses.toFixed())) : 0 }}{{ currencyStore.getIcon }}</span>
@@ -32,7 +33,6 @@
     </el-row>
 
     <HighChartExpensesMonth :expenses="store.expensesDaysCurrentMonth" :month="currentMonth" v-if="store.expensesDaysCurrentMonth.length"/>
-    <el-empty v-else description="У вас еще нет расходов в текущем месяце"/>
 
     <Goals :goals="visibleGoals" v-if="visibleGoals.length" :visible-hidden="true" title="Ваши финансовые цели"/>
     <el-empty v-else description="У вас пока нет целей, добавьте!"/> <br>

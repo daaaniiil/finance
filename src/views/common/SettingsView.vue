@@ -28,8 +28,8 @@
 
     <p>Бюджет: <strong>{{ formatNumber(Number(store.budget.toFixed(2))) }} {{ currencyStore.getIcon }}</strong></p>
 
-    <high-chart-earnings :months="monthLabel" :salaries="salaryValues" title="Зарплата" v-if="monthLabel.length"/>
-    <el-empty v-else-if="monthLabel.length === 0" description="Вы еще не добавили зарплату"/>
+    <high-chart-earnings :months="monthLabel" :salaries="salaryValues" title="Заработок" v-if="monthLabel.length"/>
+    <el-empty v-else-if="monthLabel.length === 0" description="Вы еще не добавили заработок"/>
 
 <!--    <HighChartPieExpensesIncome />-->
 
@@ -39,13 +39,13 @@
         :months="monthLabelLastYear"
         :salaries="salaryLastYearValues"
         color="darkblue"
-        :title="`Зарплата прошлого года (${new Date().getFullYear() - 1})`"/>
+        :title="`Заработок (${new Date().getFullYear() - 1})`"/>
 
     <high-chart-expenses-income
         :months="monthLabelLastYear"
         :expenses="expensesAmount"
         :income="incomeAmount"
-        title="Доходы и расходы прошлого года"
+        title="Доходы и расходы"
         v-if="monthLabelLastYear.length"
     />
   </div>

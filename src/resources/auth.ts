@@ -5,7 +5,7 @@ import {IAuthCredential} from "./types.ts";
 import type {RouteLocationRaw} from "vue-router";
 import {supabase} from './supabase.ts';
 import {useRouter} from 'vue-router'
-import { ElNotification } from 'element-plus'
+import { ElNotification, ElMessage } from 'element-plus'
 
 export type TInstanceForm = Ref<InstanceType<typeof ElForm> | undefined>
 const createValidatePassConfirm = (_form:TInstanceForm,model:IAuthCredential) => {
@@ -100,23 +100,23 @@ export const useLogin = (form: TInstanceForm, _config: IUserLoginConfig = {}) =>
                         password: model.password
                     })
 
-                    if(data.session) {
-                        await supabase.auth.setSession(data.session)
-                        ElNotification({
-                            title: 'Вы успешно зарегистрировались!',
-                            message: 'Регистрация прошла успешно',
-                            type: 'success',
-                        })
-
-                        await router.push({name:'main-page'})
-                    } else if(error) {
+                  if(error) {
                         console.error('Ошибка при регистрации:', error.message)
                         ElNotification({
                             title: 'Ошибка!',
                             message: 'Произошла ошибка',
                             type: 'error',
                         })
-                    }
+                    } else {
+                      ElMessage.success('Вы успешно зарегистрировались!')
+
+                      ElNotification({
+                          title: 'Подтвердите ваш email',
+                          message: 'Проверьте почту, вам пришло письмо',
+                          type: 'warning',
+                      })
+                      console.log(data.session)
+                  }
                 } catch (e) {
                     console.error('Error during register:', e)
                 } finally {

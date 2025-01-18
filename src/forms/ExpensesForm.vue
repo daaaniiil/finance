@@ -95,7 +95,7 @@ const submitExpenses = async () => {
         }
       }
     } else {
-      ElMessage.warning('Вы не получили зарплату в этом месяце')
+      ElMessage.warning('Вы не получили заработок в этом месяце')
     }
   } else {
     ElMessage.warning('Заполните форму')

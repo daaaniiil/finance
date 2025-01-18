@@ -11,7 +11,7 @@
       </el-card>
       <el-card>
         <h2>Ваши расходы</h2>
-        <el-table :data="expensesConverted" :height="500" v-loading="store.loading">
+        <el-table :data="expensesConverted" :max-height="500" v-loading="store.loading">
           <el-table-column fixed prop="date" label="Дата" width="120" />
           <el-table-column prop="category" label="Категория" width="300"/>
           <el-table-column prop="amount" label="Сумма" align="center" min-width="120">
@@ -61,7 +61,7 @@
         </template>
       </el-dialog>
 
-      <el-empty v-if="monthLabel.length === 0" description="Вы еще не добавили расходы или зарплату в текущем году"/>
+      <el-empty v-if="monthLabel.length === 0" description="Вы еще не добавили расходы или заработок в текущем году"/>
       <high-chart-expenses-income
           :months="monthLabel"
           :expenses="expensesAmount"
@@ -145,7 +145,7 @@ const saveAmount = async () => {
           editDialogVisible.value = false
         } else {
           newAmount.value = currentEditItem.value.amount
-          ElMessage.warning('Ваш расход превышает зарплату в выбранном месяце')
+          ElMessage.warning('Ваш расход превышает заработок в выбранном месяце')
         }
       } else {
         ElMessage.warning('Введите новую сумму!')

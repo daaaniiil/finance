@@ -74,7 +74,7 @@ export default defineComponent({
         marker: {
           enabled: false
         },
-        name: 'Зарплата',
+        name: 'Заработок',
         data: props.salaries.map((value: number | null) => Math.floor((value ?? 0) / currencyStore.getRate))
       }]
     }))
