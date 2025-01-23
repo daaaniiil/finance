@@ -24,7 +24,7 @@ onMounted(async () => {
   await store.getUserEarnings()
   await store.getUserExpenses()
   await store.getUserGoals()
-  await store.currentBudget()
+  await store.fetchBudget()
   await store.updateGoalStatus()
 })
 </script>

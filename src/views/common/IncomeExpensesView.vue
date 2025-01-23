@@ -38,7 +38,7 @@
                     <el-dropdown-item
                         :icon="DeleteFilled"
                         :disabled="Number(scope.row.date.slice(6, 10)) !== new Date().getFullYear()"
-                        @click="deleteItem(scope.row.id)" style="color: red;"
+                        @click="deleteItem(scope.row.id, scope.row.amount)" style="color: red;"
                     >Delete
                     </el-dropdown-item>
                   </el-dropdown-menu>
@@ -139,11 +139,16 @@ const saveAmount = async () => {
         if(monthEarnings > newAmount.value + (monthExpenses - currentEditItem.value.amount)) {
           await store.updateEarningsExpenses(currentEditItem.value.id, newAmount.value)
 
-          await store.getUserExpenses()
-          await store.changeBudget()
-          ElMessage.success('Сумма успешно обновлена!')
+          newAmount.value /= currencyStore.getRate
+          const earningsDifference = newAmount.value - currentEditItem.value.amount!
+
+          const updateType = earningsDifference > 0 ? 'expenses' : 'earnings'
+          await store.updateBudget(Math.abs(earningsDifference), updateType)
+
           editDialogVisible.value = false
+          ElMessage.success('Сумма успешно обновлена!')
         } else {
+          newAmount.value *= currencyStore.getRate
           newAmount.value = currentEditItem.value.amount
           ElMessage.warning('Ваш расход превышает заработок в выбранном месяце')
         }
@@ -163,9 +168,9 @@ const copyToClipboard = (row: any) => {
   ElMessage.success('Скопировано успешно!')
 }
 
-const deleteItem = async (id: string) => {
+const deleteItem = async (id: string, amount: number) => {
   await store.deleteExpensesItem(id)
-  await store.changeBudget()
+  await store.updateBudget(amount, 'earnings')
 }
 
 const sortedExpenses = computed(() => {

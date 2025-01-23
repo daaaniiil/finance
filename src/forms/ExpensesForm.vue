@@ -88,7 +88,7 @@ const submitExpenses = async () => {
             ElMessage.warning('Введите положительную сумму')
           } else {
             await store.createUserDataExpenses(form, model)
-            await store.changeBudget()
+            await store.updateBudget(model.amount, 'expenses')
           }
         } else {
             ElMessage.warning('Заполните форму')

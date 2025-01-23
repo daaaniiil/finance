@@ -55,7 +55,7 @@ const submitEarnings = async () => {
       ElMessage.warning('Введите положительную сумму')
     } else {
       await store.createUserDataEarnings(form, model)
-      await store.changeBudget()
+      await store.updateBudget(model.amount, 'earnings')
     }
   } else {
     ElMessage.warning('Заполните форму')

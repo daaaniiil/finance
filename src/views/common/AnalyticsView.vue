@@ -78,7 +78,7 @@ onMounted(async () => {
   await store.minMaxExpensesAmount()
   await store.expensesDaysMonthCurrent()
   await store.getUserGoals()
-  await store.currentBudget()
+  await store.fetchBudget()
   await store.updateGoalStatus()
 })
 </script>

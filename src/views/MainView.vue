@@ -157,13 +157,20 @@ const saveAmount = async () => {
             .reduce((acc: number, expense: IExpenses) => acc + (expense.amount || 0), 0)
 
           newAmount.value *= currencyStore.getRate
-        if (monthExpenses < newAmount.value) {
+
+        if(newAmount.value >= monthExpenses) {
           await store.updateEarningsAmount(currentEditItem.value.id, newAmount.value, currentEditItem.value.month)
-          await store.changeBudget()
+
+          newAmount.value /= currencyStore.getRate
+          const earningsDifference = newAmount.value - currentEditItem.value.amount!
+
+          const updateType = earningsDifference < 0 ? 'expenses' : 'earnings'
+          await store.updateBudget(Math.abs(earningsDifference), updateType)
 
           editDialogVisible.value = false
           ElMessage.success('Сумма успешно обновлена!')
         } else {
+          newAmount.value *= currencyStore.getRate
           newAmount.value = currentEditItem.value.amount
           ElMessage.warning('Ваши раходы превышают заработок в выбранном месяце или заработок меньше 0')
         }
@@ -184,7 +191,7 @@ const copyToClipboard = (row: any) => {
 }
 const deleteItem = async (row: IEarnings) => {
   await store.deleteEarningsItemData(row.id, row.month)
-  await store.changeBudget()
+  await store.updateBudget(row.amount!, 'expenses')
 }
 
 const monthLabel = computed(() => sortedEarnings.value.map((e: IEarnings) => e.month).reverse())
@@ -197,7 +204,12 @@ onMounted(async () => {
   await store.getUserExpenses()
   await store.incomeExpensesEarnings()
   await store.expensesDaysMonthLast()
-  await store.currentBudget()
+
+  await store.fetchBudget()
+
+  if(store.budget === 0) {
+    await store.initializeBudget()
+  }
 })
 </script>
 

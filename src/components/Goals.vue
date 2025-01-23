@@ -101,7 +101,8 @@ const addToGoal = async (goalId: string, targetAmount: number, currentAmount: nu
       } else {
         ElMessage.success('Цель успешно пополнена')
       }
-      await store.updateBudget(amount.value, true)
+      amount.value /= currencyStore.getRate
+      await store.updateBudget(amount.value, 'expenses')
       await store.updateUserGoal(goalId, amount.value, status)
       await store.updateGoalStatus()
       amountToAdd.value[goalId] = 0
@@ -115,8 +116,7 @@ const addToGoal = async (goalId: string, targetAmount: number, currentAmount: nu
 
 const deleteGoal = async (goalId: string, amount: number) => {
   await store.deleteGoal(goalId)
-  amount *= currencyStore.getRate
-  await store.updateBudget(amount, false)
+  await store.updateBudget(amount, 'earnings')
 }
 
 const sortedGoals = computed(() => {

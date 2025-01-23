@@ -62,7 +62,8 @@ export const useFinanceStore = defineStore('finance', () => {
         lastYearEarnings: false,
         expenses: false,
         user: false,
-        budget: false
+        budget: false,
+        earningsBackup: false
     })
 
     const authUser = async () => {
@@ -332,6 +333,32 @@ export const useFinanceStore = defineStore('finance', () => {
         }
     }
 
+    const getLastYearEarnings = async () => {
+        if(isLoader.lastYearEarnings) return
+
+        loading.value = true
+        try {
+            await authUser()
+
+            const {data, error} = await supabase
+                .from('last-year-earnings')
+                .select('id, month, amount, year')
+                .eq('user_id', user.value?.id)
+
+            if (error) {
+                console.error(`${error.message}`)
+            } else {
+                lastYearEarnings.value = data || []
+                isLoader.lastYearEarnings = true
+            }
+        } catch (e) {
+            console.error(e)
+        } finally {
+            loading.value = false
+        }
+    }
+
+
     const getUserGoals = async () => {
         if (isLoader.goals) return
 
@@ -462,6 +489,14 @@ export const useFinanceStore = defineStore('finance', () => {
         }
     }
 
+    const hideGoal = (goalId: string) => {
+        if(!hiddenGoals.includes(goalId)) {
+            hiddenGoals.push(goalId)
+            localStorage.setItem('hiddenGoals', JSON.stringify(hiddenGoals))
+            isLoader.goals = false
+        }
+    }
+    // исправить место вызова
     const updateGoalStatus = async () => {
         loading.value = true
         try {
@@ -498,98 +533,6 @@ export const useFinanceStore = defineStore('finance', () => {
         }
     }
 
-    const logout = async () => {
-        loading.value = true
-        try {
-            const {error} = await supabase.auth.signOut()
-            if (error) {
-                console.error(error)
-            } else {
-                await router.push({name: 'login-page'})
-                ElMessage.success('Вы вышли из аккаунта!')
-            }
-        } catch (e) {
-            console.error(e)
-        } finally {
-            loading.value = false
-        }
-    }
-
-    const nowNewYear = async () => {
-        loading.value = true
-        try {
-            await authUser()
-            await getUserEarnings()
-
-            const currentYear = new Date().getFullYear()
-            const lastRunYear = localStorage.getItem('lastRunYear')
-
-            if(lastRunYear === String(currentYear)) {
-                //console.log('Функция уже была вызвана в этом году')
-                return
-            }
-
-            localStorage.setItem('lastRunYear', String(currentYear))
-
-            const {data: earningsData, error: earningsError} = await supabase
-                .from('earnings')
-                .select('*')
-
-            if(earningsError){
-                console.error(`Ошибка при получение данных из earnings: ${earningsError.message}`)
-            }
-
-            if(!earningsData || earningsData.length === 0) {
-                //console.log('Пользователь новый, функция не будет выполняться')
-                return
-            }
-
-            const previousYear = currentYear - 1
-
-            const lastMonth = new Date().getMonth() === 0 ? 12 : new Date().getMonth()
-            const availableMonths = months.find(month => month.value === lastMonth - 1)?.label
-
-            const lastMonthEarnings = earnings.value
-                .find((e: IEarnings) => e.month === availableMonths)
-
-            if (lastMonthEarnings) {
-                const { error: backupError } = await supabase
-                    .from('earnings_backup')
-                    .insert({
-                        user_id: user.value?.id,
-                        month: lastMonthEarnings.month,
-                        amount: lastMonthEarnings.amount,
-                        year: previousYear
-                    })
-
-                if (backupError) console.error(`Ошибка при сохранении зарплаты за прошлый месяц: ${backupError.message}`)
-            }
-
-            const newEarnings = earningsData.map((earning) => ({
-                ...earning,
-                year: previousYear
-            }))
-
-            const { error: insertError } = await supabase
-                .from('last-year-earnings')
-                .insert(newEarnings)
-
-            if (insertError) console.error(`Ошибка при переносе данных: ${insertError.message}`)
-
-            const {error: deleteError} = await supabase
-                .from('earnings')
-                .delete()
-                .eq('user_id', user.value?.id)
-
-            if (deleteError) console.error(`Ошибка при очистке таблицы earnings: ${deleteError.message}`)
-
-            //console.log('Данные успешно перенесены и очищены')
-        } catch (e) {
-            console.error(e)
-        } finally {
-            loading.value = false
-        }
-    }
 
     const incomeExpensesEarnings = async () => {
         loading.value = true
@@ -611,6 +554,8 @@ export const useFinanceStore = defineStore('finance', () => {
             if(earningsDate) {
                 earningsLastMonthAmount.value = earningsDate?.amount || 0
             } else {
+                if(isLoader.earningsBackup) return
+
                 const {data: backupEarnings, error: backupError} = await supabase
                     .from('earnings_backup')
                     .select('amount, user_id')
@@ -623,6 +568,7 @@ export const useFinanceStore = defineStore('finance', () => {
                 const backup: IBackup[] = backupEarnings || []
                 const backupItem = backup.find((b: IBackup) => b.user_id === user.value?.id)
                 earningsLastMonthAmount.value = backupItem?.amount || 0
+                isLoader.earningsBackup = true
             }
 
             earningsLastMonthAmount.value /= currencyStore.getRate
@@ -902,116 +848,101 @@ export const useFinanceStore = defineStore('finance', () => {
         }
     }
 
-    // Переделать
-    const changeBudget = async () => {
-        loading.value = true
-        try {
-            await getUserExpenses()
-            await getUserEarnings()
-            await currentBudget()
 
-            budget.value *= currencyStore.getRate
-
-            const ear = earnings.value
-                .map((e: IEarnings) => e.amount)
-                .filter((e: number | null): e is number => e !== null)
-                .reduce((acc: number, current: number) => acc + current)
-
-            const exp = expenses.value
-                .map((e: IExpenses) => e.amount)
-                .filter((e: number | null): e is number => e !== null)
-                .reduce((acc: number, current: number) => acc + current)
-
-            budget.value += ear - exp
-
-            const {error} = await supabase
-                .from('budget')
-                .update({budget:  budget.value})
-                .eq('user_id', user.value?.id)
-
-            budget.value /= currencyStore.getRate
-            if(error){
-                console.error(`${error.message}`)
-            }
-        } catch (e) {
-            console.error(e)
-        } finally {
-            loading.value = false
-        }
-    }
-
-    const currentBudget = async () => {
+    const fetchBudget = async () => {
         if (isLoader.budget) return
 
         loading.value = true
         try {
             const {data, error} = await supabase
                 .from('budget')
-                .select('*')
+                .select('budget')
                 .eq('user_id', user.value?.id)
+                .single()
 
-            if(error){
-                console.error(`${error.message}`)
-            } else {
-                const budgetData = data.map((b) => b.budget)[0]
-                budget.value = budgetData || 0
-                budget.value /= currencyStore.getRate
-                isLoader.budget = true
-            }
-
-            if (!budget.value){
-                await getUserExpenses()
-                await getUserEarnings()
-
-                const ear = earnings.value
-                    .map((e: IEarnings) => e.amount)
-                    .filter((e: number | null): e is number => e !== null)
-                    .reduce((acc: number, current: number) => acc + current)
-
-                const exp = expenses.value
-                    .map((e: IExpenses) => e.amount)
-                    .filter((e: number | null): e is number => e !== null)
-                    .reduce((acc: number, current: number) => acc + current)
-
-                budget.value = ear - exp
-                const {error} = await supabase
-                    .from('budget')
-                    .insert({budget:  budget.value})
-                    .eq('user_id', user.value?.id)
-
-                if(error){
-                    console.error(`${error.message}`)
-                }
-            }
+            if(error) console.error(`Error get budget: ${error.message}`)
+            budget.value = data?.budget || 0
+            budget.value /= currencyStore.getRate
+            isLoader.budget = true
         } catch (e) {
-            console.error(e)
+            console.error(`Error get budget: ${e}`)
         } finally {
             loading.value = false
         }
     }
 
-    const updateBudget = async (amountGoal: number, difference: boolean) => {
+    const initializeBudget = async () => {
         loading.value = true
         try {
-            await currentBudget()
-            budget.value *= currencyStore.getRate
-            let newBudget
-
-            if(difference) {
-                newBudget = budget.value - amountGoal
-            } else {
-                newBudget = budget.value + amountGoal
-            }
-
-            const {error} = await supabase
-                .from('budget')
-                .update({budget: newBudget})
+            const {data: earningsData, error: earningsError} = await supabase
+                .from('earnings')
+                .select('amount')
                 .eq('user_id', user.value?.id)
 
-            if(error){
-                console.error(`${error.message}`)
+            if(earningsError) console.error(`Error initializeBudget: ${earningsError.message}`)
+
+            const totalEarnings = (earningsData ?? []).reduce((acc: number, item: {amount: number}) => acc + item.amount, 0)
+
+            const {data: expensesData, error: expensesError} = await supabase
+                .from('expenses')
+                .select('amount, date')
+                .eq('user_id', user.value?.id)
+
+            if(expensesError) console.error(`Error initializeBudget: ${expensesError.message}`)
+
+            const totalExpenses = (expensesData ?? [])
+                .filter((e: { date: string }) => Number(e.date.slice(0, 4)) === new Date().getFullYear())
+                .reduce((acc: number, item: {amount: number}) => acc + item.amount, 0)
+
+            budget.value = totalEarnings - totalExpenses
+            budget.value /= currencyStore.getRate
+            isLoader.budget = true
+
+            const {error: insertError} = await supabase
+                .from('budget')
+                .insert({ user_id: user.value?.id, budget: budget.value })
+
+            if(insertError) console.error(`Ошибка при инициализации бюджета: ${insertError}`)
+        } catch (e) {
+            console.error(`Ошибка при инициализации бюджета: ${e}`)
+        } finally {
+            loading.value = false
+        }
+    }
+
+    const updateBudget = async (amount: number, type: 'earnings' | 'expenses') => {
+        loading.value = true
+        try {
+            amount *= currencyStore.getRate
+            const adjustment = type === 'earnings' ? amount : -amount
+            budget.value *= currencyStore.getRate
+            budget.value += adjustment
+
+            const { error } = await supabase
+                .from('budget')
+                .update({ budget: budget.value })
+                .eq('user_id', user.value?.id)
+
+            budget.value /= currencyStore.getRate
+            if(error) console.error(`Ошибка при обновление бюджета: ${error.message}`)
+        } catch(e) {
+            console.error(`Ошибка при обновление бюджета: ${e}`)
+        } finally {
+            loading.value = false
+        }
+    }
+
+
+    const logout = async () => {
+        loading.value = true
+        try {
+            const {error} = await supabase.auth.signOut()
+            if (error) {
+                console.error(error)
+            } else {
+                await router.push({name: 'login-page'})
+                ElMessage.success('Вы вышли из аккаунта!')
             }
-            isLoader.budget = false
         } catch (e) {
             console.error(e)
         } finally {
@@ -1019,32 +950,75 @@ export const useFinanceStore = defineStore('finance', () => {
         }
     }
 
-    const hideGoal = (goalId: string) => {
-        if(!hiddenGoals.includes(goalId)) {
-            hiddenGoals.push(goalId)
-            localStorage.setItem('hiddenGoals', JSON.stringify(hiddenGoals))
-            isLoader.goals = false
-        }
-    }
-
-    const getLastYearEarnings = async () => {
-        if(isLoader.lastYearEarnings) return
-
+    const nowNewYear = async () => {
         loading.value = true
         try {
             await authUser()
+            await getUserEarnings()
 
-            const {data, error} = await supabase
+            const currentYear = new Date().getFullYear()
+            const lastRunYear = localStorage.getItem('lastRunYear')
+
+            if(lastRunYear === String(currentYear)) {
+                //console.log('Функция уже была вызвана в этом году')
+                return
+            }
+
+            localStorage.setItem('lastRunYear', String(currentYear))
+
+            const {data: earningsData, error: earningsError} = await supabase
+                .from('earnings')
+                .select('*')
+
+            if(earningsError){
+                console.error(`Ошибка при получение данных из earnings: ${earningsError.message}`)
+            }
+
+            if(!earningsData || earningsData.length === 0) {
+                //console.log('Пользователь новый, функция не будет выполняться')
+                return
+            }
+
+            const previousYear = currentYear - 1
+
+            const lastMonth = new Date().getMonth() === 0 ? 12 : new Date().getMonth()
+            const availableMonths = months.find(month => month.value === lastMonth - 1)?.label
+
+            const lastMonthEarnings = earnings.value
+                .find((e: IEarnings) => e.month === availableMonths)
+
+            if (lastMonthEarnings) {
+                const { error: backupError } = await supabase
+                    .from('earnings_backup')
+                    .insert({
+                        user_id: user.value?.id,
+                        month: lastMonthEarnings.month,
+                        amount: lastMonthEarnings.amount,
+                        year: previousYear
+                    })
+
+                if (backupError) console.error(`Ошибка при сохранении зарплаты за прошлый месяц: ${backupError.message}`)
+            }
+
+            const newEarnings = earningsData.map((earning) => ({
+                ...earning,
+                year: previousYear
+            }))
+
+            const { error: insertError } = await supabase
                 .from('last-year-earnings')
-                .select('id, month, amount, year')
+                .insert(newEarnings)
+
+            if (insertError) console.error(`Ошибка при переносе данных: ${insertError.message}`)
+
+            const {error: deleteError} = await supabase
+                .from('earnings')
+                .delete()
                 .eq('user_id', user.value?.id)
 
-            if (error) {
-                console.error(`${error.message}`)
-            } else {
-                lastYearEarnings.value = data || []
-                isLoader.lastYearEarnings = true
-            }
+            if (deleteError) console.error(`Ошибка при очистке таблицы earnings: ${deleteError.message}`)
+
+            //console.log('Данные успешно перенесены и очищены')
         } catch (e) {
             console.error(e)
         } finally {
@@ -1100,9 +1074,9 @@ export const useFinanceStore = defineStore('finance', () => {
         incomeExpensesEarnings,
         incomeExpensesEarningsCurrent,
         expensesEarningsCategories,
-        currentBudget,
+        fetchBudget,
+        initializeBudget,
         updateBudget,
-        changeBudget,
         hideGoal,
         deleteGoal,
         getLastYearEarnings
