@@ -37,6 +37,15 @@
     <Goals :goals="visibleGoals" v-if="visibleGoals.length" :visible-hidden="true" title="Ваши финансовые цели"/>
     <el-empty v-else description="У вас пока нет целей, добавьте!"/> <br>
     <add-goal-form />
+
+    <h2 style="margin-top: 30px">Топ 10 расходов за {{ availableMonths }}</h2>
+
+    <ul v-for="expense in topTenExpenses" :key="expense.category" class="list">
+      <li class="list-item">
+        {{ expense.category }} | {{ expense.amount }} {{ currencyStore.getIcon }}
+      </li>
+    </ul>
+
   </div>
 </template>
 
@@ -68,6 +77,8 @@ const incomeCurrentMonthAmount = computed(() => {
 })
 
 const visibleGoals = computed(() => store.goals.filter((goal: IGoal) => !store.hiddenGoals.includes(goal.id)))
+
+const topTenExpenses = computed(() => store.expensesTenCategoryCurrentMonth.slice(0, 10))
 
 onMounted(async () => {
   await store.getUserEarnings()
@@ -127,6 +138,20 @@ onMounted(async () => {
 
   .expenses {
     color: $color_red_main;
+  }
+
+  .list {
+    list-style: none;
+
+    &-item {
+      position: relative;
+      padding-bottom: $padding;
+      padding-left: $radius_tiny;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
   }
 }
 </style>

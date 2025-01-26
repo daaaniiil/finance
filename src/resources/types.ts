@@ -30,6 +30,11 @@ export interface IExpensesMonthAnalytics {
     date: number | string
 }
 
+export interface IExpensesMonthCategory {
+    amount: number | null
+    category: string
+}
+
 export interface IExpensesMonthAnalyticsLast {
     amount: number | null
     date: number | string

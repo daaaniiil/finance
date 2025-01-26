@@ -7,7 +7,7 @@ import {
     IExpensesMonthAnalytics, IExpensesMonthAnalyticsLast,
     IItemExpensesPie, IGoal,
     IMonths,
-    IUser, IBackup
+    IUser, IBackup, IExpensesMonthCategory
 } from "../resources/types.ts";
 import {ElMessage} from "element-plus";
 import {TInstanceForm} from "@/resources/auth.ts";
@@ -26,6 +26,7 @@ export const useFinanceStore = defineStore('finance', () => {
     const mergedEarnings = ref<IItemExpensesPie[]>([])
     const mergedExpensesCurrent = ref<IItemExpensesPie[]>([])
     const expensesDaysCurrentMonth = ref<IExpensesMonthAnalytics[]>([])
+    const expensesTenCategoryCurrentMonth = ref<IExpensesMonthCategory[]>([])
     const expensesDaysLastMonth = ref<IExpensesMonthAnalyticsLast[]>([])
     const minExpenses = ref<number>(0)
     const minExpensesCategories = ref<string | undefined>('Нету')
@@ -497,6 +498,63 @@ export const useFinanceStore = defineStore('finance', () => {
         }
     }
     // исправить место вызова
+    const expensesEarningsCategories = async () => {
+        loading.value = true
+        try {
+            await getUserExpenses()
+
+            const mergeExpenses = (data: IItemExpensesPie[]) => {
+                const resultMap: Record<string, number> = {}
+
+                data.forEach((item) => {
+                    if(item.name !== null) {
+                        if(resultMap[item.name]){
+                            resultMap[item.name] += item.y
+                        } else {
+                            resultMap[item.name] = item.y
+                        }
+                    }
+                })
+
+                return Object.keys(resultMap).map((e) => ({
+                    name: e,
+                    y: resultMap[e]
+                }))
+            }
+
+            const expensesPie: IItemExpensesPie[] = expenses.value
+                .filter((e: IExpenses) => Number(e.date.slice(0, 4)) === new Date().getFullYear())
+                .map((e: IExpenses) => ({
+                    name: e.category,
+                    date: e.date,
+                    y: Math.ceil((e.amount ?? 0) / currencyStore.getRate)
+                }))
+
+            const earningsPie: IItemExpensesPie[] = earnings.value
+                .map((e: IEarnings) => ({
+                    name: e.month,
+                    y: Math.ceil((e.amount ?? 0) / currencyStore.getRate)
+                }))
+
+            const expensesCurrentMonthAmount: IItemExpensesPie[] = expenses.value
+                .filter((e: IExpenses) => Number(e.date.slice(5, 7)) === new Date().getMonth() + 1 && Number(e.date.slice(0, 4)) === new Date().getFullYear())
+                .map((e: IExpenses) => ({
+                    name: e.category,
+                    date: e.date,
+                    y: Math.ceil((e.amount ?? 0) / currencyStore.getRate)
+                }))
+
+            mergedExpenses.value = mergeExpenses(expensesPie)
+            mergedEarnings.value = mergeExpenses(earningsPie)
+            mergedExpensesCurrent.value = mergeExpenses(expensesCurrentMonthAmount)
+        } catch (e) {
+            console.error(e)
+        } finally {
+            loading.value = false
+        }
+    }
+
+
     const updateGoalStatus = async () => {
         loading.value = true
         try {
@@ -532,7 +590,6 @@ export const useFinanceStore = defineStore('finance', () => {
             loading.value = false
         }
     }
-
 
     const incomeExpensesEarnings = async () => {
         loading.value = true
@@ -624,62 +681,6 @@ export const useFinanceStore = defineStore('finance', () => {
         }
     }
 
-    const expensesEarningsCategories = async () => {
-        loading.value = true
-        try {
-            await getUserExpenses()
-
-            const mergeExpenses = (data: IItemExpensesPie[]) => {
-                const resultMap: Record<string, number> = {}
-
-                data.forEach((item) => {
-                    if(item.name !== null) {
-                        if(resultMap[item.name]){
-                            resultMap[item.name] += item.y
-                        } else {
-                            resultMap[item.name] = item.y
-                        }
-                    }
-                })
-
-                return Object.keys(resultMap).map((e) => ({
-                    name: e,
-                    y: resultMap[e]
-                }))
-            }
-
-            const expensesPie: IItemExpensesPie[] = expenses.value
-                .filter((e: IExpenses) => Number(e.date.slice(0, 4)) === new Date().getFullYear())
-                .map((e: IExpenses) => ({
-                    name: e.category,
-                    date: e.date,
-                    y: Math.ceil((e.amount ?? 0) / currencyStore.getRate)
-                }))
-
-            const earningsPie: IItemExpensesPie[] = earnings.value
-                .map((e: IEarnings) => ({
-                    name: e.month,
-                    y: Math.ceil((e.amount ?? 0) / currencyStore.getRate)
-                }))
-
-            const expensesCurrentMonthAmount: IItemExpensesPie[] = expenses.value
-                .filter((e: IExpenses) => Number(e.date.slice(5, 7)) === new Date().getMonth() + 1 && Number(e.date.slice(0, 4)) === new Date().getFullYear())
-                .map((e: IExpenses) => ({
-                    name: e.category,
-                    date: e.date,
-                    y: Math.ceil((e.amount ?? 0) / currencyStore.getRate)
-                }))
-
-            mergedExpenses.value = mergeExpenses(expensesPie)
-            mergedEarnings.value = mergeExpenses(earningsPie)
-            mergedExpensesCurrent.value = mergeExpenses(expensesCurrentMonthAmount)
-        } catch (e) {
-            console.error(e)
-        } finally {
-            loading.value = false
-        }
-    }
-
     const amountExpensesEarningsCategories = async () => {
         loading.value = true
         try {
@@ -738,6 +739,13 @@ export const useFinanceStore = defineStore('finance', () => {
                     date: e.date.slice(8, 10)
                 }))
 
+            expensesTenCategoryCurrentMonth.value = expenses.value
+                .filter((e: IExpenses) => Number(e.date.slice(5, 7)) === new Date().getMonth() + 1 && Number(e.date.slice(0, 4)) === new Date().getFullYear())
+                .map((e: IExpenses) => ({
+                    amount: Math.floor((e.amount ?? 0) / currencyStore.getRate),
+                    category: e.category
+                }))
+
             const mergeExpensesDay = (data: IExpensesMonthAnalytics[]) => {
                 const resultMap: Record<string, number> = {}
 
@@ -756,12 +764,41 @@ export const useFinanceStore = defineStore('finance', () => {
                 }))
             }
 
+            const mergeExpensesCategory = (data: IExpensesMonthCategory[]) => {
+                const resultMap: Record<string, number> = {}
+
+                data.forEach((item) => {
+                    if(item.amount !== null){
+                        if(resultMap[item.category]){
+                            resultMap[item.category] += item.amount
+                        } else {
+                            resultMap[item.category] = item.amount
+                        }
+                    }
+                })
+                return Object.keys(resultMap).map((e) => ({
+                    category: e,
+                    amount: resultMap[e]
+                }))
+            }
+
             expensesDaysCurrentMonth.value = mergeExpensesDay(expensesDaysCurrentMonth.value)
             expensesDaysCurrentMonth.value.sort(function(a,b){
                 if (a.date > b.date){
                     return 1
                 }
                 if (a.date < b.date){
+                    return -1
+                }
+                return 0
+            })
+
+            expensesTenCategoryCurrentMonth.value = mergeExpensesCategory(expensesTenCategoryCurrentMonth.value)
+            expensesTenCategoryCurrentMonth.value.sort(function(a,b){
+                if (a.amount! < b.amount!){
+                    return 1
+                }
+                if (a.amount! > b.amount!){
                     return -1
                 }
                 return 0
@@ -1048,6 +1085,7 @@ export const useFinanceStore = defineStore('finance', () => {
         maxExpensesCategories,
         averageExpenses,
         expensesDaysCurrentMonth,
+        expensesTenCategoryCurrentMonth,
         expensesDaysLastMonth,
         hiddenGoals,
         lastYearEarnings,
