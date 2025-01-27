@@ -1,0 +1,1 @@
+import{_ as e,b as n,n as t,o as s}from"./index-BPRzL7i-.js";const r={},a={class:"not_found-page"};function c(_,o){return s(),n("div",a,o[0]||(o[0]=[t("h1",null,"Not Found",-1)]))}const f=e(r,[["render",c]]);export{f as default};
