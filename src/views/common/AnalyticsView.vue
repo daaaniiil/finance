@@ -38,9 +38,9 @@
     <el-empty v-else description="У вас пока нет целей, добавьте!"/> <br>
     <add-goal-form />
 
-    <h2 style="margin-top: 30px">Топ 10 расходов за {{ availableMonths }}</h2>
+    <h2 style="margin-top: 30px" v-if="topTenExpenses.length">Топ 10 расходов за {{ availableMonths }}</h2>
 
-    <ul v-for="expense in topTenExpenses" :key="expense.category" class="list">
+    <ul v-for="expense in topTenExpenses" :key="expense.category" class="list" v-if="topTenExpenses.length">
       <li class="list-item">
         {{ expense.category }} | {{ expense.amount }} {{ currencyStore.getIcon }}
       </li>
