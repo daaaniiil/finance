@@ -163,6 +163,10 @@ const hideGoal = async (goalId: string) => {
   padding: 1rem;
 
   .goal-list {
+    @media (max-width: 426px) {
+      font-size: $size_default - 4;
+    }
+
     &__title {
       display: flex;
       justify-content: space-between;
@@ -182,6 +186,12 @@ const hideGoal = async (goalId: string) => {
     }
 
     &__footer {
+      @media (max-width: 426px) {
+        .el-button {
+          font-size: $size_default - 4;
+        }
+      }
+
       display: flex;
       justify-content: space-between;
       align-items: center;

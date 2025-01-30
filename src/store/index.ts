@@ -996,12 +996,11 @@ export const useFinanceStore = defineStore('finance', () => {
             const currentYear = new Date().getFullYear()
             const lastRunYear = localStorage.getItem('lastRunYear')
 
-            if(lastRunYear === String(currentYear)) {
+            if(lastRunYear === String(currentYear) || lastRunYear === null) {
                 //console.log('Функция уже была вызвана в этом году')
+                localStorage.setItem('lastRunYear', String(currentYear))
                 return
             }
-
-            localStorage.setItem('lastRunYear', String(currentYear))
 
             const {data: earningsData, error: earningsError} = await supabase
                 .from('earnings')
