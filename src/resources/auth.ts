@@ -97,7 +97,10 @@ export const useLogin = (form: TInstanceForm, _config: IUserLoginConfig = {}) =>
                 try {
                     const { data, error } = await supabase.auth.signUp({
                         email: model.email,
-                        password: model.password
+                        password: model.password,
+                        options: {
+                            emailRedirectTo: 'https://sunflower560.github.io/finance/'
+                        }
                     })
 
                   if(error) {
