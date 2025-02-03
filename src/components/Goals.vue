@@ -103,6 +103,7 @@ const addToGoal = async (goalId: string, targetAmount: number, currentAmount: nu
       }
       amount.value /= currencyStore.getRate
       await store.updateBudget(amount.value, 'expenses')
+      amount.value *= currencyStore.getRate
       await store.updateUserGoal(goalId, amount.value, status)
       await store.updateGoalStatus()
       amountToAdd.value[goalId] = 0
